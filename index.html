@@ -48,6 +48,10 @@
             background-color: rgba(0, 30, 60, 0.7);
             backdrop-filter: blur(4px);
         }
+
+        /* Mobile Sidebar Transitions */
+        .mobile-sidebar-enter { transform: translateX(-100%); transition: transform 0.3s ease-out; }
+        .mobile-sidebar-active { transform: translateX(0); }
     </style>
     <script>
         tailwind.config = {
@@ -75,7 +79,7 @@
     <div id="notification-container" class="fixed bottom-10 right-10 z-[100] space-y-3"></div>
 
     <script>
-        // --- 1. Constants Defined First to avoid ReferenceErrors ---
+        // --- 1. Constants ---
         const MODULES = {
             LANDING: 'landing',
             CRM: 'crm',
@@ -90,6 +94,7 @@
             page: 'dashboard',
             darkMode: false,
             isModalOpen: false,
+            isMobileMenuOpen: false, // New state for mobile sidebar
             user: { name: 'Kareem Abdelaziz', role: 'Super Admin', initials: 'KA' },
             data: {
                 crm: {
@@ -404,12 +409,14 @@
         function setModule(m) {
             state.module = m;
             state.page = 'dashboard';
+            state.isMobileMenuOpen = false; // Close menu on navigation
             render();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function setPage(p) {
             state.page = p;
+            state.isMobileMenuOpen = false; // Close menu on navigation
             render();
             const main = document.querySelector('main');
             if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
@@ -426,6 +433,11 @@
             render();
         }
 
+        function toggleMobileMenu() {
+            state.isMobileMenuOpen = !state.isMobileMenuOpen;
+            render();
+        }
+
         function handleAddData() {
             const currentModuleData = state.data[state.module];
             const currentPageData = currentModuleData[state.page];
@@ -434,19 +446,19 @@
                 const template = currentPageData[0] || {};
                 const newItem = {};
                 Object.keys(template).forEach(key => {
-                    newItem[key] = (typeof template[key] === 'string' && template[key].includes('EGP')) ? "1,000 EGP" : "Sample Data";
+                    newItem[key] = (typeof template[key] === 'string' && template[key].includes('EGP')) ? "1,000 EGP" : "New Entry";
                 });
                 currentPageData.unshift(newItem);
-                pushNotify(`New record added to ${state.page} successfully!`);
+                pushNotify(`Record added to ${state.page}.`);
             } else {
-                pushNotify("Page state locked for current demo iteration.");
+                pushNotify("Page structure locked.");
             }
             toggleModal();
         }
 
         function handleDelete(idx) {
             state.data[state.module][state.page].splice(idx, 1);
-            pushNotify("Record removed from system.");
+            pushNotify("Record deleted.");
             render();
         }
 
@@ -495,6 +507,41 @@
             `;
         }
 
+        function renderMobileNav() {
+            const config = SYSTEM_MAP[state.module];
+            const navHtml = config.nav.map(item => `
+                <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                    <i data-lucide="${item.icon}" size="18"></i>
+                    <span>${item.label}</span>
+                </button>
+            `).join('');
+
+            return `
+                <div class="fixed inset-0 z-[100] lg:hidden">
+                    <div class="absolute inset-0 bg-mantiq-navy/60 backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
+                    <div class="absolute left-0 top-0 h-full w-4/5 max-w-xs bg-white dark:bg-slate-900 shadow-2xl flex flex-col fade-in mobile-sidebar-active transition-transform duration-300">
+                        <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            ${getLogo("h-6 text-lg")}
+                            <button onclick="toggleMobileMenu()" class="p-2 text-slate-400"><i data-lucide="x" size="24"></i></button>
+                        </div>
+                        <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
+                             <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${config.title}</p>
+                            ${navHtml}
+                        </nav>
+                        <div class="p-8 border-t border-slate-100 dark:border-slate-800">
+                             <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-mantiq-navy text-white flex items-center justify-center font-black">${state.user.initials}</div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs font-black text-mantiq-navy dark:text-white truncate">${state.user.name}</p>
+                                    <p class="text-[8px] text-slate-500 font-bold uppercase">${state.user.role}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
         function renderApp() {
             const config = SYSTEM_MAP[state.module];
             const navHtml = config.nav.map(item => `
@@ -506,7 +553,7 @@
 
             return `
                 <div class="flex bg-slate-50 dark:bg-slate-950 transition-colors h-screen overflow-hidden">
-                    <aside class="hidden lg:flex w-80 h-screen fixed left-0 top-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 flex-col">
+                    <aside class="hidden lg:flex w-80 h-screen fixed left-0 top-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 flex flex-col">
                         <div class="p-10 border-b border-slate-200 dark:border-slate-800">
                             <button onclick="setModule(MODULES.LANDING)">${getLogo("h-8 text-xl")}</button>
                         </div>
@@ -535,7 +582,7 @@
                                 <button onclick="toggleDarkMode()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
                                     <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" size="16"></i>
                                 </button>
-                                <button onclick="pushNotify('Demo: Menu restricted')" class="p-2 bg-mantiq-cyan text-white rounded-lg">
+                                <button onclick="toggleMobileMenu()" class="p-2 bg-mantiq-cyan text-white rounded-lg">
                                     <i data-lucide="menu" size="18"></i>
                                 </button>
                              </div>
@@ -577,27 +624,20 @@
                     </div>
                 </div>
 
+                ${state.isMobileMenuOpen ? renderMobileNav() : ''}
                 ${state.isModalOpen ? renderModal() : ''}
             `;
         }
 
         function renderModal() {
             return `
-                <div class="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay fade-in">
+                <div class="fixed inset-0 z-[101] flex items-center justify-center p-6 modal-overlay fade-in">
                     <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl">
                         <h2 class="text-2xl font-black mb-4 text-mantiq-navy dark:text-white uppercase tracking-tighter">Add Record</h2>
-                        <p class="text-slate-500 text-sm mb-8">Add a new entry to the ${state.page} view. This record will be synchronized with the localized ${state.module.toUpperCase()} tracker.</p>
-                        
-                        <div class="space-y-4 mb-8">
-                            <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
-                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Target Module</span>
-                                <span class="text-sm font-bold text-mantiq-navy dark:text-white uppercase">${state.module} - ${state.page}</span>
-                            </div>
-                        </div>
-
+                        <p class="text-slate-500 text-sm mb-8">Add a new entry to ${state.page}.</p>
                         <div class="flex gap-3">
                             <button onclick="toggleModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-4 rounded-2xl font-black text-sm">Cancel</button>
-                            <button onclick="handleAddData()" class="flex-1 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy py-4 rounded-2xl font-black text-sm">Confirm Addition</button>
+                            <button onclick="handleAddData()" class="flex-1 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy py-4 rounded-2xl font-black text-sm">Confirm</button>
                         </div>
                     </div>
                 </div>
@@ -611,44 +651,28 @@
                 return `
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
                         <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-2 md:p-3 bg-sky-50 dark:bg-sky-900/30 rounded-2xl text-mantiq-cyan"><i data-lucide="trending-up" size="20"></i></div>
-                                <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">+14.2%</span>
-                            </div>
-                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Growth Index</h3>
-                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">Active</p>
+                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Growth</h3>
+                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase">+14.2%</p>
                         </div>
                         <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-2 md:p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-500"><i data-lucide="bar-chart" size="20"></i></div>
-                                <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">+3.1M</span>
-                            </div>
-                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Volume (EGP)</h3>
-                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">2.41M</p>
+                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Vol (EGP)</h3>
+                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase">2.41M</p>
                         </div>
                         <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-2 md:p-3 bg-rose-50 dark:bg-rose-900/30 rounded-2xl text-rose-500"><i data-lucide="users" size="20"></i></div>
-                                <span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded-full">Stable</span>
-                            </div>
-                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Managed Assets</h3>
-                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">4,810</p>
+                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Assets</h3>
+                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase">4,810</p>
                         </div>
                         <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="p-2 md:p-3 bg-amber-50 dark:bg-amber-900/30 rounded-2xl text-amber-500"><i data-lucide="shield-check" size="20"></i></div>
-                                <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">Secure</span>
-                            </div>
-                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">System Health</h3>
-                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">Verified</p>
+                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Status</h3>
+                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase text-mantiq-cyan">Verified</p>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] md:rounded-[3.5rem] p-10 md:p-20 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] md:rounded-[3.5rem] p-10 md:p-20 border border-slate-200 dark:border-slate-800 text-center">
                         <div class="w-16 h-16 md:w-24 md:h-24 bg-sky-50 dark:bg-sky-900/30 rounded-2xl md:rounded-[2rem] flex items-center justify-center mx-auto mb-6 md:mb-10 text-mantiq-cyan animate-pulse">
                             <i data-lucide="layout-dashboard" class="w-8 h-8 md:w-12 md:h-12"></i>
                         </div>
-                        <h2 class="text-2xl md:text-4xl font-black text-mantiq-navy dark:text-white mb-4 md:mb-6 uppercase tracking-tighter">Modular Control Center</h2>
-                        <p class="text-slate-500 dark:text-slate-400 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">Your centralized environment for ${SYSTEM_MAP[state.module].title} is online. Navigate through sub-pages to manage leads, employees, and finance.</p>
+                        <h2 class="text-2xl md:text-4xl font-black text-mantiq-navy dark:text-white mb-4 md:mb-6 uppercase tracking-tighter">Control Center</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">Centralized environment for ${SYSTEM_MAP[state.module].title} is online.</p>
                     </div>
                 `;
             }
@@ -656,11 +680,11 @@
             if (currentNav && currentNav.tableCols) {
                 const pageData = state.data[state.module][state.page] || [];
                 const rowsHtml = pageData.map((row, idx) => `
-                    <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all">
+                    <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800 last:border-0">
                         ${Object.values(row).map(val => `<td class="px-6 md:px-10 py-5 md:py-7 font-bold text-slate-700 dark:text-slate-200 text-xs md:text-sm whitespace-nowrap">${val}</td>`).join('')}
                         <td class="px-6 md:px-10 py-5 md:py-7 text-right whitespace-nowrap">
-                            <button onclick="pushNotify('Inspecting record')" class="text-mantiq-cyan hover:scale-110 transition-transform mr-3 md:mr-5"><i data-lucide="eye" class="w-4 h-4 md:w-5 md:h-5"></i></button>
-                            <button onclick="handleDelete(${idx})" class="text-slate-400 hover:text-rose-500 hover:scale-110 transition-transform"><i data-lucide="trash-2" class="w-4 h-4 md:w-5 md:h-5"></i></button>
+                            <button onclick="pushNotify('View active')" class="text-mantiq-cyan mr-3 md:mr-5"><i data-lucide="eye" class="w-4 h-4 md:w-5 md:h-5"></i></button>
+                            <button onclick="handleDelete(${idx})" class="text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" class="w-4 h-4 md:w-5 md:h-5"></i></button>
                         </td>
                     </tr>
                 `).join('');
@@ -669,8 +693,8 @@
                     <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 md:mb-10">
                         <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white hidden md:block uppercase tracking-tighter">${currentNav.label}</h2>
                         <div class="flex gap-2 md:gap-3">
-                            <button onclick="pushNotify('Generating report for ${state.page}...')" class="flex-1 md:flex-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-sm text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 transition-all">Export Report</button>
-                            <button onclick="toggleModal()" class="flex-1 md:flex-none bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-4 md:px-8 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-sm shadow-xl shadow-mantiq-navy/20 dark:shadow-none hover:scale-105 active:scale-95 transition-all">Add Record</button>
+                            <button onclick="pushNotify('Exporting report...')" class="flex-1 md:flex-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-sm text-slate-600 dark:text-slate-300 shadow-sm">Export</button>
+                            <button onclick="toggleModal()" class="flex-1 md:flex-none bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-4 md:px-8 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-sm shadow-xl">Add Record</button>
                         </div>
                     </div>
                     <div class="bg-white dark:bg-slate-900 rounded-[1.5rem] md:rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
@@ -682,7 +706,7 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                ${rowsHtml || `<tr><td colspan="10" class="p-10 md:p-20 text-center text-slate-400 italic text-xs md:text-sm">No historical records found for ${state.page}.</td></tr>`}
+                                ${rowsHtml || `<tr><td colspan="10" class="p-10 md:p-20 text-center text-slate-400 italic text-xs md:text-sm">No records found.</td></tr>`}
                             </tbody>
                         </table>
                     </div>
@@ -691,12 +715,11 @@
 
             return `
                 <div class="py-20 md:py-32 text-center fade-in">
-                    <div class="w-20 h-20 md:w-28 md:h-28 bg-mantiq-cyan/10 rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 md:mb-10 animate-spin-slow">
-                        <i data-lucide="settings" class="text-mantiq-cyan w-10 h-10 md:w-14 md:h-14"></i>
+                    <div class="w-20 h-20 md:w-28 md:h-28 bg-mantiq-cyan/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 animate-spin-slow">
+                        <i data-lucide="settings" class="text-mantiq-cyan w-10 h-10"></i>
                     </div>
-                    <h2 class="text-2xl md:text-4xl font-black text-mantiq-navy dark:text-white mb-4 uppercase tracking-tighter">Syncing Page</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm md:text-lg max-w-lg mx-auto leading-relaxed">MANTIQ is synchronizing encrypted sub-page protocols for ${state.page}. Access will be granted shortly.</p>
-                    <button onclick="setPage('dashboard')" class="mt-8 md:mt-12 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 md:px-12 py-3 md:py-4 rounded-xl md:rounded-[1.5rem] font-black shadow-2xl">Return to Overview</button>
+                    <h2 class="text-2xl md:text-4xl font-black text-mantiq-navy dark:text-white uppercase">Syncing</h2>
+                    <button onclick="setPage('dashboard')" class="mt-8 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-3 rounded-xl font-black">Return Home</button>
                 </div>
             `;
         }
@@ -710,12 +733,12 @@
         // --- Security Hooks ---
         window.addEventListener('contextmenu', e => { 
             e.preventDefault(); 
-            pushNotify("Security: Right-click restricted for demo protection."); 
+            pushNotify("Security: Restricted action."); 
         });
         window.addEventListener('keydown', e => {
             if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
                 e.preventDefault();
-                pushNotify("Security Protocol: Developer Access Blocked.");
+                pushNotify("Security: Access restricted.");
             }
         });
 
