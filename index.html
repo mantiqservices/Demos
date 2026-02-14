@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MANTIQ | Business Development OS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --mantiq-cyan: #38bdf8;
+            --mantiq-navy: #001e3c;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin-slow { animation: spin-slow 15s linear infinite; }
+
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .locked-ui {
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .mantiq-gradient {
+            background: linear-gradient(135deg, #001e3c 0%, #003366 100%);
+        }
+        
+        .dark .mantiq-gradient {
+            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+        }
+
+        .card-glow:hover {
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        mantiq: {
+                            cyan: '#38bdf8',
+                            navy: '#001e3c',
+                            navyLight: '#002b55'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen locked-ui overflow-hidden">
+
+    <div id="app" class="h-screen overflow-hidden">
+        <!-- Content injected by JavaScript -->
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="notification-container" class="fixed bottom-10 right-10 z-[100] space-y-3"></div>
+
+    <script>
+        // --- System State ---
+        let state = {
+            module: 'landing',
+            page: 'dashboard',
+            darkMode: false,
+            user: { name: 'Kareem Abdelaziz', role: 'Super Admin', initials: 'KA' }
+        };
+
+        const MODULES = {
+            LANDING: 'landing',
+            CRM: 'crm',
+            SALES: 'sales',
+            HR: 'hr',
+            FINANCE: 'finance'
+        };
+
+        // --- MANTIQ Comprehensive Data ---
+        const MOCK_DATA = {
+            crm: {
+                leads: [
+                    { id: 'L-701', name: 'Ahmed Mansour', company: 'Cairo Tech', status: 'In Progress', value: '45,000 EGP' },
+                    { id: 'L-702', name: 'Mona Zaki', company: 'Delta Group', status: 'New', value: '12,500 EGP' },
+                    { id: 'L-703', name: 'Sherif El-Badawy', company: 'Nile Logistics', status: 'Qualified', value: '88,000 EGP' },
+                ],
+                customers: [
+                    { name: 'Tarek El-Sheikh', org: 'Giza Systems', tier: 'Platinum', since: '2022' },
+                    { name: 'Dina El-Sherbiny', org: 'Vodafone Egypt', tier: 'Gold', since: '2023' },
+                ],
+                activities: [
+                    { type: 'Call', subject: 'Follow up on Quotation', with: 'Ahmed Mansour', time: '10:30 AM' },
+                    { type: 'Meeting', subject: 'Requirement Analysis', with: 'Mona Zaki', time: '02:00 PM' },
+                ],
+                notes: [{ title: 'Q1 Strategy', author: 'Kareem', date: 'Feb 10', size: '1.2 MB' }]
+            },
+            hr: {
+                directory: [
+                    { id: 'MNT-001', name: 'Youssef El-Shamy', role: 'CTO', dept: 'Tech', status: 'Active' },
+                    { id: 'MNT-002', name: 'Sara El-Gohary', role: 'HR Lead', dept: 'Admin', status: 'Active' },
+                    { id: 'MNT-003', name: 'Amr Waked', role: 'Senior Dev', dept: 'Tech', status: 'On Leave' },
+                ],
+                attendance: [
+                    { name: 'Youssef El-Shamy', date: 'Feb 14', in: '08:30', out: '17:30', status: 'On Time' },
+                    { name: 'Sara El-Gohary', date: 'Feb 14', in: '09:15', out: '18:00', status: 'Late' },
+                ],
+                payroll: [
+                    { month: 'January 2024', staff: '42', total: '780,000 EGP', status: 'Paid' }
+                ]
+            },
+            finance: {
+                income: [
+                    { ref: 'INV-990', client: 'Cairo Tech', amount: '+45,000 EGP', date: 'Feb 14' },
+                    { ref: 'INV-989', client: 'Giza Systems', amount: '+12,000 EGP', date: 'Feb 12' },
+                ],
+                wallets: [
+                    { name: 'CIB Business Account', balance: '1,420,000 EGP', type: 'Bank' },
+                    { name: 'Vodafone Cash (Petty)', balance: '8,500 EGP', type: 'Digital' },
+                ],
+                taxes: [
+                    { period: 'Q1 2024', base: '2.1M EGP', vat: '294,000 EGP', status: 'Filing' }
+                ]
+            },
+            sales: {
+                quotations: [
+                    { id: 'QUO-441', client: 'Ahmed Mansour', total: '15,000 EGP', status: 'Sent' },
+                    { id: 'QUO-442', client: 'Mona Zaki', total: '8,200 EGP', status: 'Accepted' },
+                ],
+                products: [
+                    { name: 'SaaS License Enterprise', stock: '99', price: '25,000 EGP' },
+                    { name: 'Support Package B', stock: '∞', price: '1,500 EGP' },
+                ]
+            }
+        };
+
+        const SYSTEM_MAP = {
+            [MODULES.CRM]: {
+                title: "CRM Tracker",
+                nav: [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                    { id: 'leads', label: 'Leads / Prospects', icon: 'user-plus', tableCols: ['ID', 'Name', 'Company', 'Status', 'Value'] },
+                    { id: 'customers', label: 'Customers / Accounts', icon: 'users', tableCols: ['Name', 'Organization', 'Tier', 'Since'] },
+                    { id: 'contacts', label: 'Contacts', icon: 'phone' },
+                    { id: 'deals', label: 'Deals / Opportunities', icon: 'briefcase' },
+                    { id: 'pipeline', label: 'Sales Pipeline', icon: 'kanban' },
+                    { id: 'activities', label: 'Activities (Calls-Tasks)', icon: 'clipboard-list', tableCols: ['Type', 'Subject', 'With', 'Time'] },
+                    { id: 'reminders', label: 'Follow-ups & Reminders', icon: 'bell' },
+                    { id: 'notes', label: 'Notes & Attachments', icon: 'sticky-note', tableCols: ['Title', 'Author', 'Date', 'Size'] },
+                    { id: 'communication', label: 'Communication History', icon: 'mail' },
+                    { id: 'reports', label: 'Reports & Analytics', icon: 'bar-chart-3' },
+                    { id: 'settings', label: 'Settings & User Roles', icon: 'settings' }
+                ]
+            },
+            [MODULES.HR]: {
+                title: "HR System",
+                nav: [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                    { id: 'directory', label: 'Employees Directory', icon: 'users', tableCols: ['E-ID', 'Name', 'Role', 'Dept', 'Status'] },
+                    { id: 'profile', label: 'Employee Profile', icon: 'user' },
+                    { id: 'attendance', label: 'Attendance & Tracking', icon: 'clock', tableCols: ['Name', 'Date', 'Clock-In', 'Clock-Out', 'Status'] },
+                    { id: 'leaves', label: 'Leaves & Vacations', icon: 'calendar' },
+                    { id: 'payroll', label: 'Payroll', icon: 'wallet', tableCols: ['Month', 'Staff Count', 'Total', 'Status'] },
+                    { id: 'contracts', label: 'Contracts & Documents', icon: 'file-text' },
+                    { id: 'recruitment', label: 'Recruitment / Hiring', icon: 'user-plus' },
+                    { id: 'performance', label: 'Performance Evaluation', icon: 'trending-up' },
+                    { id: 'training', label: 'Training & Development', icon: 'graduation-cap' },
+                    { id: 'warnings', label: 'Warnings & Penalties', icon: 'alert-triangle' },
+                    { id: 'resignation', label: 'Resignation / Termination', icon: 'log-out' },
+                    { id: 'reports', label: 'Reports', icon: 'bar-chart-3' },
+                    { id: 'settings', label: 'Settings & Permissions', icon: 'settings' }
+                ]
+            },
+            [MODULES.FINANCE]: {
+                title: "Finance Tracker",
+                nav: [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                    { id: 'income', label: 'Income', icon: 'arrow-up-right', tableCols: ['Ref', 'Client', 'Amount', 'Date'] },
+                    { id: 'expenses', label: 'Expenses', icon: 'arrow-down-right' },
+                    { id: 'invoices', label: 'Invoices', icon: 'file-signature' },
+                    { id: 'bills', label: 'Bills', icon: 'receipt' },
+                    { id: 'payments', label: 'Payments', icon: 'credit-card' },
+                    { id: 'wallets', label: 'Accounts / Wallets', icon: 'wallet', tableCols: ['Wallet Name', 'Balance', 'Type'] },
+                    { id: 'cashflow', label: 'Cash Flow', icon: 'trending-up' },
+                    { id: 'budgeting', label: 'Budgeting', icon: 'pie-chart' },
+                    { id: 'taxes', label: 'Taxes', icon: 'shield-check', tableCols: ['Period', 'Base', 'VAT', 'Status'] },
+                    { id: 'profitloss', label: 'Profit & Loss', icon: 'bar-chart-2' },
+                    { id: 'reports', label: 'Financial Reports', icon: 'file-text' },
+                    { id: 'export', label: 'Export (Excel / PDF)', icon: 'download' },
+                    { id: 'settings', label: 'Settings', icon: 'settings' }
+                ]
+            },
+            [MODULES.SALES]: {
+                title: "Sales Tracker",
+                nav: [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
+                    { id: 'leads', label: 'Leads', icon: 'user-plus' },
+                    { id: 'opportunities', label: 'Opportunities', icon: 'briefcase' },
+                    { id: 'quotations', label: 'Quotations / Proposals', icon: 'file-text', tableCols: ['ID', 'Client', 'Total', 'Status'] },
+                    { id: 'orders', label: 'Orders', icon: 'package' },
+                    { id: 'invoices', label: 'Invoices', icon: 'file-signature' },
+                    { id: 'products', label: 'Products / Services', icon: 'layers', tableCols: ['Name', 'In Stock', 'Price'] },
+                    { id: 'pricing', label: 'Pricing', icon: 'tag' },
+                    { id: 'pipeline', label: 'Sales Pipeline', icon: 'kanban' },
+                    { id: 'targets', label: 'Sales Targets', icon: 'target' },
+                    { id: 'commissions', label: 'Commissions', icon: 'dollar-sign' },
+                    { id: 'customers', label: 'Customers', icon: 'users' },
+                    { id: 'reports', label: 'Reports & KPIs', icon: 'bar-chart-3' },
+                    { id: 'settings', label: 'Settings', icon: 'settings' }
+                ]
+            }
+        };
+
+        // --- Functions ---
+
+        function pushNotify(msg) {
+            const container = document.getElementById('notification-container');
+            const toast = document.createElement('div');
+            toast.className = 'bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-5 rounded-3xl shadow-2xl flex items-center gap-4 fade-in border-l-4 border-mantiq-cyan';
+            toast.innerHTML = `<i data-lucide="shield-check" class="text-mantiq-cyan"></i><span class="text-sm font-bold">${msg}</span>`;
+            container.appendChild(toast);
+            lucide.createIcons();
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+
+        function setModule(m) {
+            state.module = m;
+            state.page = 'dashboard';
+            render();
+        }
+
+        function setPage(p) {
+            state.page = p;
+            render();
+        }
+
+        function toggleDarkMode() {
+            state.darkMode = !state.darkMode;
+            document.documentElement.classList.toggle('dark', state.darkMode);
+            render();
+        }
+
+        // --- Logo Generator (Accurate Brand Reproduction) ---
+        function getLogo(sizeClass = "h-8") {
+            return `
+                <div class="flex items-center gap-1 ${sizeClass}">
+                    <span class="text-[1.2em] font-black tracking-tight text-mantiq-navy dark:text-white">MANTI</span>
+                    <svg viewBox="0 0 100 100" fill="none" class="h-[1.4em] w-auto">
+                        <path d="M82 50C82 67.67 67.67 82 50 82C32.33 82 18 67.67 18 50C18 32.33 32.33 18 50 18C67.67 18 82 32.33 82 50Z" stroke="#38bdf8" stroke-width="14" />
+                        <path d="M50 62V38M50 38L42 46M50 38L58 46" stroke="#38bdf8" stroke-width="12" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M72 75C75 78 80 82 85 82" stroke="#38bdf8" stroke-width="12" stroke-linecap="round" />
+                    </svg>
+                </div>
+            `;
+        }
+
+        function renderLanding() {
+            const modulesHtml = Object.entries(SYSTEM_MAP).map(([id, cfg]) => `
+                <button onclick="setModule('${id}')" class="group bg-white dark:bg-slate-900 p-12 rounded-[3.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow transition-all text-left flex flex-col hover:-translate-y-2">
+                    <div class="bg-mantiq-cyan text-white p-6 rounded-[2rem] inline-block mb-10 shadow-xl group-hover:scale-110 transition-transform">
+                        <i data-lucide="${cfg.nav[0].icon}" size="36"></i>
+                    </div>
+                    <h3 class="text-3xl font-extrabold text-mantiq-navy dark:text-white mb-3">${cfg.title}</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-12 flex-1 leading-relaxed">Enterprise management and growth tools for your specialized tracker.</p>
+                    <div class="flex items-center text-mantiq-cyan font-black text-xs uppercase tracking-widest">
+                        Launch Tracker <i data-lucide="arrow-right" class="ml-2 group-hover:translate-x-3 transition-transform"></i>
+                    </div>
+                </button>
+            `).join('');
+
+            return `
+                <div class="min-h-screen flex flex-col items-center justify-center p-8 fade-in relative overflow-hidden bg-slate-50 dark:bg-slate-950">
+                    <div class="absolute top-10 right-10">
+                        <button onclick="toggleDarkMode()" class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-2xl hover:scale-110 transition-all">
+                            <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" class="${state.darkMode ? 'text-amber-400' : 'text-mantiq-cyan'}"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="text-center mb-20 max-w-3xl">
+                        <div class="flex justify-center mb-10 scale-150">${getLogo("h-16 text-4xl")}</div>
+                        <h1 class="text-7xl font-black text-mantiq-navy dark:text-white mb-6 tracking-tight">For Business Development</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-xl font-medium px-12 leading-relaxed">The unified intelligence operating system for MENA enterprises. Optimized for Egyptian EGP markets.</p>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-7xl relative z-10">
+                        ${modulesHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderApp() {
+            const config = SYSTEM_MAP[state.module];
+            const navHtml = config.nav.map(item => `
+                <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white shadow-lg shadow-sky-500/30 translate-x-1' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                    <i data-lucide="${item.icon}" size="18"></i>
+                    ${item.label}
+                </button>
+            `).join('');
+
+            return `
+                <div class="flex bg-slate-50 dark:bg-slate-950 transition-colors h-screen">
+                    <!-- Sidebar -->
+                    <aside class="w-80 h-screen fixed left-0 top-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 flex flex-col">
+                        <div class="p-10 border-b border-slate-200 dark:border-slate-800">
+                            <button onclick="setModule('landing')">${getLogo("h-8 text-xl")}</button>
+                        </div>
+                        <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
+                            <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${config.title}</p>
+                            ${navHtml}
+                        </nav>
+                        <div class="p-8 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                            <div class="flex items-center gap-4">
+                                <div class="w-12 h-12 rounded-2xl bg-mantiq-navy text-white flex items-center justify-center font-black shadow-lg">${state.user.initials}</div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-black text-mantiq-navy dark:text-white truncate">${state.user.name}</p>
+                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">${state.user.role}</p>
+                                </div>
+                                <button onclick="toggleDarkMode()" class="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                                    <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" size="16"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <!-- Workspace -->
+                    <div class="flex-1 pl-80 min-h-screen overflow-y-auto custom-scrollbar">
+                        <header class="h-28 bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-14 sticky top-0 z-20">
+                            <div>
+                                <div class="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
+                                    <span>Tracker</span>
+                                    <i data-lucide="chevron-right" size="12"></i>
+                                    <span class="text-mantiq-cyan">${state.module}</span>
+                                </div>
+                                <h1 class="text-3xl font-black text-mantiq-navy dark:text-white capitalize tracking-tighter">${state.page.replace('_', ' ')}</h1>
+                            </div>
+                            <div class="flex items-center gap-8">
+                                <div class="relative group">
+                                    <i data-lucide="search" size="18" class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-mantiq-cyan transition-colors"></i>
+                                    <input type="text" placeholder="Global search..." class="bg-slate-100 dark:bg-slate-900 border-none rounded-2xl pl-14 pr-6 py-4 text-sm w-96 focus:ring-2 focus:ring-mantiq-cyan dark:text-white font-medium" />
+                                </div>
+                                <div class="flex items-center gap-4">
+                                    <button class="relative p-3 text-slate-400 hover:text-mantiq-cyan transition-all">
+                                        <i data-lucide="bell" size="22"></i>
+                                        <span class="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-950 animate-bounce"></span>
+                                    </button>
+                                    <button onclick="setModule('landing')" class="p-3 text-slate-400 hover:text-rose-500 transition-all ml-2">
+                                        <i data-lucide="log-out" size="22"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </header>
+                        <main class="p-14 max-w-[1500px] mx-auto fade-in">
+                            ${renderWorkspace()}
+                        </main>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderWorkspace() {
+            const currentNav = SYSTEM_MAP[state.module].nav.find(n => n.id === state.page);
+            
+            if (state.page === 'dashboard') {
+                return `
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-sky-50 dark:bg-sky-900/30 rounded-2xl text-mantiq-cyan"><i data-lucide="trending-up" size="20"></i></div>
+                                <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">+14.2%</span>
+                            </div>
+                            <h3 class="text-slate-500 text-xs font-bold uppercase mb-1">Growth Index</h3>
+                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">Active</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-500"><i data-lucide="bar-chart" size="20"></i></div>
+                                <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">+3.1M</span>
+                            </div>
+                            <h3 class="text-slate-500 text-xs font-bold uppercase mb-1">Volume (EGP)</h3>
+                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">2.41M</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-rose-50 dark:bg-rose-900/30 rounded-2xl text-rose-500"><i data-lucide="users" size="20"></i></div>
+                                <span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded-full">Stable</span>
+                            </div>
+                            <h3 class="text-slate-500 text-xs font-bold uppercase mb-1">Total Assets</h3>
+                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">4,810</p>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                            <div class="flex justify-between items-start mb-4">
+                                <div class="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-2xl text-amber-500"><i data-lucide="shield-check" size="20"></i></div>
+                                <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">Safe</span>
+                            </div>
+                            <h3 class="text-slate-500 text-xs font-bold uppercase mb-1">MANTIQ Engine</h3>
+                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">Locked</p>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-[3.5rem] p-20 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
+                        <div class="w-24 h-24 bg-sky-50 dark:bg-sky-900/30 rounded-[2rem] flex items-center justify-center mx-auto mb-10 text-mantiq-cyan animate-pulse">
+                            <i data-lucide="layout-dashboard" size="48"></i>
+                        </div>
+                        <h2 class="text-4xl font-black text-mantiq-navy dark:text-white mb-6">Modular Control Center</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">Your centralized environment for ${SYSTEM_MAP[state.module].title} is online. Manage prospects, employees, and financial assets through the secure MANTIQ sidebar.</p>
+                    </div>
+                `;
+            }
+
+            if (currentNav && currentNav.tableCols) {
+                const pageData = MOCK_DATA[state.module][state.page] || [];
+                const rowsHtml = pageData.map(row => `
+                    <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all">
+                        ${Object.values(row).map(val => `<td class="px-10 py-7 font-bold text-slate-700 dark:text-slate-200">${val}</td>`).join('')}
+                        <td class="px-10 py-7 text-right">
+                            <button onclick="pushNotify('Record view restricted')" class="text-mantiq-cyan hover:scale-110 transition-transform mr-5"><i data-lucide="eye" size="20"></i></button>
+                            <button onclick="pushNotify('Action blocked by system')" class="text-slate-400 hover:text-rose-500 hover:scale-110 transition-transform"><i data-lucide="trash-2" size="20"></i></button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                return `
+                    <div class="flex justify-between items-center mb-10">
+                        <h2 class="text-3xl font-black text-mantiq-navy dark:text-white">${currentNav.label}</h2>
+                        <div class="flex gap-3">
+                            <button onclick="pushNotify('Exporting to PDF...')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-3.5 rounded-2xl font-black text-sm text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 transition-all">Export Data</button>
+                            <button onclick="pushNotify('Initialization failed: Demo Locked')" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-3.5 rounded-2xl font-black text-sm shadow-xl shadow-mantiq-navy/20 dark:shadow-none hover:scale-105 active:scale-95 transition-all">New Entry</button>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-slate-50/50 dark:bg-slate-800/50 text-[11px] uppercase tracking-[0.2em] font-black text-slate-500">
+                                <tr>
+                                    ${currentNav.tableCols.map(c => `<th class="px-10 py-7">${c}</th>`).join('')}
+                                    <th class="px-10 py-7 text-right">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                                ${rowsHtml || `<tr><td colspan="10" class="p-20 text-center text-slate-400 italic">No historical records in ${state.page}.</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="py-32 text-center fade-in">
+                    <div class="w-28 h-28 bg-mantiq-cyan/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 animate-spin-slow">
+                        <i data-lucide="settings" class="text-mantiq-cyan" size="56"></i>
+                    </div>
+                    <h2 class="text-4xl font-black text-mantiq-navy dark:text-white mb-4">Configuration Sync</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-lg max-w-lg mx-auto">MANTIQ is synchronizing sub-page protocols for ${state.page}. Please wait for session initialization.</p>
+                    <button onclick="setPage('dashboard')" class="mt-12 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-12 py-4 rounded-[1.5rem] font-black shadow-2xl">Return to Dashboard</button>
+                </div>
+            `;
+        }
+
+        function render() {
+            const root = document.getElementById('app');
+            root.innerHTML = (state.module === MODULES.LANDING) ? renderLanding() : renderApp();
+            lucide.createIcons();
+        }
+
+        // --- Security Hooks ---
+        window.addEventListener('contextmenu', e => { e.preventDefault(); pushNotify("Security: Direct code access locked."); });
+        window.addEventListener('keydown', e => {
+            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
+                e.preventDefault();
+                pushNotify("Security Protocol: Developer Tools restricted.");
+            }
+        });
+
+        window.onload = render;
+    </script>
+</body>
+</html>
