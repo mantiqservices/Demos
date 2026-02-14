@@ -40,16 +40,13 @@
             -webkit-user-select: none;
         }
 
-        .mantiq-gradient {
-            background: linear-gradient(135deg, #001e3c 0%, #003366 100%);
-        }
-        
-        .dark .mantiq-gradient {
-            background: linear-gradient(135deg, #020617 0%, #0f172a 100%);
-        }
-
         .card-glow:hover {
             box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+        }
+
+        .modal-overlay {
+            background-color: rgba(0, 30, 60, 0.7);
+            backdrop-filter: blur(4px);
         }
     </style>
     <script>
@@ -69,24 +66,16 @@
         }
     </script>
 </head>
-<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen locked-ui overflow-hidden">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen locked-ui overflow-x-hidden">
 
-    <div id="app" class="h-screen overflow-hidden">
+    <div id="app" class="min-h-screen">
         <!-- Content injected by JavaScript -->
     </div>
 
-    <!-- Notification Toast Container -->
     <div id="notification-container" class="fixed bottom-10 right-10 z-[100] space-y-3"></div>
 
     <script>
-        // --- System State ---
-        let state = {
-            module: 'landing',
-            page: 'dashboard',
-            darkMode: false,
-            user: { name: 'Kareem Abdelaziz', role: 'Super Admin', initials: 'KA' }
-        };
-
+        // --- 1. Constants Defined First to avoid ReferenceErrors ---
         const MODULES = {
             LANDING: 'landing',
             CRM: 'crm',
@@ -95,60 +84,227 @@
             FINANCE: 'finance'
         };
 
-        // --- MANTIQ Comprehensive Data ---
-        const MOCK_DATA = {
-            crm: {
-                leads: [
-                    { id: 'L-701', name: 'Ahmed Mansour', company: 'Cairo Tech', status: 'In Progress', value: '45,000 EGP' },
-                    { id: 'L-702', name: 'Mona Zaki', company: 'Delta Group', status: 'New', value: '12,500 EGP' },
-                    { id: 'L-703', name: 'Sherif El-Badawy', company: 'Nile Logistics', status: 'Qualified', value: '88,000 EGP' },
-                ],
-                customers: [
-                    { name: 'Tarek El-Sheikh', org: 'Giza Systems', tier: 'Platinum', since: '2022' },
-                    { name: 'Dina El-Sherbiny', org: 'Vodafone Egypt', tier: 'Gold', since: '2023' },
-                ],
-                activities: [
-                    { type: 'Call', subject: 'Follow up on Quotation', with: 'Ahmed Mansour', time: '10:30 AM' },
-                    { type: 'Meeting', subject: 'Requirement Analysis', with: 'Mona Zaki', time: '02:00 PM' },
-                ],
-                notes: [{ title: 'Q1 Strategy', author: 'Kareem', date: 'Feb 10', size: '1.2 MB' }]
-            },
-            hr: {
-                directory: [
-                    { id: 'MNT-001', name: 'Youssef El-Shamy', role: 'CTO', dept: 'Tech', status: 'Active' },
-                    { id: 'MNT-002', name: 'Sara El-Gohary', role: 'HR Lead', dept: 'Admin', status: 'Active' },
-                    { id: 'MNT-003', name: 'Amr Waked', role: 'Senior Dev', dept: 'Tech', status: 'On Leave' },
-                ],
-                attendance: [
-                    { name: 'Youssef El-Shamy', date: 'Feb 14', in: '08:30', out: '17:30', status: 'On Time' },
-                    { name: 'Sara El-Gohary', date: 'Feb 14', in: '09:15', out: '18:00', status: 'Late' },
-                ],
-                payroll: [
-                    { month: 'January 2024', staff: '42', total: '780,000 EGP', status: 'Paid' }
-                ]
-            },
-            finance: {
-                income: [
-                    { ref: 'INV-990', client: 'Cairo Tech', amount: '+45,000 EGP', date: 'Feb 14' },
-                    { ref: 'INV-989', client: 'Giza Systems', amount: '+12,000 EGP', date: 'Feb 12' },
-                ],
-                wallets: [
-                    { name: 'CIB Business Account', balance: '1,420,000 EGP', type: 'Bank' },
-                    { name: 'Vodafone Cash (Petty)', balance: '8,500 EGP', type: 'Digital' },
-                ],
-                taxes: [
-                    { period: 'Q1 2024', base: '2.1M EGP', vat: '294,000 EGP', status: 'Filing' }
-                ]
-            },
-            sales: {
-                quotations: [
-                    { id: 'QUO-441', client: 'Ahmed Mansour', total: '15,000 EGP', status: 'Sent' },
-                    { id: 'QUO-442', client: 'Mona Zaki', total: '8,200 EGP', status: 'Accepted' },
-                ],
-                products: [
-                    { name: 'SaaS License Enterprise', stock: '99', price: '25,000 EGP' },
-                    { name: 'Support Package B', stock: '∞', price: '1,500 EGP' },
-                ]
+        // --- 2. System State ---
+        let state = {
+            module: MODULES.LANDING,
+            page: 'dashboard',
+            darkMode: false,
+            isModalOpen: false,
+            user: { name: 'Kareem Abdelaziz', role: 'Super Admin', initials: 'KA' },
+            data: {
+                crm: {
+                    leads: [
+                        { id: 'L-701', name: 'Ahmed Mansour', company: 'Cairo Tech', status: 'In Progress', value: '45,000 EGP' },
+                        { id: 'L-702', name: 'Mona Zaki', company: 'Delta Group', status: 'New', value: '12,500 EGP' },
+                        { id: 'L-703', name: 'Sherif El-Badawy', company: 'Nile Logistics', status: 'Qualified', value: '88,000 EGP' }
+                    ],
+                    customers: [
+                        { name: 'Tarek El-Sheikh', org: 'Giza Systems', tier: 'Platinum', since: '2022' },
+                        { name: 'Dina El-Sherbiny', org: 'Vodafone Egypt', tier: 'Gold', since: '2023' }
+                    ],
+                    contacts: [
+                        { name: 'Mostafa Haggag', role: 'CTO', email: 'mostafa@cairo.com', phone: '01012345678' },
+                        { name: 'Layla Eloui', role: 'Sales Dir', email: 'layla@delta.com', phone: '01122334455' }
+                    ],
+                    deals: [
+                        { title: 'ERP Implementation', stage: 'Negotiation', value: '1,200,000 EGP', owner: 'Kareem A.' },
+                        { title: 'Cloud Migration', stage: 'Closing', value: '450,000 EGP', owner: 'Ahmed M.' }
+                    ],
+                    pipeline: [
+                        { stage: 'Discovery', count: '12', value: '450,000 EGP' },
+                        { stage: 'Proposal', count: '4', value: '890,000 EGP' },
+                        { stage: 'Negotiation', count: '2', value: '1,500,000 EGP' }
+                    ],
+                    activities: [
+                        { type: 'Call', subject: 'Follow up', with: 'Ahmed Mansour', time: '10:30 AM' },
+                        { type: 'Meeting', subject: 'Requirement Walkthrough', with: 'Mona Zaki', time: '01:00 PM' }
+                    ],
+                    reminders: [
+                        { task: 'Send Proposal', due: 'Tomorrow', priority: 'High' },
+                        { task: 'Call Tarek', due: 'Today', priority: 'Medium' }
+                    ],
+                    notes: [
+                        { title: 'Meeting Minutes', author: 'Kareem', date: 'Feb 10', size: '1.2 MB' },
+                        { title: 'Specs Doc', author: 'Ahmed', date: 'Feb 12', size: '2.4 MB' }
+                    ],
+                    communication: [
+                        { channel: 'Email', with: 'Mona Zaki', subject: 'Inquiry', date: 'Feb 12' },
+                        { channel: 'WhatsApp', with: 'Tarek S.', subject: 'Update', date: 'Feb 14' }
+                    ],
+                    reports: [
+                        { title: 'Monthly Conversion', type: 'Growth', date: 'Jan 2024' },
+                        { title: 'Sales Velocity', type: 'Performance', date: 'Feb 2024' }
+                    ],
+                    settings: [
+                        { role: 'Admin', users: '2', permissions: 'Full' },
+                        { role: 'Sales Rep', users: '8', permissions: 'Standard' }
+                    ]
+                },
+                hr: {
+                    directory: [
+                        { id: 'MNT-001', name: 'Youssef El-Shamy', role: 'CTO', dept: 'Tech', status: 'Active' },
+                        { id: 'MNT-002', name: 'Sara El-Gohary', role: 'HR Lead', dept: 'Admin', status: 'Active' },
+                        { id: 'MNT-003', name: 'Amr Waked', role: 'Senior Dev', dept: 'Tech', status: 'On Leave' }
+                    ],
+                    profile: [
+                        { label: 'Full Name', value: 'Youssef El-Shamy' },
+                        { label: 'Role', value: 'Chief Technology Officer' },
+                        { label: 'Email', value: 'youssef@mantiq.com' }
+                    ],
+                    attendance: [
+                        { name: 'Youssef El-Shamy', date: 'Feb 14', in: '08:30', out: '17:30', status: 'On Time' },
+                        { name: 'Sara El-Gohary', date: 'Feb 14', in: '09:15', out: '18:00', status: 'Late' }
+                    ],
+                    leaves: [
+                        { name: 'Amr Waked', type: 'Annual', start: 'Feb 20', status: 'Approved' },
+                        { name: 'Adel Imam', type: 'Sick', start: 'Feb 14', status: 'Pending' }
+                    ],
+                    payroll: [
+                        { month: 'January 2024', staff: '42', total: '780,000 EGP', status: 'Paid' },
+                        { month: 'December 2023', staff: '41', total: '765,000 EGP', status: 'Paid' }
+                    ],
+                    contracts: [
+                        { name: 'Sara El-Gohary', type: 'Full-time', signed: '2022-01-01' },
+                        { name: 'Amr Waked', type: 'Remote', signed: '2023-05-15' }
+                    ],
+                    recruitment: [
+                        { position: 'Backend Dev', candidates: '14', stage: 'Interview' },
+                        { position: 'UX Designer', candidates: '8', stage: 'Screening' }
+                    ],
+                    performance: [
+                        { name: 'Youssef El-Shamy', score: '4.8/5', period: 'Q4 2023' },
+                        { name: 'Sara El-Gohary', score: '4.5/5', period: 'Q4 2023' }
+                    ],
+                    training: [
+                        { course: 'AWS Certified', enrollees: '5', progress: '65%' },
+                        { course: 'Leadership 101', enrollees: '12', progress: '100%' }
+                    ],
+                    warnings: [
+                        { name: 'Hassan Hosny', reason: 'Late Attendance', level: 'Verbal' }
+                    ],
+                    resignation: [
+                        { name: 'Mervat Amin', date: '2024-03-01', reason: 'Personal' }
+                    ],
+                    reports: [
+                        { name: 'Turnover Rate', val: '2.5%', period: 'Annual' },
+                        { name: 'Diversity Index', val: '78%', period: 'Monthly' }
+                    ],
+                    settings: [
+                        { scope: 'Global', status: 'Enabled' },
+                        { scope: 'Dept Specific', status: 'Limited' }
+                    ]
+                },
+                finance: {
+                    income: [
+                        { ref: 'INV-990', client: 'Cairo Tech', amount: '+45,000 EGP', date: 'Feb 14' },
+                        { ref: 'INV-991', client: 'Delta Foods', amount: '+120,000 EGP', date: 'Feb 15' }
+                    ],
+                    expenses: [
+                        { ref: 'EXP-101', vendor: 'AWS', amount: '-4,200 EGP', date: 'Feb 10' },
+                        { ref: 'EXP-102', vendor: 'Office Rent', amount: '-25,000 EGP', date: 'Feb 01' }
+                    ],
+                    invoices: [
+                        { id: 'INV-001', client: 'Giza Systems', amount: '120k EGP', status: 'Paid' },
+                        { id: 'INV-002', client: 'Alex Steel', amount: '85k EGP', status: 'Pending' }
+                    ],
+                    bills: [
+                        { vendor: 'Telecom Egypt', amount: '2,500 EGP', due: 'Feb 28' },
+                        { vendor: 'South Cairo Elec', amount: '1,800 EGP', due: 'Feb 20' }
+                    ],
+                    payments: [
+                        { to: 'Sara E.', amount: '18,000 EGP', method: 'Bank Transfer' },
+                        { to: 'Petty Cash', amount: '2,000 EGP', method: 'Cash' }
+                    ],
+                    wallets: [
+                        { name: 'CIB Business Account', balance: '1,420,000 EGP', type: 'Bank' },
+                        { name: 'Vodafone Cash', balance: '8,500 EGP', type: 'Digital' },
+                        { name: 'HSBC Savings', balance: '2,100,000 EGP', type: 'Bank' }
+                    ],
+                    cashflow: [
+                        { month: 'Jan', inflow: '850k', outflow: '620k' },
+                        { month: 'Dec', inflow: '920k', outflow: '580k' }
+                    ],
+                    budgeting: [
+                        { dept: 'Tech', budget: '200k', spent: '145k' },
+                        { dept: 'Sales', budget: '150k', spent: '90k' }
+                    ],
+                    taxes: [
+                        { period: 'Q1 2024', base: '2.1M EGP', vat: '294,000 EGP', status: 'Filing' },
+                        { period: 'Annual 23', base: '8.4M EGP', vat: '1.2M EGP', status: 'Closed' }
+                    ],
+                    profitloss: [
+                        { label: 'Total Revenue', val: '5.2M EGP' },
+                        { label: 'Operational Costs', val: '2.1M EGP' },
+                        { label: 'Net Profit', val: '1.4M EGP' }
+                    ],
+                    financial_reports: [
+                        { title: 'Audited Statement 2023', format: 'PDF', date: 'Jan 20' },
+                        { title: 'Asset Ledger Q4', format: 'XLSX', date: 'Feb 01' }
+                    ],
+                    export: [
+                        { file: 'Ledger_Export.xlsx', size: '450 KB', date: 'Today' },
+                        { file: 'Tax_Summary.pdf', size: '1.2 MB', date: 'Yesterday' }
+                    ],
+                    settings: [
+                        { option: 'VAT Multiplier', configuration: '14.0%' },
+                        { option: 'Base Currency', configuration: 'EGP' }
+                    ]
+                },
+                sales: {
+                    leads: [
+                        { name: 'Nour El-Sherif', source: 'Web', status: 'New' },
+                        { name: 'Omar Khairat', source: 'Referral', status: 'Hot' }
+                    ],
+                    opportunities: [
+                        { name: 'Mainframe Upgrade', value: '4M EGP', prob: '60%' },
+                        { name: 'Network Security', value: '1.2M EGP', prob: '85%' }
+                    ],
+                    quotations: [
+                        { id: 'QUO-441', client: 'Ahmed Mansour', total: '15,000 EGP', status: 'Sent' },
+                        { id: 'QUO-442', client: 'Mona Zaki', total: '45,000 EGP', status: 'Accepted' }
+                    ],
+                    orders: [
+                        { id: 'ORD-101', customer: 'Delta Group', total: '12.5k EGP', status: 'Shipped' },
+                        { id: 'ORD-102', customer: 'Nile Corp', total: '44k EGP', status: 'Processing' }
+                    ],
+                    invoices: [
+                        { id: 'INV-S-01', customer: 'Cairo Tech', total: '45k EGP', status: 'Unpaid' },
+                        { id: 'INV-S-02', customer: 'Delta', total: '12k EGP', status: 'Paid' }
+                    ],
+                    products: [
+                        { name: 'SaaS Enterprise', stock: '99', price: '25,000 EGP' },
+                        { name: 'API Support Plan', stock: 'Available', price: '5,000 EGP' }
+                    ],
+                    pricing: [
+                        { plan: 'Starter', rate: '2,500 EGP/mo' },
+                        { plan: 'Pro', rate: '8,500 EGP/mo' },
+                        { plan: 'Custom', rate: 'Contact Sales' }
+                    ],
+                    pipeline: [
+                        { stage: 'Prospecting', value: '1.2M EGP' },
+                        { stage: 'Proposal', value: '4.8M EGP' }
+                    ],
+                    targets: [
+                        { rep: 'Ahmed M.', target: '100k', current: '85k' },
+                        { rep: 'Sara K.', target: '100k', current: '112k' }
+                    ],
+                    commissions: [
+                        { name: 'Sara K.', amount: '4,500 EGP', status: 'Pending' },
+                        { name: 'Ahmed M.', amount: '2,100 EGP', status: 'Paid' }
+                    ],
+                    customers: [
+                        { name: 'PetroJet', since: '2020', total: '2.4M EGP' },
+                        { name: 'Khalda', since: '2021', total: '1.8M EGP' }
+                    ],
+                    reports: [
+                        { indicator: 'Win/Loss Ratio', value: '68%' },
+                        { indicator: 'Avg Deal Size', value: '240k EGP' }
+                    ],
+                    settings: [
+                        { key: 'Discount Ceiling', value: '15%' },
+                        { key: 'Sales Cycle (Avg)', value: '18 Days' }
+                    ]
+                }
             }
         };
 
@@ -159,15 +315,15 @@
                     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
                     { id: 'leads', label: 'Leads / Prospects', icon: 'user-plus', tableCols: ['ID', 'Name', 'Company', 'Status', 'Value'] },
                     { id: 'customers', label: 'Customers / Accounts', icon: 'users', tableCols: ['Name', 'Organization', 'Tier', 'Since'] },
-                    { id: 'contacts', label: 'Contacts', icon: 'phone' },
-                    { id: 'deals', label: 'Deals / Opportunities', icon: 'briefcase' },
-                    { id: 'pipeline', label: 'Sales Pipeline', icon: 'kanban' },
-                    { id: 'activities', label: 'Activities (Calls-Tasks)', icon: 'clipboard-list', tableCols: ['Type', 'Subject', 'With', 'Time'] },
-                    { id: 'reminders', label: 'Follow-ups & Reminders', icon: 'bell' },
-                    { id: 'notes', label: 'Notes & Attachments', icon: 'sticky-note', tableCols: ['Title', 'Author', 'Date', 'Size'] },
-                    { id: 'communication', label: 'Communication History', icon: 'mail' },
-                    { id: 'reports', label: 'Reports & Analytics', icon: 'bar-chart-3' },
-                    { id: 'settings', label: 'Settings & User Roles', icon: 'settings' }
+                    { id: 'contacts', label: 'Contacts', icon: 'phone', tableCols: ['Name', 'Role', 'Email', 'Phone'] },
+                    { id: 'deals', label: 'Deals / Opportunities', icon: 'briefcase', tableCols: ['Title', 'Stage', 'Value', 'Owner'] },
+                    { id: 'pipeline', label: 'Sales Pipeline', icon: 'kanban', tableCols: ['Stage', 'Count', 'Value'] },
+                    { id: 'activities', label: 'Activities', icon: 'clipboard-list', tableCols: ['Type', 'Subject', 'With', 'Time'] },
+                    { id: 'reminders', label: 'Reminders', icon: 'bell', tableCols: ['Task', 'Due', 'Priority'] },
+                    { id: 'notes', label: 'Notes', icon: 'sticky-note', tableCols: ['Title', 'Author', 'Date', 'Size'] },
+                    { id: 'communication', label: 'Communication', icon: 'mail', tableCols: ['Channel', 'With', 'Subject', 'Date'] },
+                    { id: 'reports', label: 'Reports', icon: 'bar-chart-3', tableCols: ['Report Title', 'Type', 'Date'] },
+                    { id: 'settings', label: 'Settings', icon: 'settings', tableCols: ['Role Name', 'Users', 'Permissions'] }
                 ]
             },
             [MODULES.HR]: {
@@ -175,18 +331,18 @@
                 nav: [
                     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
                     { id: 'directory', label: 'Employees Directory', icon: 'users', tableCols: ['E-ID', 'Name', 'Role', 'Dept', 'Status'] },
-                    { id: 'profile', label: 'Employee Profile', icon: 'user' },
-                    { id: 'attendance', label: 'Attendance & Tracking', icon: 'clock', tableCols: ['Name', 'Date', 'Clock-In', 'Clock-Out', 'Status'] },
-                    { id: 'leaves', label: 'Leaves & Vacations', icon: 'calendar' },
+                    { id: 'profile', label: 'Employee Profile', icon: 'user', tableCols: ['Field', 'Details'] },
+                    { id: 'attendance', label: 'Attendance Tracking', icon: 'clock', tableCols: ['Name', 'Date', 'Clock-In', 'Clock-Out', 'Status'] },
+                    { id: 'leaves', label: 'Leaves & Vacations', icon: 'calendar', tableCols: ['Name', 'Type', 'Start', 'Status'] },
                     { id: 'payroll', label: 'Payroll', icon: 'wallet', tableCols: ['Month', 'Staff Count', 'Total', 'Status'] },
-                    { id: 'contracts', label: 'Contracts & Documents', icon: 'file-text' },
-                    { id: 'recruitment', label: 'Recruitment / Hiring', icon: 'user-plus' },
-                    { id: 'performance', label: 'Performance Evaluation', icon: 'trending-up' },
-                    { id: 'training', label: 'Training & Development', icon: 'graduation-cap' },
-                    { id: 'warnings', label: 'Warnings & Penalties', icon: 'alert-triangle' },
-                    { id: 'resignation', label: 'Resignation / Termination', icon: 'log-out' },
-                    { id: 'reports', label: 'Reports', icon: 'bar-chart-3' },
-                    { id: 'settings', label: 'Settings & Permissions', icon: 'settings' }
+                    { id: 'contracts', label: 'Contracts & Docs', icon: 'file-text', tableCols: ['Employee', 'Contract Type', 'Signed Date'] },
+                    { id: 'recruitment', label: 'Recruitment', icon: 'user-plus', tableCols: ['Position', 'Candidates', 'Stage'] },
+                    { id: 'performance', label: 'Performance', icon: 'trending-up', tableCols: ['Employee', 'Score', 'Period'] },
+                    { id: 'training', label: 'Training & Dev', icon: 'graduation-cap', tableCols: ['Course', 'Enrollees', 'Progress'] },
+                    { id: 'warnings', label: 'Warnings', icon: 'alert-triangle', tableCols: ['Name', 'Reason', 'Level'] },
+                    { id: 'resignation', label: 'Resignation', icon: 'log-out', tableCols: ['Name', 'Exit Date', 'Reason'] },
+                    { id: 'reports', label: 'Reports', icon: 'bar-chart-3', tableCols: ['Report Name', 'Value', 'Period'] },
+                    { id: 'settings', label: 'Settings', icon: 'settings', tableCols: ['Scope', 'Status'] }
                 ]
             },
             [MODULES.FINANCE]: {
@@ -194,52 +350,53 @@
                 nav: [
                     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
                     { id: 'income', label: 'Income', icon: 'arrow-up-right', tableCols: ['Ref', 'Client', 'Amount', 'Date'] },
-                    { id: 'expenses', label: 'Expenses', icon: 'arrow-down-right' },
-                    { id: 'invoices', label: 'Invoices', icon: 'file-signature' },
-                    { id: 'bills', label: 'Bills', icon: 'receipt' },
-                    { id: 'payments', label: 'Payments', icon: 'credit-card' },
-                    { id: 'wallets', label: 'Accounts / Wallets', icon: 'wallet', tableCols: ['Wallet Name', 'Balance', 'Type'] },
-                    { id: 'cashflow', label: 'Cash Flow', icon: 'trending-up' },
-                    { id: 'budgeting', label: 'Budgeting', icon: 'pie-chart' },
+                    { id: 'expenses', label: 'Expenses', icon: 'arrow-down-right', tableCols: ['Ref', 'Vendor', 'Amount', 'Date'] },
+                    { id: 'invoices', label: 'Invoices', icon: 'file-signature', tableCols: ['ID', 'Client', 'Amount', 'Status'] },
+                    { id: 'bills', label: 'Bills', icon: 'receipt', tableCols: ['Vendor', 'Amount', 'Due Date'] },
+                    { id: 'payments', label: 'Payments', icon: 'credit-card', tableCols: ['Recipient', 'Amount', 'Method'] },
+                    { id: 'wallets', label: 'Wallets', icon: 'wallet', tableCols: ['Wallet Name', 'Balance', 'Type'] },
+                    { id: 'cashflow', label: 'Cash Flow', icon: 'trending-up', tableCols: ['Month', 'Inflow', 'Outflow'] },
+                    { id: 'budgeting', label: 'Budgeting', icon: 'pie-chart', tableCols: ['Dept', 'Budget', 'Spent'] },
                     { id: 'taxes', label: 'Taxes', icon: 'shield-check', tableCols: ['Period', 'Base', 'VAT', 'Status'] },
-                    { id: 'profitloss', label: 'Profit & Loss', icon: 'bar-chart-2' },
-                    { id: 'reports', label: 'Financial Reports', icon: 'file-text' },
-                    { id: 'export', label: 'Export (Excel / PDF)', icon: 'download' },
-                    { id: 'settings', label: 'Settings', icon: 'settings' }
+                    { id: 'profitloss', label: 'Profit & Loss', icon: 'bar-chart-2', tableCols: ['Label', 'Value'] },
+                    { id: 'financial_reports', label: 'Financial Reports', icon: 'file-text', tableCols: ['Title', 'Format', 'Date'] },
+                    { id: 'export', label: 'Export', icon: 'download', tableCols: ['File Name', 'Size', 'Date'] },
+                    { id: 'settings', label: 'Settings', icon: 'settings', tableCols: ['Option', 'Configuration'] }
                 ]
             },
             [MODULES.SALES]: {
                 title: "Sales Tracker",
                 nav: [
                     { id: 'dashboard', label: 'Dashboard', icon: 'layout-dashboard' },
-                    { id: 'leads', label: 'Leads', icon: 'user-plus' },
-                    { id: 'opportunities', label: 'Opportunities', icon: 'briefcase' },
-                    { id: 'quotations', label: 'Quotations / Proposals', icon: 'file-text', tableCols: ['ID', 'Client', 'Total', 'Status'] },
-                    { id: 'orders', label: 'Orders', icon: 'package' },
-                    { id: 'invoices', label: 'Invoices', icon: 'file-signature' },
-                    { id: 'products', label: 'Products / Services', icon: 'layers', tableCols: ['Name', 'In Stock', 'Price'] },
-                    { id: 'pricing', label: 'Pricing', icon: 'tag' },
-                    { id: 'pipeline', label: 'Sales Pipeline', icon: 'kanban' },
-                    { id: 'targets', label: 'Sales Targets', icon: 'target' },
-                    { id: 'commissions', label: 'Commissions', icon: 'dollar-sign' },
-                    { id: 'customers', label: 'Customers', icon: 'users' },
-                    { id: 'reports', label: 'Reports & KPIs', icon: 'bar-chart-3' },
-                    { id: 'settings', label: 'Settings', icon: 'settings' }
+                    { id: 'leads', label: 'Leads', icon: 'user-plus', tableCols: ['Name', 'Source', 'Status'] },
+                    { id: 'opportunities', label: 'Opportunities', icon: 'briefcase', tableCols: ['Project', 'Value', 'Probability'] },
+                    { id: 'quotations', label: 'Quotations', icon: 'file-text', tableCols: ['ID', 'Client', 'Total', 'Status'] },
+                    { id: 'orders', label: 'Orders', icon: 'package', tableCols: ['ID', 'Customer', 'Total', 'Status'] },
+                    { id: 'invoices', label: 'Invoices', icon: 'file-signature', tableCols: ['ID', 'Customer', 'Total', 'Status'] },
+                    { id: 'products', label: 'Products', icon: 'layers', tableCols: ['Name', 'Stock', 'Price'] },
+                    { id: 'pricing', label: 'Pricing', icon: 'tag', tableCols: ['Plan', 'Rate'] },
+                    { id: 'pipeline', label: 'Sales Pipeline', icon: 'kanban', tableCols: ['Stage', 'Value'] },
+                    { id: 'targets', label: 'Sales Targets', icon: 'target', tableCols: ['Rep', 'Target', 'Current'] },
+                    { id: 'commissions', label: 'Commissions', icon: 'dollar-sign', tableCols: ['Rep', 'Amount', 'Status'] },
+                    { id: 'customers', label: 'Customers', icon: 'users', tableCols: ['Name', 'Since', 'Total Sales'] },
+                    { id: 'reports', label: 'Reports', icon: 'bar-chart-3', tableCols: ['Indicator', 'Value'] },
+                    { id: 'settings', label: 'Settings', icon: 'settings', tableCols: ['Key', 'Value'] }
                 ]
             }
         };
 
-        // --- Functions ---
+        // --- 3. Core Logic ---
 
         function pushNotify(msg) {
             const container = document.getElementById('notification-container');
             const toast = document.createElement('div');
-            toast.className = 'bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-5 rounded-3xl shadow-2xl flex items-center gap-4 fade-in border-l-4 border-mantiq-cyan';
-            toast.innerHTML = `<i data-lucide="shield-check" class="text-mantiq-cyan"></i><span class="text-sm font-bold">${msg}</span>`;
+            toast.className = 'bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-6 py-4 md:px-8 md:py-5 rounded-2xl md:rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 fade-in border-l-4 border-mantiq-cyan max-w-[90vw] md:max-w-md transition-all duration-300';
+            toast.innerHTML = `<i data-lucide="shield-check" class="text-mantiq-cyan w-5 h-5 md:w-6 md:h-6"></i><span class="text-xs md:text-sm font-bold">${msg}</span>`;
             container.appendChild(toast);
             lucide.createIcons();
             setTimeout(() => {
                 toast.style.opacity = '0';
+                toast.style.transform = 'translateX(20px)';
                 setTimeout(() => toast.remove(), 500);
             }, 3000);
         }
@@ -248,11 +405,14 @@
             state.module = m;
             state.page = 'dashboard';
             render();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function setPage(p) {
             state.page = p;
             render();
+            const main = document.querySelector('main');
+            if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function toggleDarkMode() {
@@ -261,7 +421,37 @@
             render();
         }
 
-        // --- Logo Generator (Clean Text Version) ---
+        function toggleModal() {
+            state.isModalOpen = !state.isModalOpen;
+            render();
+        }
+
+        function handleAddData() {
+            const currentModuleData = state.data[state.module];
+            const currentPageData = currentModuleData[state.page];
+            
+            if (Array.isArray(currentPageData)) {
+                const template = currentPageData[0] || {};
+                const newItem = {};
+                Object.keys(template).forEach(key => {
+                    newItem[key] = (typeof template[key] === 'string' && template[key].includes('EGP')) ? "1,000 EGP" : "Sample Data";
+                });
+                currentPageData.unshift(newItem);
+                pushNotify(`New record added to ${state.page} successfully!`);
+            } else {
+                pushNotify("Page state locked for current demo iteration.");
+            }
+            toggleModal();
+        }
+
+        function handleDelete(idx) {
+            state.data[state.module][state.page].splice(idx, 1);
+            pushNotify("Record removed from system.");
+            render();
+        }
+
+        // --- 4. Rendering ---
+
         function getLogo(sizeClass = "h-8") {
             return `
                 <div class="flex items-center gap-1 ${sizeClass}">
@@ -272,33 +462,33 @@
 
         function renderLanding() {
             const modulesHtml = Object.entries(SYSTEM_MAP).map(([id, cfg]) => `
-                <button onclick="setModule('${id}')" class="group bg-white dark:bg-slate-900 p-12 rounded-[3.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow transition-all text-left flex flex-col hover:-translate-y-2">
-                    <div class="bg-mantiq-cyan text-white p-6 rounded-[2rem] inline-block mb-10 shadow-xl group-hover:scale-110 transition-transform">
-                        <i data-lucide="${cfg.nav[0].icon}" size="36"></i>
+                <button onclick="setModule('${id}')" class="group bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow transition-all text-left flex flex-col hover:-translate-y-2">
+                    <div class="bg-mantiq-cyan text-white p-4 md:p-6 rounded-2xl md:rounded-[2rem] inline-block mb-6 md:mb-10 shadow-xl group-hover:scale-110 transition-transform">
+                        <i data-lucide="${cfg.nav[0].icon}" class="w-6 h-6 md:w-9 md:h-9"></i>
                     </div>
-                    <h3 class="text-3xl font-extrabold text-mantiq-navy dark:text-white mb-3">${cfg.title}</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-sm mb-12 flex-1 leading-relaxed">Enterprise management and growth tools for your specialized tracker.</p>
-                    <div class="flex items-center text-mantiq-cyan font-black text-xs uppercase tracking-widest">
-                        Launch Tracker <i data-lucide="arrow-right" class="ml-2 group-hover:translate-x-3 transition-transform"></i>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-mantiq-navy dark:text-white mb-2 md:mb-3 uppercase tracking-tighter">${cfg.title}</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mb-8 md:mb-12 flex-1 leading-relaxed">Enterprise management and growth tools for your specialized tracker.</p>
+                    <div class="flex items-center text-mantiq-cyan font-black text-[10px] md:text-xs uppercase tracking-widest">
+                        Launch Tracker <i data-lucide="arrow-right" class="ml-2 w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-3 transition-transform"></i>
                     </div>
                 </button>
             `).join('');
 
             return `
-                <div class="min-h-screen flex flex-col items-center justify-center p-8 fade-in relative overflow-hidden bg-slate-50 dark:bg-slate-950">
-                    <div class="absolute top-10 right-10">
-                        <button onclick="toggleDarkMode()" class="p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-2xl hover:scale-110 transition-all">
-                            <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" class="${state.darkMode ? 'text-amber-400' : 'text-mantiq-cyan'}"></i>
+                <div class="min-h-screen flex flex-col items-center justify-center py-20 px-6 md:p-8 fade-in relative bg-slate-50 dark:bg-slate-950 overflow-y-auto overflow-x-hidden">
+                    <div class="absolute top-6 right-6 md:top-10 md:right-10 z-50">
+                        <button onclick="toggleDarkMode()" class="p-3 md:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-xl hover:scale-110 transition-all">
+                            <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" class="w-5 h-5 md:w-6 md:h-6 ${state.darkMode ? 'text-amber-400' : 'text-mantiq-cyan'}"></i>
                         </button>
                     </div>
                     
-                    <div class="text-center mb-20 max-w-3xl">
-                        <div class="flex justify-center mb-10 scale-150">${getLogo("h-16 text-4xl")}</div>
-                        <h1 class="text-7xl font-black text-mantiq-navy dark:text-white mb-6 tracking-tight">For Business Services Demos</h1>
-                        <p class="text-slate-500 dark:text-slate-400 text-xl font-medium px-12 leading-relaxed">The unified intelligence operating system for MENA enterprises. Optimized for Egyptian EGP markets.</p>
+                    <div class="text-center mb-12 md:mb-20 max-w-4xl pt-10">
+                        <div class="flex justify-center mb-6 md:mb-10 scale-125 md:scale-150">${getLogo("h-10 md:h-16 text-2xl md:text-5xl")}</div>
+                        <h1 class="text-4xl md:text-7xl font-black text-mantiq-navy dark:text-white mb-4 md:mb-6 tracking-tight leading-none uppercase">For Business Services Demos</h1>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm md:text-xl font-medium px-4 md:px-12 leading-relaxed max-w-2xl mx-auto">Unified intelligence system for MENA enterprises. High-performance trackers localized for Egypt and EGP currency standards.</p>
                     </div>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 w-full max-w-7xl relative z-10">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl relative z-10 pb-12">
                         ${modulesHtml}
                     </div>
                 </div>
@@ -310,16 +500,15 @@
             const navHtml = config.nav.map(item => `
                 <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white shadow-lg shadow-sky-500/30 translate-x-1' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}">
                     <i data-lucide="${item.icon}" size="18"></i>
-                    ${item.label}
+                    <span class="whitespace-nowrap overflow-hidden text-ellipsis">${item.label}</span>
                 </button>
             `).join('');
 
             return `
-                <div class="flex bg-slate-50 dark:bg-slate-950 transition-colors h-screen">
-                    <!-- Sidebar -->
-                    <aside class="w-80 h-screen fixed left-0 top-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 flex flex-col">
+                <div class="flex bg-slate-50 dark:bg-slate-950 transition-colors h-screen overflow-hidden">
+                    <aside class="hidden lg:flex w-80 h-screen fixed left-0 top-0 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 flex-col">
                         <div class="p-10 border-b border-slate-200 dark:border-slate-800">
-                            <button onclick="setModule('landing')">${getLogo("h-8 text-xl")}</button>
+                            <button onclick="setModule(MODULES.LANDING)">${getLogo("h-8 text-xl")}</button>
                         </div>
                         <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
                             <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${config.title}</p>
@@ -339,36 +528,77 @@
                         </div>
                     </aside>
 
-                    <!-- Workspace -->
-                    <div class="flex-1 pl-80 min-h-screen overflow-y-auto custom-scrollbar">
-                        <header class="h-28 bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-14 sticky top-0 z-20">
+                    <div class="flex-1 lg:pl-80 h-screen overflow-y-auto custom-scrollbar relative">
+                        <div class="lg:hidden flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-30">
+                             <button onclick="setModule(MODULES.LANDING)">${getLogo("h-6 text-lg")}</button>
+                             <div class="flex items-center gap-3">
+                                <button onclick="toggleDarkMode()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                    <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" size="16"></i>
+                                </button>
+                                <button onclick="pushNotify('Demo: Menu restricted')" class="p-2 bg-mantiq-cyan text-white rounded-lg">
+                                    <i data-lucide="menu" size="18"></i>
+                                </button>
+                             </div>
+                        </div>
+
+                        <header class="hidden lg:flex h-28 bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-slate-800 items-center justify-between px-14 sticky top-0 z-20">
                             <div>
                                 <div class="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
                                     <span>Demo Environment</span>
                                     <i data-lucide="chevron-right" size="12"></i>
-                                    <span class="text-mantiq-cyan">${state.module}</span>
+                                    <span class="text-mantiq-cyan uppercase font-bold">${state.module}</span>
                                 </div>
                                 <h1 class="text-3xl font-black text-mantiq-navy dark:text-white capitalize tracking-tighter">${state.page.replace('_', ' ')}</h1>
                             </div>
                             <div class="flex items-center gap-8">
                                 <div class="relative group">
                                     <i data-lucide="search" size="18" class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-mantiq-cyan transition-colors"></i>
-                                    <input type="text" placeholder="Global search..." class="bg-slate-100 dark:bg-slate-900 border-none rounded-2xl pl-14 pr-6 py-4 text-sm w-96 focus:ring-2 focus:ring-mantiq-cyan dark:text-white font-medium" />
+                                    <input type="text" placeholder="Global search..." class="bg-slate-100 dark:bg-slate-900 border-none rounded-2xl pl-14 pr-6 py-4 text-sm w-96 focus:ring-2 focus:ring-mantiq-cyan dark:text-white font-medium outline-none" />
                                 </div>
                                 <div class="flex items-center gap-4">
                                     <button class="relative p-3 text-slate-400 hover:text-mantiq-cyan transition-all">
                                         <i data-lucide="bell" size="22"></i>
                                         <span class="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-950 animate-bounce"></span>
                                     </button>
-                                    <button onclick="setModule('landing')" class="p-3 text-slate-400 hover:text-rose-500 transition-all ml-2">
+                                    <button onclick="setModule(MODULES.LANDING)" class="p-3 text-slate-400 hover:text-rose-500 transition-all ml-2">
                                         <i data-lucide="log-out" size="22"></i>
                                     </button>
                                 </div>
                             </div>
                         </header>
-                        <main class="p-14 max-w-[1500px] mx-auto fade-in">
+
+                        <main class="p-6 md:p-14 max-w-[1500px] mx-auto fade-in">
+                            <div class="lg:hidden mb-6">
+                                <h1 class="text-2xl font-black text-mantiq-navy dark:text-white capitalize tracking-tighter">${state.page.replace('_', ' ')}</h1>
+                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">${config.title}</p>
+                            </div>
                             ${renderWorkspace()}
                         </main>
+                    </div>
+                </div>
+
+                ${state.isModalOpen ? renderModal() : ''}
+            `;
+        }
+
+        function renderModal() {
+            return `
+                <div class="fixed inset-0 z-[100] flex items-center justify-center p-6 modal-overlay fade-in">
+                    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl">
+                        <h2 class="text-2xl font-black mb-4 text-mantiq-navy dark:text-white uppercase tracking-tighter">Add Record</h2>
+                        <p class="text-slate-500 text-sm mb-8">Add a new entry to the ${state.page} view. This record will be synchronized with the localized ${state.module.toUpperCase()} tracker.</p>
+                        
+                        <div class="space-y-4 mb-8">
+                            <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl border border-slate-100 dark:border-slate-700">
+                                <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-1">Target Module</span>
+                                <span class="text-sm font-bold text-mantiq-navy dark:text-white uppercase">${state.module} - ${state.page}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-3">
+                            <button onclick="toggleModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-4 rounded-2xl font-black text-sm">Cancel</button>
+                            <button onclick="handleAddData()" class="flex-1 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy py-4 rounded-2xl font-black text-sm">Confirm Addition</button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -379,80 +609,80 @@
             
             if (state.page === 'dashboard') {
                 return `
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
+                        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
                             <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-sky-50 dark:bg-sky-900/30 rounded-2xl text-mantiq-cyan"><i data-lucide="trending-up" size="20"></i></div>
+                                <div class="p-2 md:p-3 bg-sky-50 dark:bg-sky-900/30 rounded-2xl text-mantiq-cyan"><i data-lucide="trending-up" size="20"></i></div>
                                 <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">+14.2%</span>
                             </div>
-                            <h3 class="text-slate-500 text-xs font-bold uppercase mb-1">Growth Index</h3>
-                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">Active</p>
+                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Growth Index</h3>
+                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">Active</p>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
                             <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-500"><i data-lucide="bar-chart" size="20"></i></div>
+                                <div class="p-2 md:p-3 bg-indigo-50 dark:bg-indigo-900/30 rounded-2xl text-indigo-500"><i data-lucide="bar-chart" size="20"></i></div>
                                 <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">+3.1M</span>
                             </div>
-                            <h3 class="text-slate-500 text-xs font-bold uppercase mb-1">Volume (EGP)</h3>
-                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">2.41M</p>
+                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Volume (EGP)</h3>
+                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">2.41M</p>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
                             <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-rose-50 dark:bg-rose-900/30 rounded-2xl text-rose-500"><i data-lucide="users" size="20"></i></div>
+                                <div class="p-2 md:p-3 bg-rose-50 dark:bg-rose-900/30 rounded-2xl text-rose-500"><i data-lucide="users" size="20"></i></div>
                                 <span class="text-[10px] font-black bg-slate-100 text-slate-500 px-2 py-1 rounded-full">Stable</span>
                             </div>
-                            <h3 class="text-slate-500 text-xs font-bold uppercase mb-1">Total Assets</h3>
-                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">4,810</p>
+                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">Managed Assets</h3>
+                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">4,810</p>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
                             <div class="flex justify-between items-start mb-4">
-                                <div class="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-2xl text-amber-500"><i data-lucide="shield-check" size="20"></i></div>
-                                <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">Safe</span>
+                                <div class="p-2 md:p-3 bg-amber-50 dark:bg-amber-900/30 rounded-2xl text-amber-500"><i data-lucide="shield-check" size="20"></i></div>
+                                <span class="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full">Secure</span>
                             </div>
-                            <h3 class="text-slate-500 text-xs font-bold uppercase mb-1">MANTIQ Engine</h3>
-                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">Locked</p>
+                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">System Health</h3>
+                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">Verified</p>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 rounded-[3.5rem] p-20 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
-                        <div class="w-24 h-24 bg-sky-50 dark:bg-sky-900/30 rounded-[2rem] flex items-center justify-center mx-auto mb-10 text-mantiq-cyan animate-pulse">
-                            <i data-lucide="layout-dashboard" size="48"></i>
+                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] md:rounded-[3.5rem] p-10 md:p-20 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
+                        <div class="w-16 h-16 md:w-24 md:h-24 bg-sky-50 dark:bg-sky-900/30 rounded-2xl md:rounded-[2rem] flex items-center justify-center mx-auto mb-6 md:mb-10 text-mantiq-cyan animate-pulse">
+                            <i data-lucide="layout-dashboard" class="w-8 h-8 md:w-12 md:h-12"></i>
                         </div>
-                        <h2 class="text-4xl font-black text-mantiq-navy dark:text-white mb-6">Modular Control Center</h2>
-                        <p class="text-slate-500 dark:text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">Your centralized environment for ${SYSTEM_MAP[state.module].title} is online. Manage prospects, employees, and financial assets through the secure MANTIQ sidebar.</p>
+                        <h2 class="text-2xl md:text-4xl font-black text-mantiq-navy dark:text-white mb-4 md:mb-6 uppercase tracking-tighter">Modular Control Center</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">Your centralized environment for ${SYSTEM_MAP[state.module].title} is online. Navigate through sub-pages to manage leads, employees, and finance.</p>
                     </div>
                 `;
             }
 
             if (currentNav && currentNav.tableCols) {
-                const pageData = MOCK_DATA[state.module][state.page] || [];
-                const rowsHtml = pageData.map(row => `
+                const pageData = state.data[state.module][state.page] || [];
+                const rowsHtml = pageData.map((row, idx) => `
                     <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all">
-                        ${Object.values(row).map(val => `<td class="px-10 py-7 font-bold text-slate-700 dark:text-slate-200">${val}</td>`).join('')}
-                        <td class="px-10 py-7 text-right">
-                            <button onclick="pushNotify('Record view restricted')" class="text-mantiq-cyan hover:scale-110 transition-transform mr-5"><i data-lucide="eye" size="20"></i></button>
-                            <button onclick="pushNotify('Action blocked by system')" class="text-slate-400 hover:text-rose-500 hover:scale-110 transition-transform"><i data-lucide="trash-2" size="20"></i></button>
+                        ${Object.values(row).map(val => `<td class="px-6 md:px-10 py-5 md:py-7 font-bold text-slate-700 dark:text-slate-200 text-xs md:text-sm whitespace-nowrap">${val}</td>`).join('')}
+                        <td class="px-6 md:px-10 py-5 md:py-7 text-right whitespace-nowrap">
+                            <button onclick="pushNotify('Inspecting record')" class="text-mantiq-cyan hover:scale-110 transition-transform mr-3 md:mr-5"><i data-lucide="eye" class="w-4 h-4 md:w-5 md:h-5"></i></button>
+                            <button onclick="handleDelete(${idx})" class="text-slate-400 hover:text-rose-500 hover:scale-110 transition-transform"><i data-lucide="trash-2" class="w-4 h-4 md:w-5 md:h-5"></i></button>
                         </td>
                     </tr>
                 `).join('');
 
                 return `
-                    <div class="flex justify-between items-center mb-10">
-                        <h2 class="text-3xl font-black text-mantiq-navy dark:text-white">${currentNav.label}</h2>
-                        <div class="flex gap-3">
-                            <button onclick="pushNotify('Exporting to PDF...')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-3.5 rounded-2xl font-black text-sm text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 transition-all">Export Data</button>
-                            <button onclick="pushNotify('Initialization failed: Demo Locked')" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-3.5 rounded-2xl font-black text-sm shadow-xl shadow-mantiq-navy/20 dark:shadow-none hover:scale-105 active:scale-95 transition-all">New Entry</button>
+                    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 md:mb-10">
+                        <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white hidden md:block uppercase tracking-tighter">${currentNav.label}</h2>
+                        <div class="flex gap-2 md:gap-3">
+                            <button onclick="pushNotify('Generating report for ${state.page}...')" class="flex-1 md:flex-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-sm text-slate-600 dark:text-slate-300 shadow-sm hover:bg-slate-50 transition-all">Export Report</button>
+                            <button onclick="toggleModal()" class="flex-1 md:flex-none bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-4 md:px-8 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-sm shadow-xl shadow-mantiq-navy/20 dark:shadow-none hover:scale-105 active:scale-95 transition-all">Add Record</button>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+                    <div class="bg-white dark:bg-slate-900 rounded-[1.5rem] md:rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse">
-                            <thead class="bg-slate-50/50 dark:bg-slate-800/50 text-[11px] uppercase tracking-[0.2em] font-black text-slate-500">
+                            <thead class="bg-slate-50/50 dark:bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500">
                                 <tr>
-                                    ${currentNav.tableCols.map(c => `<th class="px-10 py-7">${c}</th>`).join('')}
-                                    <th class="px-10 py-7 text-right">Action</th>
+                                    ${currentNav.tableCols.map(c => `<th class="px-6 md:px-10 py-5 md:py-7 whitespace-nowrap">${c}</th>`).join('')}
+                                    <th class="px-6 md:px-10 py-5 md:py-7 text-right whitespace-nowrap">Action</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                ${rowsHtml || `<tr><td colspan="10" class="p-20 text-center text-slate-400 italic">No historical records in ${state.page}.</td></tr>`}
+                                ${rowsHtml || `<tr><td colspan="10" class="p-10 md:p-20 text-center text-slate-400 italic text-xs md:text-sm">No historical records found for ${state.page}.</td></tr>`}
                             </tbody>
                         </table>
                     </div>
@@ -460,13 +690,13 @@
             }
 
             return `
-                <div class="py-32 text-center fade-in">
-                    <div class="w-28 h-28 bg-mantiq-cyan/10 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 animate-spin-slow">
-                        <i data-lucide="settings" class="text-mantiq-cyan" size="56"></i>
+                <div class="py-20 md:py-32 text-center fade-in">
+                    <div class="w-20 h-20 md:w-28 md:h-28 bg-mantiq-cyan/10 rounded-[2rem] md:rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 md:mb-10 animate-spin-slow">
+                        <i data-lucide="settings" class="text-mantiq-cyan w-10 h-10 md:w-14 md:h-14"></i>
                     </div>
-                    <h2 class="text-4xl font-black text-mantiq-navy dark:text-white mb-4">Configuration Sync</h2>
-                    <p class="text-slate-500 dark:text-slate-400 text-lg max-w-lg mx-auto">MANTIQ is synchronizing sub-page protocols for ${state.page}. Please wait for session initialization.</p>
-                    <button onclick="setPage('dashboard')" class="mt-12 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-12 py-4 rounded-[1.5rem] font-black shadow-2xl">Return to Dashboard</button>
+                    <h2 class="text-2xl md:text-4xl font-black text-mantiq-navy dark:text-white mb-4 uppercase tracking-tighter">Syncing Page</h2>
+                    <p class="text-slate-500 dark:text-slate-400 text-sm md:text-lg max-w-lg mx-auto leading-relaxed">MANTIQ is synchronizing encrypted sub-page protocols for ${state.page}. Access will be granted shortly.</p>
+                    <button onclick="setPage('dashboard')" class="mt-8 md:mt-12 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 md:px-12 py-3 md:py-4 rounded-xl md:rounded-[1.5rem] font-black shadow-2xl">Return to Overview</button>
                 </div>
             `;
         }
@@ -478,11 +708,14 @@
         }
 
         // --- Security Hooks ---
-        window.addEventListener('contextmenu', e => { e.preventDefault(); pushNotify("Security: Direct code access locked."); });
+        window.addEventListener('contextmenu', e => { 
+            e.preventDefault(); 
+            pushNotify("Security: Right-click restricted for demo protection."); 
+        });
         window.addEventListener('keydown', e => {
             if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
                 e.preventDefault();
-                pushNotify("Security Protocol: Developer Tools restricted.");
+                pushNotify("Security Protocol: Developer Access Blocked.");
             }
         });
 
