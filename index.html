@@ -93,7 +93,7 @@
         const UI = {
             en: {
                 subtitle: "For Business Services Demos",
-                description: "All Systems Can be Customized based on your department process.",
+                description: "Unified intelligence system for MENA enterprises. High-performance trackers localized for Egypt and EGP currency standards.",
                 launch: "Demo",
                 dashboard: "Dashboard",
                 controlCenter: "Control Center",
@@ -119,7 +119,7 @@
             },
             ar: {
                 subtitle: "لخدمات الأعمال",
-                description: "كل الصفحات قابلة للتغير بناءه على طلبك وادارة القسم فى شركتك ",
+                description: "انظمة لادارة اقسام شركتك ",
                 launch: "لروئية عينة ",
                 dashboard: "لوحة القيادة",
                 controlCenter: "مركز التحكم",
@@ -240,7 +240,6 @@
         // --- 4. Logic Functions ---
 
         function initData() {
-            // Pre-defined realistic data to ensure no "Sample Data" remains
             const REAL_NAMES = ["Ahmed Sharaf", "Mona Zaki", "Kareem Abdelaziz", "Sara El-Gohary", "Youssef El-Shamy", "Omar Khairat", "Layla Eloui", "Tarek El-Sheikh"];
             const REAL_COMPANIES = ["Cairo Tech Solutions", "Giza Systems", "Nile Logistics", "Delta Foods", "Alexandria Steel", "Suez Canal Energy", "Red Sea Tourism", "PetroJet"];
 
@@ -249,14 +248,12 @@
                 SYSTEM_MAP[mod].nav.forEach(page => {
                     if (page.id !== 'dashboard') {
                         state.data[mod][page.id] = [];
-                        
-                        // Create 3 realistic rows for each page
                         for(let i=0; i<3; i++) {
                             const row = {};
                             (page.tableCols.en).forEach(col => {
                                 let val = "";
                                 if (col.includes('ID') || col.includes('#')) val = (1024 + i).toString();
-                                else if (col.includes('Name')) val = REAL_NAMES[(idx = (i + Math.floor(Math.random() * 5)) % REAL_NAMES.length)];
+                                else if (col.includes('Name')) val = REAL_NAMES[(i + Math.floor(Math.random() * 5)) % REAL_NAMES.length];
                                 else if (col.includes('Company') || col.includes('Client') || col.includes('Vendor')) val = REAL_COMPANIES[(i + Math.floor(Math.random() * 5)) % REAL_COMPANIES.length];
                                 else if (col.includes('Phone') || col.includes('Mobile')) val = "010" + Math.floor(10000000 + Math.random() * 90000000);
                                 else if (col.includes('Email')) val = REAL_NAMES[i % REAL_NAMES.length].toLowerCase().replace(" ", ".") + "@example.com";
@@ -264,9 +261,6 @@
                                 else if (col.includes('Status')) val = ["Active", "Pending", "Completed", "Paid"][i % 4];
                                 else if (col.includes('Date')) val = "2024-02-" + (10 + i);
                                 else if (col.includes('Stage')) val = ["Discovery", "Proposal", "Negotiation"][i % 3];
-                                else if (col.includes('Source')) val = ["Website", "LinkedIn", "Referral"][i % 3];
-                                else if (col.includes('Job Title')) val = ["CTO", "HR Lead", "Sales Manager", "Dev Ops"][i % 4];
-                                else if (col.includes('Dept') || col.includes('Category')) val = ["Technology", "Operations", "Finance", "Sales"][i % 4];
                                 else val = state.language === 'ar' ? "بيانات حقيقية" : "Verified Entry";
                                 row[col] = val;
                             });
@@ -310,6 +304,11 @@
         function toggleDarkMode() {
             state.darkMode = !state.darkMode;
             document.documentElement.classList.toggle('dark', state.darkMode);
+            render();
+        }
+
+        function toggleMobileMenu() {
+            state.isMobileMenuOpen = !state.isMobileMenuOpen;
             render();
         }
 
@@ -387,11 +386,19 @@
                         <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
                              <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${_t(config.title.en, config.title.ar)}</p>
                             ${config.nav.map(item => `
-                                <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white' : 'text-slate-500 hover:bg-slate-100'}">
+                                <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}">
                                     <i data-lucide="${item.icon}" size="18"></i><span>${_t(item.label.en, item.label.ar)}</span>
                                 </button>
                             `).join('')}
                         </nav>
+                        <div class="p-8 border-t border-slate-100 dark:border-slate-800">
+                            <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="w-full py-4 rounded-2xl border border-slate-200 dark:border-slate-700 font-black text-xs uppercase mb-4">
+                                ${_t('Switch to Arabic', 'تغيير للإنجليزية')}
+                            </button>
+                            <button onclick="setModule(MODULES.LANDING)" class="w-full py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 font-black text-xs uppercase text-rose-500">
+                                ${_t('Exit Tracker', 'خروج من المتتبع')}
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
@@ -445,7 +452,7 @@
                         <div class="lg:hidden flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-30">
                              <button onclick="setModule(MODULES.LANDING)">${getLogo("h-6 text-lg")}</button>
                              <div class="flex items-center gap-3">
-                                <button onclick="toggleMobileMenu()" class="p-2 bg-mantiq-cyan text-white rounded-lg"><i data-lucide="menu" size="18"></i></button>
+                                <button onclick="toggleMobileMenu()" class="p-2 bg-mantiq-cyan text-white rounded-lg shadow-lg"><i data-lucide="menu" size="18"></i></button>
                              </div>
                         </div>
 
@@ -515,7 +522,7 @@
                             <p class="text-3xl font-black text-mantiq-cyan">${ut('verified')}</p>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 rounded-[3.5rem] p-20 border border-slate-200 dark:border-slate-800 text-center">
+                    <div class="bg-white dark:bg-slate-900 rounded-[3.5rem] p-20 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
                         <div class="w-24 h-24 bg-sky-50 dark:bg-sky-900/30 rounded-[2rem] flex items-center justify-center mx-auto mb-10 text-mantiq-cyan animate-pulse"><i data-lucide="layout-dashboard" size="48"></i></div>
                         <h2 class="text-4xl font-black text-mantiq-navy dark:text-white mb-6 uppercase tracking-tighter">${ut('controlCenter')}</h2>
                         <p class="text-slate-500 dark:text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">${_t('Operating System localized for Egyptian markets.', 'نظام تشغيل مخصص للسوق المصري.')}</p>
