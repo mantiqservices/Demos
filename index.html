@@ -50,12 +50,9 @@
 
         .modal-overlay {
             background-color: rgba(0, 30, 60, 0.7);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(8px);
         }
 
-        /* Mobile Sidebar Transitions */
-        .mobile-sidebar-enter { transform: translateX(-100%); transition: transform 0.3s ease-out; }
-        [dir="rtl"] .mobile-sidebar-enter { transform: translateX(100%); }
         .mobile-sidebar-active { transform: translateX(0) !important; }
     </style>
     <script>
@@ -81,10 +78,10 @@
         <!-- Content injected by JavaScript -->
     </div>
 
-    <div id="notification-container" class="fixed bottom-10 right-10 z-[100] space-y-3"></div>
+    <div id="notification-container" class="fixed bottom-10 right-10 z-[110] space-y-3"></div>
 
     <script>
-        // --- 1. Constants (Define first to prevent ReferenceErrors) ---
+        // --- 1. Constants ---
         const MODULES = {
             LANDING: 'landing',
             CRM: 'crm',
@@ -97,7 +94,7 @@
             en: {
                 subtitle: "For Business Services Demos",
                 description: "Unified intelligence system for MENA enterprises. High-performance trackers localized for Egypt and EGP currency standards.",
-                launch: "Launch Tracker",
+                launch: "Demo",
                 dashboard: "Dashboard",
                 controlCenter: "Control Center",
                 active: "Active",
@@ -117,13 +114,13 @@
                 restricted: "Security: Restricted action.",
                 blocked: "Security Protocol: Developer Access Blocked.",
                 role: "Super Admin",
-                adminPortal: "Admin Portal",
-                action: "Action"
+                action: "Action",
+                submit: "Submit Data"
             },
             ar: {
-                subtitle: "لعروض خدمات الأعمال",
-                description: "نظام ذكاء موحد للمؤسسات في منطقة الشرق الأوسط وشمال أفريقيا. تتبع عالي الأداء مخصص لمصر ومعايير العملة المصرية (EGP).",
-                launch: "تشغيل المتتبع",
+                subtitle: "لخدمات الأعمال",
+                description: "انظمة لادارة اقسام شركتك ",
+                launch: "لروئية عينة ",
                 dashboard: "لوحة القيادة",
                 controlCenter: "مركز التحكم",
                 active: "نشط",
@@ -134,7 +131,7 @@
                 verified: "تم التحقق",
                 demoEnv: "بيئة العرض",
                 search: "بحث شامل...",
-                export: "تصدير",
+                export: "سحب البيانات",
                 addRecord: "إضافة سجل",
                 cancel: "إلغاء",
                 confirm: "تأكيد",
@@ -143,8 +140,8 @@
                 restricted: "أمن: إجراء مقيد.",
                 blocked: "بروتوكول أمن: تم حظر وصول المطورين.",
                 role: "مدير نظام",
-                adminPortal: "بوابة المدير",
-                action: "الإجراء"
+                action: "الإجراء",
+                submit: "إرسال البيانات"
             }
         };
 
@@ -153,79 +150,79 @@
                 title: { en: "CRM Tracker", ar: "متتبع العملاء" },
                 nav: [
                     { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة القيادة' }, icon: 'layout-dashboard' },
-                    { id: 'leads', label: { en: 'Leads', ar: 'العملاء المحتملون' }, icon: 'user-plus', tableCols: { en: ['ID', 'Name', 'Company', 'Status', 'Value'], ar: ['المعرف', 'الاسم', 'الشركة', 'الحالة', 'القيمة'] } },
-                    { id: 'customers', label: { en: 'Customers', ar: 'العملاء' }, icon: 'users', tableCols: { en: ['Name', 'Organization', 'Tier', 'Since'], ar: ['الاسم', 'المؤسسة', 'الفئة', 'منذ'] } },
-                    { id: 'contacts', label: { en: 'Contacts', ar: 'جهات الاتصال' }, icon: 'phone', tableCols: { en: ['Name', 'Role', 'Email', 'Phone'], ar: ['الاسم', 'الدور', 'الايميل', 'الهاتف'] } },
-                    { id: 'deals', label: { en: 'Deals', ar: 'الصفقات' }, icon: 'briefcase', tableCols: { en: ['Title', 'Stage', 'Value', 'Owner'], ar: ['العنوان', 'المرحلة', 'القيمة', 'المالك'] } },
-                    { id: 'pipeline', label: { en: 'Pipeline', ar: 'المسار البيعي' }, icon: 'kanban', tableCols: { en: ['Stage', 'Count', 'Value'], ar: ['المرحلة', 'العدد', 'القيمة'] } },
-                    { id: 'activities', label: { en: 'Activities', ar: 'الأنشطة' }, icon: 'clipboard-list', tableCols: { en: ['Type', 'Subject', 'With', 'Time'], ar: ['النوع', 'الموضوع', 'مع', 'الوقت'] } },
-                    { id: 'reminders', label: { en: 'Reminders', ar: 'التذكيرات' }, icon: 'bell', tableCols: { en: ['Task', 'Due', 'Priority'], ar: ['المهمة', 'الموعد', 'الأولوية'] } },
-                    { id: 'notes', label: { en: 'Notes', ar: 'الملاحظات' }, icon: 'sticky-note', tableCols: { en: ['Title', 'Author', 'Date', 'Size'], ar: ['العنوان', 'الكاتب', 'التاريخ', 'الحجم'] } },
-                    { id: 'communication', label: { en: 'Communication', ar: 'التواصل' }, icon: 'mail', tableCols: { en: ['Channel', 'With', 'Subject', 'Date'], ar: ['القناة', 'مع', 'الموضوع', 'التاريخ'] } },
-                    { id: 'reports', label: { en: 'Reports', ar: 'التقارير' }, icon: 'bar-chart-3', tableCols: { en: ['Title', 'Type', 'Date'], ar: ['العنوان', 'النوع', 'التاريخ'] } },
-                    { id: 'settings', label: { en: 'Settings', ar: 'الإعدادات' }, icon: 'settings', tableCols: { en: ['Role', 'Users', 'Permissions'], ar: ['الدور', 'المستخدمين', 'الصلاحيات'] } }
+                    { id: 'leads', label: { en: 'Leads', ar: 'العملاء المحتملون' }, icon: 'user-plus', tableCols: { en: ['Lead ID', 'Name', 'Company', 'Phone', 'Source', 'Status'], ar: ['المعرف', 'الاسم', 'الشركة', 'الهاتف', 'المصدر', 'الحالة'] } },
+                    { id: 'customers', label: { en: 'Customers', ar: 'العملاء' }, icon: 'users', tableCols: { en: ['Customer ID', 'Company', 'Industry', 'Email', 'Type', 'Revenue'], ar: ['المعرف', 'الشركة', 'الصناعة', 'الايميل', 'النوع', 'الإيراد'] } },
+                    { id: 'contacts', label: { en: 'Contacts', ar: 'جهات الاتصال' }, icon: 'phone', tableCols: { en: ['Contact ID', 'Name', 'Job Title', 'Company', 'Mobile'], ar: ['المعرف', 'الاسم', 'المنصب', 'الشركة', 'الهاتف'] } },
+                    { id: 'deals', label: { en: 'Deals', ar: 'الصفقات' }, icon: 'briefcase', tableCols: { en: ['Deal ID', 'Deal Name', 'Account', 'Value', 'Stage', 'Probability'], ar: ['المعرف', 'العنوان', 'الحساب', 'القيمة', 'المرحلة', 'الاحتمالية'] } },
+                    { id: 'pipeline', label: { en: 'Sales Pipeline', ar: 'المسار البيعي' }, icon: 'kanban', tableCols: { en: ['Stage Name', 'Order', 'Deals Count', 'Total Value'], ar: ['المرحلة', 'الترتيب', 'عدد الصفقات', 'القيمة'] } },
+                    { id: 'activities', label: { en: 'Activities', ar: 'الأنشطة' }, icon: 'clipboard-list', tableCols: { en: ['Activity ID', 'Type', 'Subject', 'Due Date', 'Status'], ar: ['المعرف', 'النوع', 'الموضوع', 'الموعد', 'الحالة'] } },
+                    { id: 'reminders', label: { en: 'Reminders', ar: 'التذكيرات' }, icon: 'bell', tableCols: { en: ['Reminder ID', 'Record', 'Date', 'Time', 'Status'], ar: ['المعرف', 'السجل', 'التاريخ', 'الوقت', 'الحالة'] } },
+                    { id: 'notes', label: { en: 'Notes', ar: 'الملاحظات' }, icon: 'sticky-note', tableCols: { en: ['Note ID', 'Linked To', 'Created By', 'Date'], ar: ['المعرف', 'الارتباط', 'الكاتب', 'التاريخ'] } },
+                    { id: 'communication', label: { en: 'Communication', ar: 'التواصل' }, icon: 'mail', tableCols: { en: ['Email/Call ID', 'Type', 'From/To', 'Subject', 'Date'], ar: ['المعرف', 'النوع', 'من/إلى', 'الموضوع', 'التاريخ'] } },
+                    { id: 'reports', label: { en: 'Reports', ar: 'التقارير' }, icon: 'bar-chart-3', tableCols: { en: ['Report Type', 'Value', 'Growth %', 'Date Range'], ar: ['نوع التقرير', 'القيمة', 'النمو', 'الفترة'] } },
+                    { id: 'settings', label: { en: 'User Roles', ar: 'أدوار المستخدمين' }, icon: 'settings', tableCols: { en: ['User Name', 'Email', 'Role', 'Status'], ar: ['الاسم', 'الايميل', 'الدور', 'الحالة'] } }
                 ]
             },
             [MODULES.HR]: {
                 title: { en: "HR System", ar: "نظام الموارد البشرية" },
                 nav: [
                     { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة القيادة' }, icon: 'layout-dashboard' },
-                    { id: 'directory', label: { en: 'Directory', ar: 'دليل الموظفين' }, icon: 'users', tableCols: { en: ['E-ID', 'Name', 'Role', 'Dept', 'Status'], ar: ['المعرف', 'الاسم', 'الدور', 'القسم', 'الحالة'] } },
-                    { id: 'profile', label: { en: 'Profile', ar: 'الملف الشخصي' }, icon: 'user', tableCols: { en: ['Field', 'Details'], ar: ['الحقل', 'التفاصيل'] } },
-                    { id: 'attendance', label: { en: 'Attendance', ar: 'الحضور والانصراف' }, icon: 'clock', tableCols: { en: ['Name', 'Date', 'In', 'Out', 'Status'], ar: ['الاسم', 'التاريخ', 'دخول', 'خروج', 'الحالة'] } },
-                    { id: 'leaves', label: { en: 'Leaves', ar: 'الإجازات' }, icon: 'calendar', tableCols: { en: ['Name', 'Type', 'Start', 'Status'], ar: ['الاسم', 'النوع', 'البداية', 'الحالة'] } },
-                    { id: 'payroll', label: { en: 'Payroll', ar: 'الرواتب' }, icon: 'wallet', tableCols: { en: ['Month', 'Staff', 'Total', 'Status'], ar: ['الشهر', 'الموظفين', 'الإجمالي', 'الحالة'] } },
-                    { id: 'contracts', label: { en: 'Contracts', ar: 'العقود' }, icon: 'file-text', tableCols: { en: ['Employee', 'Type', 'Date'], ar: ['الموظف', 'النوع', 'التاريخ'] } },
-                    { id: 'recruitment', label: { en: 'Recruitment', ar: 'التوظيف' }, icon: 'user-plus', tableCols: { en: ['Position', 'Candidates', 'Stage'], ar: ['المنصب', 'المرشحين', 'المرحلة'] } },
-                    { id: 'performance', label: { en: 'Performance', ar: 'الأداء' }, icon: 'trending-up', tableCols: { en: ['Employee', 'Score', 'Period'], ar: ['الموظف', 'التقييم', 'الفترة'] } },
-                    { id: 'training', label: { en: 'Training', ar: 'التدريب' }, icon: 'graduation-cap', tableCols: { en: ['Course', 'Enrollees', 'Progress'], ar: ['الدورة', 'المشتركين', 'التقدم'] } },
-                    { id: 'warnings', label: { en: 'Warnings', ar: 'الجزاءات' }, icon: 'alert-triangle', tableCols: { en: ['Name', 'Reason', 'Level'], ar: ['الاسم', 'السبب', 'المستوى'] } },
-                    { id: 'resignation', label: { en: 'Resignation', ar: 'الاستقالات' }, icon: 'log-out', tableCols: { en: ['Name', 'Date', 'Reason'], ar: ['الاسم', 'التاريخ', 'السبب'] } },
-                    { id: 'reports', label: { en: 'Reports', ar: 'التقارير' }, icon: 'bar-chart-3', tableCols: { en: ['Name', 'Value', 'Period'], ar: ['الاسم', 'القيمة', 'الفترة'] } },
-                    { id: 'settings', label: { en: 'Settings', ar: 'الإعدادات' }, icon: 'settings', tableCols: { en: ['Scope', 'Status'], ar: ['النطاق', 'الحالة'] } }
+                    { id: 'directory', label: { en: 'Employees', ar: 'دليل الموظفين' }, icon: 'users', tableCols: { en: ['E-ID', 'Full Name', 'Job Title', 'Dept', 'Status'], ar: ['المعرف', 'الاسم', 'المنصب', 'القسم', 'الحالة'] } },
+                    { id: 'profile', label: { en: 'Profile View', ar: 'عرض الملف' }, icon: 'user', tableCols: { en: ['Category', 'Field Name', 'Information'], ar: ['الفئة', 'الحقل', 'المعلومات'] } },
+                    { id: 'attendance', label: { en: 'Attendance', ar: 'الحضور والانصراف' }, icon: 'clock', tableCols: { en: ['Date', 'Employee', 'In', 'Out', 'Hours', 'Status'], ar: ['التاريخ', 'الموظف', 'دخول', 'خروج', 'ساعات', 'الحالة'] } },
+                    { id: 'leaves', label: { en: 'Leaves', ar: 'الإجازات' }, icon: 'calendar', tableCols: { en: ['Leave ID', 'Employee', 'Type', 'Start', 'End', 'Status'], ar: ['المعرف', 'الموظف', 'النوع', 'البداية', 'النهاية', 'الحالة'] } },
+                    { id: 'payroll', label: { en: 'Payroll', ar: 'الرواتب' }, icon: 'wallet', tableCols: { en: ['Month', 'Employee', 'Salary', 'Deductions', 'Net', 'Status'], ar: ['الشهر', 'الموظف', 'الراتب', 'الخصومات', 'الصافي', 'الحالة'] } },
+                    { id: 'contracts', label: { en: 'Contracts', ar: 'العقود' }, icon: 'file-text', tableCols: { en: ['Contract ID', 'Employee', 'Type', 'End Date', 'Status'], ar: ['المعرف', 'الموظف', 'النوع', 'النهاية', 'الحالة'] } },
+                    { id: 'recruitment', label: { en: 'Recruitment', ar: 'التوظيف' }, icon: 'user-plus', tableCols: { en: ['Job Title', 'Department', 'Applicants', 'Stage', 'Status'], ar: ['المنصب', 'القسم', 'المتقدمين', 'المرحلة', 'الحالة'] } },
+                    { id: 'performance', label: { en: 'Performance', ar: 'الأداء' }, icon: 'trending-up', tableCols: { en: ['Employee', 'Reviewer', 'Score (1-5)', 'Period'], ar: ['الموظف', 'المقيم', 'التقييم', 'الفترة'] } },
+                    { id: 'training', label: { en: 'Training', ar: 'التدريب' }, icon: 'graduation-cap', tableCols: { en: ['Training Name', 'Provider', 'Enrollees', 'Progress'], ar: ['الدورة', 'المزود', 'المسجلين', 'التقدم'] } },
+                    { id: 'warnings', label: { en: 'Warnings', ar: 'الجزاءات' }, icon: 'alert-triangle', tableCols: { en: ['Record ID', 'Employee', 'Type', 'Reason', 'Date'], ar: ['المعرف', 'الموظف', 'النوع', 'السبب', 'التاريخ'] } },
+                    { id: 'resignation', label: { en: 'Termination', ar: 'إنهاء الخدمة' }, icon: 'log-out', tableCols: { en: ['Employee', 'Exit Date', 'Reason', 'Clearance'], ar: ['الموظف', 'التاريخ', 'السبب', 'المخالصة'] } },
+                    { id: 'reports', label: { en: 'HR Reports', ar: 'تقارير الموارد' }, icon: 'bar-chart-3', tableCols: { en: ['Metric', 'Current Value', 'Target', 'Status'], ar: ['المؤشر', 'القيمة', 'المستهدف', 'الحالة'] } },
+                    { id: 'settings', label: { en: 'HR Settings', ar: 'إعدادات الموارد' }, icon: 'settings', tableCols: { en: ['Rule Name', 'Value', 'Applies To'], ar: ['القاعدة', 'القيمة', 'تطبق على'] } }
                 ]
             },
             [MODULES.FINANCE]: {
-                title: { en: "Finance Tracker", ar: "متتبع المالية" },
+                title: { en: "Finance Tracker", ar: " المالية" },
                 nav: [
                     { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة القيادة' }, icon: 'layout-dashboard' },
-                    { id: 'income', label: { en: 'Income', ar: 'الإيرادات' }, icon: 'arrow-up-right', tableCols: { en: ['Ref', 'Client', 'Amount', 'Date'], ar: ['المرجع', 'العميل', 'المبلغ', 'التاريخ'] } },
-                    { id: 'expenses', label: { en: 'Expenses', ar: 'المصاريف' }, icon: 'arrow-down-right', tableCols: { en: ['Ref', 'Vendor', 'Amount', 'Date'], ar: ['المرجع', 'المورد', 'المبلغ', 'التاريخ'] } },
-                    { id: 'invoices', label: { en: 'Invoices', ar: 'الفواتير' }, icon: 'file-signature', tableCols: { en: ['ID', 'Client', 'Amount', 'Status'], ar: ['المعرف', 'العميل', 'المبلغ', 'الحالة'] } },
-                    { id: 'bills', label: { en: 'Bills', ar: 'الفواتير المستحقة' }, icon: 'receipt', tableCols: { en: ['Vendor', 'Amount', 'Due'], ar: ['المورد', 'المبلغ', 'الاستحقاق'] } },
-                    { id: 'payments', label: { en: 'Payments', ar: 'المدفوعات' }, icon: 'credit-card', tableCols: { en: ['Recipient', 'Amount', 'Method'], ar: ['المستلم', 'المبلغ', 'الطريقة'] } },
-                    { id: 'wallets', label: { en: 'Wallets', ar: 'المحافظ' }, icon: 'wallet', tableCols: { en: ['Name', 'Balance', 'Type'], ar: ['الاسم', 'الرصيد', 'النوع'] } },
-                    { id: 'cashflow', label: { en: 'Cash Flow', ar: 'التدفق المالي' }, icon: 'trending-up', tableCols: { en: ['Month', 'Inflow', 'Outflow'], ar: ['الشهر', 'الوارد', 'الصادر'] } },
-                    { id: 'budgeting', label: { en: 'Budgeting', ar: 'الميزانية' }, icon: 'pie-chart', tableCols: { en: ['Dept', 'Budget', 'Spent'], ar: ['القسم', 'الميزانية', 'المنفق'] } },
-                    { id: 'taxes', label: { en: 'Taxes', ar: 'الضرائب' }, icon: 'shield-check', tableCols: { en: ['Period', 'Base', 'VAT', 'Status'], ar: ['الفترة', 'الأساس', 'القيمة المضافة', 'الحالة'] } },
-                    { id: 'profitloss', label: { en: 'P&L', ar: 'الأرباح والخسائر' }, icon: 'bar-chart-2', tableCols: { en: ['Label', 'Value'], ar: ['البند', 'القيمة'] } },
-                    { id: 'financial_reports', label: { en: 'Reports', ar: 'التقارير المالية' }, icon: 'file-text', tableCols: { en: ['Title', 'Format', 'Date'], ar: ['العنوان', 'التنسيق', 'التاريخ'] } },
-                    { id: 'export', label: { en: 'Export', ar: 'تصدير' }, icon: 'download', tableCols: { en: ['File', 'Size', 'Date'], ar: ['الملف', 'الحجم', 'التاريخ'] } },
-                    { id: 'settings', label: { en: 'Settings', ar: 'الإعدادات' }, icon: 'settings', tableCols: { en: ['Option', 'Config'], ar: ['الخيار', 'الإعداد'] } }
+                    { id: 'income', label: { en: 'Income', ar: 'الإيرادات' }, icon: 'arrow-up-right', tableCols: { en: ['Income ID', 'Category', 'Source', 'Amount', 'Date', 'Status'], ar: ['المعرف', 'الفئة', 'المصدر', 'المبلغ', 'التاريخ', 'الحالة'] } },
+                    { id: 'expenses', label: { en: 'Expenses', ar: 'المصاريف' }, icon: 'arrow-down-right', tableCols: { en: ['Expense ID', 'Vendor', 'Category', 'Amount', 'Method', 'Status'], ar: ['المعرف', 'المورد', 'الفئة', 'المبلغ', 'الطريقة', 'الحالة'] } },
+                    { id: 'invoices', label: { en: 'Invoices', ar: 'الفواتير' }, icon: 'file-signature', tableCols: { en: ['Inv #', 'Client', 'Due Date', 'Total', 'Amount Paid', 'Status'], ar: ['رقم الفاتورة', 'العميل', 'الموعد', 'الإجمالي', 'المدفوع', 'الحالة'] } },
+                    { id: 'bills', label: { en: 'Bills', ar: 'الفواتير المستحقة' }, icon: 'receipt', tableCols: { en: ['Bill #', 'Vendor', 'Due Date', 'Total', 'Status'], ar: ['رقم الفاتورة', 'المورد', 'الموعد', 'الإجمالي', 'الحالة'] } },
+                    { id: 'payments', label: { en: 'Payments', ar: 'المدفوعات' }, icon: 'credit-card', tableCols: { en: ['Payment ID', 'Payer/Payee', 'Amount', 'Method', 'Date'], ar: ['المعرف', 'المرسل/المستلم', 'المبلغ', 'الطريقة', 'التاريخ'] } },
+                    { id: 'wallets', label: { en: 'Wallets', ar: 'المحافظ' }, icon: 'wallet', tableCols: { en: ['Account Name', 'Type', 'Currency', 'Balance'], ar: ['اسم الحساب', 'النوع', 'العملة', 'الرصيد'] } },
+                    { id: 'cashflow', label: { en: 'Cash Flow', ar: 'التدفق المالي' }, icon: 'trending-up', tableCols: { en: ['Month', 'Inflow', 'Outflow', 'Net Flow'], ar: ['الشهر', 'الوارد', 'الصادر', 'الصافي'] } },
+                    { id: 'budgeting', label: { en: 'Budgeting', ar: 'الميزانية' }, icon: 'pie-chart', tableCols: { en: ['Category', 'Budget', 'Actual Spent', 'Usage %'], ar: ['الفئة', 'الميزانية', 'المنفق', 'الاستخدام'] } },
+                    { id: 'taxes', label: { en: 'Taxes', ar: 'الضرائب' }, icon: 'shield-check', tableCols: { en: ['Period', 'Tax Type', 'Base Amount', 'VAT', 'Status'], ar: ['الفترة', 'النوع', 'الأساس', 'القيمة المضافة', 'الحالة'] } },
+                    { id: 'profitloss', label: { en: 'P&L', ar: 'الأرباح والخسائر' }, icon: 'bar-chart-2', tableCols: { en: ['Label', 'This Period', 'Last Period'], ar: ['البند', 'الفترة الحالية', 'الفترة الماضية'] } },
+                    { id: 'financial_reports', label: { en: 'Reports', ar: 'التقارير المالية' }, icon: 'file-text', tableCols: { en: ['Title', 'Format', 'Generated Date'], ar: ['العنوان', 'التنسيق', 'تاريخ الإنشاء'] } },
+                    { id: 'export', label: { en: 'Export', ar: 'تصدير' }, icon: 'download', tableCols: { en: ['File Name', 'Module', 'Size', 'Date'], ar: ['اسم الملف', 'الوحدة', 'الحجم', 'التاريخ'] } },
+                    { id: 'settings', label: { en: 'Settings', ar: 'الإعدادات' }, icon: 'settings', tableCols: { en: ['Option', 'Configuration', 'Status'], ar: ['الخيار', 'الإعداد', 'الحالة'] } }
                 ]
             },
             [MODULES.SALES]: {
-                title: { en: "Sales Tracker", ar: "متتبع المبيعات" },
+                title: { en: "Sales Tracker", ar: " المبيعات" },
                 nav: [
                     { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة القيادة' }, icon: 'layout-dashboard' },
-                    { id: 'leads', label: { en: 'Leads', ar: 'العملاء المهتمون' }, icon: 'user-plus', tableCols: { en: ['Name', 'Source', 'Status'], ar: ['الاسم', 'المصدر', 'الحالة'] } },
-                    { id: 'opportunities', label: { en: 'Opportunities', ar: 'الفرص' }, icon: 'briefcase', tableCols: { en: ['Project', 'Value', 'Prob'], ar: ['المشروع', 'القيمة', 'الاحتمالية'] } },
-                    { id: 'quotations', label: { en: 'Quotations', ar: 'عروض الأسعار' }, icon: 'file-text', tableCols: { en: ['ID', 'Client', 'Total', 'Status'], ar: ['المعرف', 'العميل', 'الإجمالي', 'الحالة'] } },
-                    { id: 'orders', label: { en: 'Orders', ar: 'الطلبات' }, icon: 'package', tableCols: { en: ['ID', 'Customer', 'Total', 'Status'], ar: ['المعرف', 'العميل', 'الإجمالي', 'الحالة'] } },
-                    { id: 'invoices', label: { en: 'Invoices', ar: 'الفواتير' }, icon: 'file-signature', tableCols: { en: ['ID', 'Customer', 'Total', 'Status'], ar: ['المعرف', 'العميل', 'الإجمالي', 'الحالة'] } },
-                    { id: 'products', label: { en: 'Products', ar: 'المنتجات' }, icon: 'layers', tableCols: { en: ['Name', 'Stock', 'Price'], ar: ['الاسم', 'المخزون', 'السعر'] } },
-                    { id: 'pricing', label: { en: 'Pricing', ar: 'التسعير' }, icon: 'tag', tableCols: { en: ['Plan', 'Rate'], ar: ['الخطة', 'السعر'] } },
-                    { id: 'pipeline', label: { en: 'Pipeline', ar: 'المسار' }, icon: 'kanban', tableCols: { en: ['Stage', 'Value'], ar: ['المرحلة', 'القيمة'] } },
-                    { id: 'targets', label: { en: 'Targets', ar: 'الأهداف' }, icon: 'target', tableCols: { en: ['Rep', 'Target', 'Current'], ar: ['المندوب', 'الهدف', 'الحالي'] } },
-                    { id: 'commissions', label: { en: 'Commissions', ar: 'العمولات' }, icon: 'dollar-sign', tableCols: { en: ['Rep', 'Amount', 'Status'], ar: ['المندوب', 'المبلغ', 'الحالة'] } },
-                    { id: 'customers', label: { en: 'Customers', ar: 'العملاء الحاليين' }, icon: 'users', tableCols: { en: ['Name', 'Since', 'Total Sales'], ar: ['الاسم', 'منذ', 'إجمالي المبيعات'] } },
-                    { id: 'reports', label: { en: 'Reports', ar: 'التقارير' }, icon: 'bar-chart-3', tableCols: { en: ['Indicator', 'Value'], ar: ['المؤشر', 'القيمة'] } },
-                    { id: 'settings', label: { en: 'Settings', ar: 'الإعدادات' }, icon: 'settings', tableCols: { en: ['Key', 'Value'], ar: ['المفتاح', 'القيمة'] } }
+                    { id: 'leads', label: { en: 'Leads', ar: 'العملاء المهتمون' }, icon: 'user-plus', tableCols: { en: ['Name', 'Source', 'Status', 'Rep'], ar: ['الاسم', 'المصدر', 'الحالة', 'المندوب'] } },
+                    { id: 'opportunities', label: { en: 'Opportunities', ar: 'الفرص' }, icon: 'briefcase', tableCols: { en: ['Project', 'Value', 'Prob %', 'Close Date'], ar: ['المشروع', 'القيمة', 'الاحتمالية', 'تاريخ الإغلاق'] } },
+                    { id: 'quotations', label: { en: 'Quotations', ar: 'عروض الأسعار' }, icon: 'file-text', tableCols: { en: ['Quote ID', 'Client', 'Grand Total', 'Status'], ar: ['المعرف', 'العميل', 'الإجمالي', 'الحالة'] } },
+                    { id: 'orders', label: { en: 'Orders', ar: 'الطلبات' }, icon: 'package', tableCols: { en: ['Order ID', 'Customer', 'Delivery', 'Status'], ar: ['المعرف', 'العميل', 'التوصيل', 'الحالة'] } },
+                    { id: 'invoices', label: { en: 'Invoices', ar: 'الفواتير' }, icon: 'file-signature', tableCols: { en: ['Invoice ID', 'Customer', 'Total', 'Due'], ar: ['المعرف', 'العميل', 'الإجمالي', 'الاستحقاق'] } },
+                    { id: 'products', label: { en: 'Products', ar: 'المنتجات' }, icon: 'layers', tableCols: { en: ['Name', 'SKU', 'Category', 'Stock', 'Price'], ar: ['الاسم', 'SKU', 'الفئة', 'المخزون', 'السعر'] } },
+                    { id: 'pricing', label: { en: 'Pricing Rules', ar: 'قواعد التسعير' }, icon: 'tag', tableCols: { en: ['Plan Name', 'Segment', 'Rate', 'Valid To'], ar: ['الخطة', 'الشريحة', 'السعر', 'صالح حتى'] } },
+                    { id: 'pipeline', label: { en: 'Sales Pipeline', ar: 'المسار' }, icon: 'kanban', tableCols: { en: ['Stage', 'Order', 'Value'], ar: ['المرحلة', 'الترتيب', 'القيمة'] } },
+                    { id: 'targets', label: { en: 'Sales Targets', ar: 'الأهداف' }, icon: 'target', tableCols: { en: ['Sales Rep', 'Target Revenue', 'Achieved', '% Achieved'], ar: ['المندوب', 'المستهدف', 'المحقق', 'النسبة'] } },
+                    { id: 'commissions', label: { en: 'Commissions', ar: 'العمولات' }, icon: 'dollar-sign', tableCols: { en: ['Rep Name', 'Revenue', 'Comm Amount', 'Status'], ar: ['المندوب', 'الإيراد', 'العمولة', 'الحالة'] } },
+                    { id: 'customers', label: { en: 'Customers', ar: 'العملاء' }, icon: 'users', tableCols: { en: ['Company', 'Contact', 'Since', 'Total Revenue'], ar: ['الشركة', 'المسؤول', 'منذ', 'إجمالي المبيعات'] } },
+                    { id: 'reports', label: { en: 'Sales Reports', ar: 'تقارير المبيعات' }, icon: 'bar-chart-3', tableCols: { en: ['KPI Indicator', 'Current Value', 'Target'], ar: ['المؤشر', 'القيمة', 'المستهدف'] } },
+                    { id: 'settings', label: { en: 'Settings', ar: 'الإعدادات' }, icon: 'settings', tableCols: { en: ['Configuration Key', 'Value', 'Last Sync'], ar: ['مفتاح الإعداد', 'القيمة', 'آخر مزامنة'] } }
                 ]
             }
         };
 
-        // --- 2. System State ---
+        // --- 3. System State ---
         let state = {
             module: MODULES.LANDING,
             page: 'dashboard',
@@ -233,89 +230,61 @@
             language: 'en',
             isModalOpen: false,
             isMobileMenuOpen: false,
-            user: { 
-                name: { en: 'Kareem Abdelaziz', ar: 'كريم عبد العزيز' }, 
-                role: { en: 'Super Admin', ar: 'مدير نظام' }, 
-                initials: 'KA' 
-            },
-            data: {
-                crm: {
-                    leads: [{ id: 'L-701', name: 'Ahmed Mansour', company: 'Cairo Tech', status: 'In Progress', value: '45,000 EGP' }],
-                    customers: [{ name: 'Tarek El-Sheikh', org: 'Giza Systems', tier: 'Platinum', since: '2022' }],
-                    contacts: [{ name: 'Mostafa Haggag', role: 'CTO', email: 'mostafa@cairo.com', phone: '01012345678' }],
-                    deals: [{ title: 'ERP Implementation', stage: 'Negotiation', value: '1,200,000 EGP', owner: 'Kareem A.' }],
-                    pipeline: [{ stage: 'Discovery', count: '12', value: '450,000 EGP' }],
-                    activities: [{ type: 'Call', subject: 'Follow up', with: 'Ahmed Mansour', time: '10:30 AM' }],
-                    reminders: [{ task: 'Send Proposal', due: 'Tomorrow', priority: 'High' }],
-                    notes: [{ title: 'Minutes', author: 'Kareem', date: 'Feb 10', size: '1.2 MB' }],
-                    communication: [{ channel: 'Email', with: 'Mona Zaki', subject: 'Inquiry', date: 'Feb 12' }],
-                    reports: [{ title: 'Monthly Conversion', type: 'Growth', date: 'Jan 2024' }],
-                    settings: [{ role: 'Admin', users: '2', permissions: 'Full' }]
-                },
-                hr: {
-                    directory: [{ id: 'MNT-001', name: 'Youssef El-Shamy', role: 'CTO', dept: 'Tech', status: 'Active' }],
-                    profile: [{ label: 'Name', value: 'Youssef El-Shamy' }],
-                    attendance: [{ name: 'Youssef El-Shamy', date: 'Feb 14', in: '08:30', out: '17:30', status: 'On Time' }],
-                    leaves: [{ name: 'Amr Waked', type: 'Annual', start: 'Feb 20', status: 'Approved' }],
-                    payroll: [{ month: 'January 2024', staff: '42', total: '780,000 EGP', status: 'Paid' }],
-                    contracts: [{ name: 'Sara E.', type: 'Full-time', signed: '2022' }],
-                    recruitment: [{ position: 'Dev', candidates: '14', stage: 'Interview' }],
-                    performance: [{ name: 'Youssef', score: '4.8', period: 'Q4' }],
-                    training: [{ course: 'AWS', enrollees: '5', progress: '65%' }],
-                    warnings: [{ name: 'Hassan', reason: 'Late', level: 'Verbal' }],
-                    resignation: [{ name: 'Mervat', date: '2024', reason: 'Personal' }],
-                    reports: [{ name: 'Turnover', val: '2.5%', period: 'Annual' }],
-                    settings: [{ scope: 'Global', status: 'Enabled' }]
-                },
-                finance: {
-                    income: [{ ref: 'INV-990', client: 'Cairo Tech', amount: '+45k', date: 'Feb 14' }],
-                    expenses: [{ ref: 'EXP-101', vendor: 'AWS', amount: '-4k', date: 'Feb 10' }],
-                    invoices: [{ id: 'INV-001', client: 'Giza', amount: '120k', status: 'Paid' }],
-                    bills: [{ vendor: 'Telecom', amount: '2,500', due: 'Feb 28' }],
-                    payments: [{ to: 'Sara', amount: '18k', method: 'Bank' }],
-                    wallets: [{ name: 'CIB Account', balance: '1.4M', type: 'Bank' }],
-                    cashflow: [{ month: 'Jan', inflow: '850k', outflow: '620k' }],
-                    budgeting: [{ dept: 'Tech', budget: '200k', spent: '145k' }],
-                    taxes: [{ period: 'Q1', base: '2.1M', vat: '294k', status: 'Filing' }],
-                    profitloss: [{ label: 'Revenue', val: '5.2M' }],
-                    financial_reports: [{ title: 'Audited 23', format: 'PDF', date: 'Jan 20' }],
-                    export: [{ file: 'Ledger.xlsx', size: '450 KB', date: 'Today' }],
-                    settings: [{ option: 'VAT', configuration: '14.0%' }]
-                },
-                sales: {
-                    leads: [{ name: 'Nour', source: 'Web', status: 'New' }],
-                    opportunities: [{ name: 'Upgrade', value: '4M', prob: '60%' }],
-                    quotations: [{ id: 'QUO-441', client: 'Ahmed', total: '15k', status: 'Sent' }],
-                    orders: [{ id: 'ORD-101', customer: 'Delta', total: '12k', status: 'Shipped' }],
-                    invoices: [{ id: 'INV-S-01', customer: 'Cairo', total: '45k', status: 'Unpaid' }],
-                    products: [{ name: 'SaaS', stock: '99', price: '25k' }],
-                    pricing: [{ plan: 'Starter', rate: '2.5k' }],
-                    pipeline: [{ stage: 'Prospecting', value: '1.2M' }],
-                    targets: [{ rep: 'Ahmed', target: '100k', current: '85k' }],
-                    commissions: [{ name: 'Sara', amount: '4.5k', status: 'Pending' }],
-                    customers: [{ name: 'PetroJet', since: '2020', total: '2.4M' }],
-                    reports: [{ indicator: 'Win Ratio', value: '68%' }],
-                    settings: [{ key: 'Discount', value: '15%' }]
-                }
-            }
+            user: { initials: 'KA' },
+            data: {}
         };
 
-        // --- 4. Core Helper Functions (Renamed translation helper to avoid SyntaxError) ---
         const _t = (en, ar) => state.language === 'en' ? en : ar;
         const ut = (key) => UI[state.language][key];
+
+        // --- 4. Logic Functions ---
+
+        function initData() {
+            // Pre-defined realistic data to ensure no "Sample Data" remains
+            const REAL_NAMES = ["Ahmed Sharaf", "Mona Zaki", "Kareem Abdelaziz", "Sara El-Gohary", "Youssef El-Shamy", "Omar Khairat", "Layla Eloui", "Tarek El-Sheikh"];
+            const REAL_COMPANIES = ["Cairo Tech Solutions", "Giza Systems", "Nile Logistics", "Delta Foods", "Alexandria Steel", "Suez Canal Energy", "Red Sea Tourism", "PetroJet"];
+
+            Object.keys(SYSTEM_MAP).forEach(mod => {
+                state.data[mod] = {};
+                SYSTEM_MAP[mod].nav.forEach(page => {
+                    if (page.id !== 'dashboard') {
+                        state.data[mod][page.id] = [];
+                        
+                        // Create 3 realistic rows for each page
+                        for(let i=0; i<3; i++) {
+                            const row = {};
+                            (page.tableCols.en).forEach(col => {
+                                let val = "";
+                                if (col.includes('ID') || col.includes('#')) val = (1024 + i).toString();
+                                else if (col.includes('Name')) val = REAL_NAMES[(idx = (i + Math.floor(Math.random() * 5)) % REAL_NAMES.length)];
+                                else if (col.includes('Company') || col.includes('Client') || col.includes('Vendor')) val = REAL_COMPANIES[(i + Math.floor(Math.random() * 5)) % REAL_COMPANIES.length];
+                                else if (col.includes('Phone') || col.includes('Mobile')) val = "010" + Math.floor(10000000 + Math.random() * 90000000);
+                                else if (col.includes('Email')) val = REAL_NAMES[i % REAL_NAMES.length].toLowerCase().replace(" ", ".") + "@example.com";
+                                else if (col.includes('Value') || col.includes('Amount') || col.includes('Salary') || col.includes('Revenue')) val = (Math.floor(Math.random() * 150) + 10) + ",000 EGP";
+                                else if (col.includes('Status')) val = ["Active", "Pending", "Completed", "Paid"][i % 4];
+                                else if (col.includes('Date')) val = "2024-02-" + (10 + i);
+                                else if (col.includes('Stage')) val = ["Discovery", "Proposal", "Negotiation"][i % 3];
+                                else if (col.includes('Source')) val = ["Website", "LinkedIn", "Referral"][i % 3];
+                                else if (col.includes('Job Title')) val = ["CTO", "HR Lead", "Sales Manager", "Dev Ops"][i % 4];
+                                else if (col.includes('Dept') || col.includes('Category')) val = ["Technology", "Operations", "Finance", "Sales"][i % 4];
+                                else val = state.language === 'ar' ? "بيانات حقيقية" : "Verified Entry";
+                                row[col] = val;
+                            });
+                            state.data[mod][page.id].push(row);
+                        }
+                    }
+                });
+            });
+        }
 
         function pushNotify(msg) {
             const container = document.getElementById('notification-container');
             const toast = document.createElement('div');
-            toast.className = 'bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-6 py-4 md:px-8 md:py-5 rounded-2xl md:rounded-3xl shadow-2xl flex items-center gap-3 md:gap-4 fade-in border-l-4 border-mantiq-cyan max-w-[90vw] md:max-w-md transition-all duration-300';
-            toast.innerHTML = `<i data-lucide="shield-check" class="text-mantiq-cyan w-5 h-5 md:w-6 md:h-6"></i><span class="text-xs md:text-sm font-bold">${msg}</span>`;
+            toast.className = 'bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-5 rounded-3xl shadow-2xl flex items-center gap-4 fade-in border-l-4 border-mantiq-cyan transition-all duration-300';
+            toast.innerHTML = `<i data-lucide="shield-check" class="text-mantiq-cyan"></i><span class="text-sm font-bold">${msg}</span>`;
             container.appendChild(toast);
             lucide.createIcons();
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(20px)';
-                setTimeout(() => toast.remove(), 500);
-            }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 500); }, 3000);
         }
 
         function setLanguage(l) {
@@ -336,8 +305,6 @@
             state.page = p;
             state.isMobileMenuOpen = false;
             render();
-            const main = document.querySelector('main');
-            if (main) main.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function toggleDarkMode() {
@@ -346,39 +313,26 @@
             render();
         }
 
-        function toggleModal() {
-            state.isModalOpen = !state.isModalOpen;
-            render();
-        }
-
-        function toggleMobileMenu() {
-            state.isMobileMenuOpen = !state.isMobileMenuOpen;
-            render();
-        }
-
-        function handleAddData() {
-            const currentModuleData = state.data[state.module];
-            const currentPageData = currentModuleData[state.page];
+        function handleAddData(e) {
+            if(e) e.preventDefault();
+            const form = document.getElementById('add-record-form');
+            const formData = new FormData(form);
+            const newRecord = {};
+            formData.forEach((value, key) => { newRecord[key] = value || "-"; });
             
-            if (Array.isArray(currentPageData)) {
-                const template = currentPageData[0] || {};
-                const newItem = {};
-                Object.keys(template).forEach(key => {
-                    newItem[key] = (typeof template[key] === 'string' && template[key].includes('EGP')) ? "1,000 EGP" : (state.language === 'ar' ? "سجل جديد" : "New Entry");
-                });
-                currentPageData.unshift(newItem);
-                pushNotify(state.language === 'ar' ? "تم إضافة السجل بنجاح" : "Record added successfully.");
-            }
-            toggleModal();
+            state.data[state.module][state.page].unshift(newRecord);
+            pushNotify(state.language === 'ar' ? "تم حفظ البيانات في مانيتك بنجاح" : "Data synchronized with MANTIQ successfully.");
+            state.isModalOpen = false;
+            render();
         }
 
         function handleDelete(idx) {
             state.data[state.module][state.page].splice(idx, 1);
-            pushNotify(state.language === 'ar' ? "تم حذف السجل" : "Record deleted.");
+            pushNotify(state.language === 'ar' ? "تم حذف السجل من القاعدة" : "Record purged from database.");
             render();
         }
 
-        // --- 5. Rendering Components ---
+        // --- 5. Rendering ---
 
         function getLogo(sizeClass = "h-8") {
             return `<div class="flex items-center gap-1 ${sizeClass}"><span class="text-[1.2em] font-black tracking-tight text-mantiq-navy dark:text-white uppercase">MANTIQ</span></div>`;
@@ -390,7 +344,7 @@
                     <div class="bg-mantiq-cyan text-white p-4 md:p-6 rounded-2xl md:rounded-[2rem] inline-block mb-6 md:mb-10 shadow-xl group-hover:scale-110 transition-transform">
                         <i data-lucide="${cfg.nav[0].icon}" class="w-6 h-6 md:w-9 md:h-9"></i>
                     </div>
-                    <h3 class="text-2xl md:text-3xl font-extrabold text-mantiq-navy dark:text-white mb-2 md:mb-3 uppercase tracking-tighter">${_t(cfg.title.en, cfg.title.ar)}</h3>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-mantiq-navy dark:text-white mb-2 md:mb-3 uppercase tracking-tighter leading-none">${_t(cfg.title.en, cfg.title.ar)}</h3>
                     <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mb-8 md:mb-12 flex-1 leading-relaxed">${ut('description')}</p>
                     <div class="flex items-center text-mantiq-cyan font-black text-[10px] md:text-xs uppercase tracking-widest">
                         ${ut('launch')} <i data-lucide="arrow-right" class="mx-2 w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-3 transition-transform ${state.language === 'ar' ? 'rotate-180' : ''}"></i>
@@ -399,22 +353,20 @@
             `).join('');
 
             return `
-                <div class="min-h-screen flex flex-col items-center justify-center py-20 px-6 md:p-8 fade-in relative bg-slate-50 dark:bg-slate-950 overflow-y-auto overflow-x-hidden">
+                <div class="min-h-screen flex flex-col items-center justify-center py-20 px-6 md:p-8 fade-in bg-slate-50 dark:bg-slate-950 overflow-y-auto overflow-x-hidden">
                     <div class="absolute top-6 right-6 md:top-10 md:right-10 flex gap-4 z-50">
-                        <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="px-4 py-2 md:px-5 md:py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl font-black text-xs md:text-sm uppercase tracking-tighter text-mantiq-navy dark:text-white transition-all">
+                        <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl font-black text-xs uppercase tracking-tighter text-mantiq-navy dark:text-white transition-all">
                             ${state.language === 'en' ? 'Arabic' : 'English'}
                         </button>
                         <button onclick="toggleDarkMode()" class="p-3 md:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-xl hover:scale-110 transition-all">
-                            <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" class="w-5 h-5 md:w-6 md:h-6 ${state.darkMode ? 'text-amber-400' : 'text-mantiq-cyan'}"></i>
+                            <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" class="w-6 h-6 ${state.darkMode ? 'text-amber-400' : 'text-mantiq-cyan'}"></i>
                         </button>
                     </div>
-                    
                     <div class="text-center mb-12 md:mb-20 max-w-4xl pt-10">
                         <div class="flex justify-center mb-6 md:mb-10 scale-125 md:scale-150">${getLogo("h-10 md:h-16 text-2xl md:text-5xl")}</div>
                         <h1 class="text-4xl md:text-7xl font-black text-mantiq-navy dark:text-white mb-4 md:mb-6 tracking-tight leading-none uppercase">${ut('subtitle')}</h1>
                         <p class="text-slate-500 dark:text-slate-400 text-sm md:text-xl font-medium px-4 md:px-12 leading-relaxed max-w-2xl mx-auto">${ut('description')}</p>
                     </div>
-                    
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl relative z-10 pb-12">
                         ${modulesHtml}
                     </div>
@@ -424,34 +376,22 @@
 
         function renderMobileNav() {
             const config = SYSTEM_MAP[state.module];
-            const navHtml = config.nav.map(item => `
-                <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white shadow-lg' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}">
-                    <i data-lucide="${item.icon}" size="18"></i>
-                    <span>${_t(item.label.en, item.label.ar)}</span>
-                </button>
-            `).join('');
-
             return `
                 <div class="fixed inset-0 z-[100] lg:hidden">
-                    <div class="absolute inset-0 bg-mantiq-navy/60 backdrop-blur-sm" onclick="toggleMobileMenu()"></div>
+                    <div class="absolute inset-0 bg-mantiq-navy/60 backdrop-blur-sm" onclick="state.isMobileMenuOpen=false; render();"></div>
                     <div class="absolute ${state.language === 'en' ? 'left-0' : 'right-0'} top-0 h-full w-4/5 max-w-xs bg-white dark:bg-slate-900 shadow-2xl flex flex-col fade-in mobile-sidebar-active transition-transform duration-300">
                         <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                             ${getLogo("h-6 text-lg")}
-                            <button onclick="toggleMobileMenu()" class="p-2 text-slate-400"><i data-lucide="x" size="24"></i></button>
+                            <button onclick="state.isMobileMenuOpen=false; render();" class="p-2 text-slate-400"><i data-lucide="x" size="24"></i></button>
                         </div>
                         <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
                              <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${_t(config.title.en, config.title.ar)}</p>
-                            ${navHtml}
+                            ${config.nav.map(item => `
+                                <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white' : 'text-slate-500 hover:bg-slate-100'}">
+                                    <i data-lucide="${item.icon}" size="18"></i><span>${_t(item.label.en, item.label.ar)}</span>
+                                </button>
+                            `).join('')}
                         </nav>
-                        <div class="p-8 border-t border-slate-100 dark:border-slate-800">
-                             <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-xl bg-mantiq-navy text-white flex items-center justify-center font-black">${state.user.initials}</div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-xs font-black text-mantiq-navy dark:text-white truncate">${_t(state.user.name.en, state.user.name.ar)}</p>
-                                    <p class="text-[8px] text-slate-500 font-bold uppercase">${ut('role')}</p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             `;
@@ -469,91 +409,85 @@
             return `
                 <div class="flex bg-slate-50 dark:bg-slate-950 transition-colors h-screen overflow-hidden">
                     <aside class="hidden lg:flex w-80 h-screen fixed ${state.language === 'en' ? 'left-0 border-r' : 'right-0 border-l'} top-0 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 flex flex-col">
-                        <div class="p-10 border-b border-slate-200 dark:border-slate-800">
-                            <button onclick="setModule(MODULES.LANDING)">${getLogo("h-8 text-xl")}</button>
-                        </div>
+                        <div class="p-10 border-b border-slate-200 dark:border-slate-800"><button onclick="setModule(MODULES.LANDING)">${getLogo("h-8 text-xl")}</button></div>
                         <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
                             <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${_t(config.title.en, config.title.ar)}</p>
                             ${navHtml}
                         </nav>
                         <div class="p-8 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
                             <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-mantiq-navy text-white flex items-center justify-center font-black shadow-lg">${state.user.initials}</div>
+                                <div class="w-12 h-12 rounded-2xl bg-mantiq-navy text-white flex items-center justify-center font-black shadow-lg">AS</div>
                                 <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-black text-mantiq-navy dark:text-white truncate">${_t(state.user.name.en, state.user.name.ar)}</p>
+                                    <p class="text-sm font-black text-mantiq-navy dark:text-white truncate uppercase">${_t('Ahmed Sharaf', 'أحمد شرف')}</p>
                                     <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">${ut('role')}</p>
                                 </div>
-                                <button onclick="toggleDarkMode()" class="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
-                                    <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" size="16"></i>
-                                </button>
+                                <button onclick="toggleDarkMode()" class="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="${state.darkMode ? 'sun' : 'moon'}" size="16"></i></button>
                             </div>
                         </div>
                     </aside>
 
                     <div class="flex-1 ${state.language === 'en' ? 'lg:pl-80' : 'lg:pr-80'} h-screen overflow-y-auto custom-scrollbar relative">
+                        <header class="h-28 bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-slate-800 items-center justify-between px-14 sticky top-0 z-20 hidden lg:flex">
+                            <div>
+                                <div class="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
+                                    <span>${ut('demoEnv')}</span><i data-lucide="chevron-right" size="12" class="${state.language === 'ar' ? 'rotate-180' : ''}"></i><span class="text-mantiq-cyan uppercase font-bold">${_t(config.title.en, config.title.ar)}</span>
+                                </div>
+                                <h1 class="text-3xl font-black text-mantiq-navy dark:text-white capitalize tracking-tighter">${_t(state.page.replace('_', ' '), config.nav.find(n=>n.id===state.page).label.ar)}</h1>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="font-black text-xs uppercase px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-colors">${state.language === 'en' ? 'Arabic' : 'English'}</button>
+                                <button class="relative p-3 text-slate-400 hover:text-mantiq-cyan"><i data-lucide="bell" size="22"></i><span class="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-950"></span></button>
+                                <button onclick="setModule(MODULES.LANDING)" class="p-3 text-slate-400 hover:text-rose-500"><i data-lucide="log-out" size="22"></i></button>
+                            </div>
+                        </header>
+
+                        <!-- Mobile Header -->
                         <div class="lg:hidden flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-30">
                              <button onclick="setModule(MODULES.LANDING)">${getLogo("h-6 text-lg")}</button>
                              <div class="flex items-center gap-3">
-                                <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="px-2 py-1 bg-slate-100 dark:bg-slate-800 rounded-lg text-[10px] font-black uppercase">${state.language === 'en' ? 'AR' : 'EN'}</button>
-                                <button onclick="toggleDarkMode()" class="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg"><i data-lucide="${state.darkMode ? 'sun' : 'moon'}" size="16"></i></button>
                                 <button onclick="toggleMobileMenu()" class="p-2 bg-mantiq-cyan text-white rounded-lg"><i data-lucide="menu" size="18"></i></button>
                              </div>
                         </div>
 
-                        <header class="hidden lg:flex h-28 bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-slate-800 items-center justify-between px-14 sticky top-0 z-20">
-                            <div>
-                                <div class="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
-                                    <span>${ut('demoEnv')}</span>
-                                    <i data-lucide="chevron-right" size="12" class="${state.language === 'ar' ? 'rotate-180' : ''}"></i>
-                                    <span class="text-mantiq-cyan uppercase font-bold">${_t(config.title.en, config.title.ar)}</span>
-                                </div>
-                                <h1 class="text-3xl font-black text-mantiq-navy dark:text-white capitalize tracking-tighter">${_t(state.page.replace('_', ' '), SYSTEM_MAP[state.module].nav.find(n=>n.id===state.page).label.ar)}</h1>
-                            </div>
-                            <div class="flex items-center gap-8">
-                                <div class="relative group">
-                                    <i data-lucide="search" size="18" class="absolute ${state.language === 'en' ? 'left-5' : 'right-5'} top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-mantiq-cyan transition-colors"></i>
-                                    <input type="text" placeholder="${ut('search')}" class="bg-slate-100 dark:bg-slate-900 border-none rounded-2xl ${state.language === 'en' ? 'pl-14 pr-6' : 'pr-14 pl-6'} py-4 text-sm w-96 focus:ring-2 focus:ring-mantiq-cyan dark:text-white font-medium outline-none" />
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="font-black text-xs uppercase px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                        ${state.language === 'en' ? 'Arabic' : 'English'}
-                                    </button>
-                                    <button class="relative p-3 text-slate-400 hover:text-mantiq-cyan transition-all">
-                                        <i data-lucide="bell" size="22"></i>
-                                        <span class="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-950 animate-bounce"></span>
-                                    </button>
-                                    <button onclick="setModule(MODULES.LANDING)" class="p-3 text-slate-400 hover:text-rose-500 transition-all ml-2">
-                                        <i data-lucide="log-out" size="22"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </header>
-
                         <main class="p-6 md:p-14 max-w-[1500px] mx-auto fade-in">
-                            <div class="lg:hidden mb-6">
-                                <h1 class="text-2xl font-black text-mantiq-navy dark:text-white capitalize tracking-tighter">${_t(state.page.replace('_', ' '), SYSTEM_MAP[state.module].nav.find(n=>n.id===state.page).label.ar)}</h1>
-                                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">${_t(config.title.en, config.title.ar)}</p>
-                            </div>
                             ${renderWorkspace()}
                         </main>
                     </div>
                 </div>
-
                 ${state.isMobileMenuOpen ? renderMobileNav() : ''}
                 ${state.isModalOpen ? renderModal() : ''}
             `;
         }
 
         function renderModal() {
+            const currentNav = SYSTEM_MAP[state.module].nav.find(n => n.id === state.page);
+            const colsEn = currentNav.tableCols.en;
+            const colsAr = currentNav.tableCols.ar;
+
+            const inputs = colsEn.map((col, idx) => `
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">${_t(col, colsAr[idx])}</label>
+                    <input type="text" name="${col}" placeholder="${_t('Enter ', 'أدخل ') + _t(col, colsAr[idx])}" class="bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-5 py-4 text-sm font-bold text-mantiq-navy dark:text-white outline-none focus:ring-2 focus:ring-mantiq-cyan" required />
+                </div>
+            `).join('');
+
             return `
                 <div class="fixed inset-0 z-[101] flex items-center justify-center p-6 modal-overlay fade-in">
-                    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl">
-                        <h2 class="text-2xl font-black mb-4 text-mantiq-navy dark:text-white uppercase tracking-tighter">${ut('addRecord')}</h2>
-                        <p class="text-slate-500 text-sm mb-8">${_t('Add a new entry to the current view.', 'إضافة سجل جديد في العرض الحالي.')}</p>
-                        <div class="flex gap-3">
-                            <button onclick="toggleModal()" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-4 rounded-2xl font-black text-sm">${ut('cancel')}</button>
-                            <button onclick="handleAddData()" class="flex-1 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy py-4 rounded-2xl font-black text-sm">${ut('confirm')}</button>
+                    <div class="bg-white dark:bg-slate-900 w-full max-w-xl rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
+                        <div class="flex justify-between items-start mb-8">
+                            <div>
+                                <h2 class="text-2xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${ut('addRecord')}</h2>
+                                <p class="text-slate-500 text-xs mt-1 uppercase font-bold tracking-widest">${_t(currentNav.label.en, currentNav.label.ar)}</p>
+                            </div>
+                            <button onclick="state.isModalOpen=false; render();" class="text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="x" size="24"></i></button>
                         </div>
+                        <form id="add-record-form" onsubmit="handleAddData(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            ${inputs}
+                            <div class="md:col-span-2 flex gap-3 mt-6">
+                                <button type="button" onclick="state.isModalOpen=false; render();" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-5 rounded-2xl font-black text-sm uppercase">${ut('cancel')}</button>
+                                <button type="submit" class="flex-1 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy py-5 rounded-2xl font-black text-sm uppercase shadow-xl">${ut('submit')}</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             `;
@@ -561,81 +495,66 @@
 
         function renderWorkspace() {
             const currentNav = SYSTEM_MAP[state.module].nav.find(n => n.id === state.page);
-            
             if (state.page === 'dashboard') {
                 return `
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
-                        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">${ut('growth')}</h3>
-                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase">+14.2%</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                            <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-1">${ut('growth')}</h3>
+                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">+14.2%</p>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">${ut('volume')} (EGP)</h3>
-                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase">2.41M</p>
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                            <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-1">${ut('volume')}</h3>
+                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">2.41M</p>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">${ut('assets')}</h3>
-                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase">4,810</p>
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                            <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-1">${ut('assets')}</h3>
+                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">4,810</p>
                         </div>
-                        <div class="bg-white dark:bg-slate-900 p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <h3 class="text-slate-500 text-[10px] md:text-xs font-bold uppercase mb-1">${ut('status')}</h3>
-                            <p class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase text-mantiq-cyan">${ut('verified')}</p>
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
+                            <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-1">${ut('status')}</h3>
+                            <p class="text-3xl font-black text-mantiq-cyan">${ut('verified')}</p>
                         </div>
                     </div>
-                    <div class="bg-white dark:bg-slate-900 rounded-[2rem] md:rounded-[3.5rem] p-10 md:p-20 border border-slate-200 dark:border-slate-800 text-center">
-                        <div class="w-16 h-16 md:w-24 md:h-24 bg-sky-50 dark:bg-sky-900/30 rounded-2xl md:rounded-[2rem] flex items-center justify-center mx-auto mb-6 md:mb-10 text-mantiq-cyan animate-pulse">
-                            <i data-lucide="layout-dashboard" class="w-8 h-8 md:w-12 md:h-12"></i>
-                        </div>
-                        <h2 class="text-2xl md:text-4xl font-black text-mantiq-navy dark:text-white mb-4 md:mb-6 uppercase tracking-tighter">${ut('controlCenter')}</h2>
-                        <p class="text-slate-500 dark:text-slate-400 text-sm md:text-lg max-w-2xl mx-auto leading-relaxed">${_t('Unified intelligence environment is online.', 'بيئة الاستخبارات الموحدة متصلة الآن.')}</p>
+                    <div class="bg-white dark:bg-slate-900 rounded-[3.5rem] p-20 border border-slate-200 dark:border-slate-800 text-center">
+                        <div class="w-24 h-24 bg-sky-50 dark:bg-sky-900/30 rounded-[2rem] flex items-center justify-center mx-auto mb-10 text-mantiq-cyan animate-pulse"><i data-lucide="layout-dashboard" size="48"></i></div>
+                        <h2 class="text-4xl font-black text-mantiq-navy dark:text-white mb-6 uppercase tracking-tighter">${ut('controlCenter')}</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">${_t('Operating System localized for Egyptian markets.', 'نظام تشغيل مخصص للسوق المصري.')}</p>
                     </div>
                 `;
             }
 
-            if (currentNav && currentNav.tableCols) {
-                const pageData = state.data[state.module][state.page] || [];
-                const cols = _t(currentNav.tableCols.en, currentNav.tableCols.ar);
-                const rowsHtml = pageData.map((row, idx) => `
-                    <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800 last:border-0">
-                        ${Object.values(row).map(val => `<td class="px-6 md:px-10 py-5 md:py-7 font-bold text-slate-700 dark:text-slate-200 text-xs md:text-sm whitespace-nowrap">${val}</td>`).join('')}
-                        <td class="px-6 md:px-10 py-5 md:py-7 text-right whitespace-nowrap">
-                            <button onclick="pushNotify('${ut('active')}')" class="text-mantiq-cyan mx-2"><i data-lucide="eye" class="w-4 h-4 md:w-5 md:h-5"></i></button>
-                            <button onclick="handleDelete(${idx})" class="text-slate-400 hover:text-rose-500 mx-2"><i data-lucide="trash-2" class="w-4 h-4 md:w-5 md:h-5"></i></button>
-                        </td>
-                    </tr>
-                `).join('');
+            const pageData = state.data[state.module][state.page] || [];
+            const cols = _t(currentNav.tableCols.en, currentNav.tableCols.ar);
+            const colsKeys = currentNav.tableCols.en;
 
-                return `
-                    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 md:mb-10">
-                        <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white hidden md:block uppercase tracking-tighter">${_t(currentNav.label.en, currentNav.label.ar)}</h2>
-                        <div class="flex gap-2 md:gap-3">
-                            <button onclick="pushNotify('${ut('export')}...')" class="flex-1 md:flex-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 md:px-6 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-sm text-slate-600 dark:text-slate-300 shadow-sm">${ut('export')}</button>
-                            <button onclick="toggleModal()" class="flex-1 md:flex-none bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-4 md:px-8 py-2.5 md:py-3.5 rounded-xl md:rounded-2xl font-black text-[10px] md:text-sm shadow-xl">${ut('addRecord')}</button>
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-900 rounded-[1.5rem] md:rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
-                        <table class="w-full text-left border-collapse" dir="${state.language === 'ar' ? 'rtl' : 'ltr'}">
-                            <thead class="bg-slate-50/50 dark:bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500">
-                                <tr>
-                                    ${cols.map(c => `<th class="px-6 md:px-10 py-5 md:py-7 whitespace-nowrap text-inherit">${c}</th>`).join('')}
-                                    <th class="px-6 md:px-10 py-5 md:py-7 ${state.language === 'en' ? 'text-right' : 'text-left'} whitespace-nowrap">${ut('action')}</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
-                                ${rowsHtml || `<tr><td colspan="10" class="p-10 md:p-20 text-center text-slate-400 italic text-xs md:text-sm">No records.</td></tr>`}
-                            </tbody>
-                        </table>
-                    </div>
-                `;
-            }
+            const rowsHtml = pageData.map((row, idx) => `
+                <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800 last:border-0">
+                    ${colsKeys.map(k => `<td class="px-10 py-7 font-bold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap">${row[k] || '-'}</td>`).join('')}
+                    <td class="px-10 py-7 text-right whitespace-nowrap flex justify-end gap-3">
+                        <button onclick="pushNotify('View Only Mode')" class="text-mantiq-cyan"><i data-lucide="eye" size="18"></i></button>
+                        <button onclick="handleDelete(${idx})" class="text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" size="18"></i></button>
+                    </td>
+                </tr>
+            `).join('');
 
             return `
-                <div class="py-20 md:py-32 text-center fade-in">
-                    <div class="w-20 h-20 md:w-28 md:h-28 bg-mantiq-cyan/10 rounded-[2rem] flex items-center justify-center mx-auto mb-8 animate-spin-slow">
-                        <i data-lucide="settings" class="text-mantiq-cyan w-10 h-10"></i>
+                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-10">
+                    <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t(currentNav.label.en, currentNav.label.ar)}</h2>
+                    <div class="flex gap-3">
+                        <button onclick="pushNotify('${ut('export')}...')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-4 rounded-2xl font-black text-sm text-slate-600 dark:text-slate-300 shadow-sm">${ut('export')}</button>
+                        <button onclick="state.isModalOpen=true; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-4 rounded-2xl font-black text-sm shadow-xl">${ut('addRecord')}</button>
                     </div>
-                    <h2 class="text-2xl md:text-4xl font-black text-mantiq-navy dark:text-white uppercase">${ut('syncing')}</h2>
-                    <button onclick="setPage('dashboard')" class="mt-8 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-3 rounded-xl font-black">${ut('returnHome')}</button>
+                </div>
+                <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-left border-collapse" dir="${state.language === 'ar' ? 'rtl' : 'ltr'}">
+                        <thead class="bg-slate-50/50 dark:bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500">
+                            <tr>
+                                ${cols.map(c => `<th class="px-10 py-7 whitespace-nowrap">${c}</th>`).join('')}
+                                <th class="px-10 py-7 ${state.language === 'en' ? 'text-right' : 'text-left'}">${ut('action')}</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">${rowsHtml || `<tr><td colspan="20" class="p-20 text-center italic text-slate-400">Empty View</td></tr>`}</tbody>
+                    </table>
                 </div>
             `;
         }
@@ -646,25 +565,8 @@
             lucide.createIcons();
         }
 
-        // --- Security Hooks ---
         window.addEventListener('contextmenu', e => { e.preventDefault(); pushNotify(ut('restricted')); });
-        window.addEventListener('keydown', e => {
-            if (e.keyCode === 123 || (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74)) || (e.ctrlKey && e.keyCode === 85)) {
-                e.preventDefault();
-                pushNotify(ut('blocked'));
-            }
-        });
-
-        // Initialize missing data arrays for all sub-pages automatically
-        Object.keys(SYSTEM_MAP).forEach(modKey => {
-            SYSTEM_MAP[modKey].nav.forEach(navItem => {
-                if (navItem.id !== 'dashboard' && !state.data[modKey][navItem.id]) {
-                    state.data[modKey][navItem.id] = [];
-                }
-            });
-        });
-
-        window.onload = render;
+        window.onload = () => { initData(); render(); };
     </script>
 </body>
 </html>
