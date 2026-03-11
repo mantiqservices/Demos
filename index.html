@@ -147,6 +147,47 @@
             backdrop-filter: blur(10px);
             animation: fadeIn 0.3s ease;
         }
+        /* ── HR SYSTEM STYLES ── */
+        .badge { display:inline-flex;align-items:center;padding:2px 10px;border-radius:999px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.05em; }
+        .badge-green { background:#dcfce7;color:#166534; }
+        .badge-blue { background:#dbeafe;color:#1d4ed8; }
+        .badge-amber { background:#fef3c7;color:#92400e; }
+        .badge-red { background:#fee2e2;color:#991b1b; }
+        .badge-purple { background:#f3e8ff;color:#7c3aed; }
+        .badge-slate { background:#f1f5f9;color:#475569; }
+        .dark .badge-green{background:#14532d;color:#86efac}
+        .dark .badge-blue{background:#1e3a5f;color:#93c5fd}
+        .dark .badge-amber{background:#451a03;color:#fcd34d}
+        .dark .badge-red{background:#450a0a;color:#fca5a5}
+        .dark .badge-purple{background:#3b0764;color:#d8b4fe}
+        .dark .badge-slate{background:#1e293b;color:#94a3b8}
+        .hr-tab-pill { padding:8px 18px;border-radius:999px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;border:none; }
+        .hr-tab-pill.active { background:#a78bfa;color:#fff; }
+        .hr-tab-pill:not(.active) { background:transparent;color:#64748b; }
+        .hr-tab-pill:not(.active):hover { background:#f1f5f9; }
+        .dark .hr-tab-pill:not(.active):hover { background:#1e293b; }
+        .hr-kpi-bar { height:6px;border-radius:999px;background:#e2e8f0;overflow:hidden; }
+        .hr-kpi-bar-fill { height:100%;border-radius:999px;background:linear-gradient(90deg,#a78bfa,#818cf8);transition:width 1.2s ease; }
+        .dark .hr-kpi-bar { background:#1e293b; }
+        .hr-card-hover:hover { border-color:#a78bfa!important; transform:translateY(-2px); }
+        .hr-card-hover { transition:all 0.22s; }
+        .kanban-board { display:flex;gap:14px;overflow-x:auto;padding-bottom:12px; }
+        .kanban-board::-webkit-scrollbar { height:4px; }
+        .kanban-board::-webkit-scrollbar-thumb { background:#cbd5e1;border-radius:10px; }
+        .kanban-col { min-width:220px;flex:0 0 220px;display:flex;flex-direction:column;gap:8px; }
+        .kanban-col-header { padding:10px 14px;border-radius:14px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;display:flex;align-items:center;justify-content:space-between; }
+        .kanban-card { background:#fff;border:1.5px solid #e2e8f0;border-radius:16px;padding:12px 14px;cursor:default;transition:all 0.2s; }
+        .dark .kanban-card { background:#0f172a;border-color:#1e293b; }
+        .kanban-card:hover { border-color:#a78bfa;box-shadow:0 8px 24px rgba(167,139,250,0.12); }
+        .emp-drawer { position:fixed;top:0;right:0;height:100vh;width:min(540px,96vw);background:#fff;z-index:201;overflow-y:auto;animation:hrDrawerIn 0.3s cubic-bezier(0.22,1,0.36,1);box-shadow:-20px 0 60px rgba(0,0,0,0.14); }
+        .dark .emp-drawer { background:#0f172a; }
+        [dir="rtl"] .emp-drawer { right:auto;left:0;animation:hrDrawerInRtl 0.3s cubic-bezier(0.22,1,0.36,1); }
+        @keyframes hrDrawerIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
+        @keyframes hrDrawerInRtl { from{transform:translateX(-100%)} to{transform:translateX(0)} }
+        .emp-drawer-overlay { position:fixed;inset:0;z-index:200;background:rgba(0,30,60,0.45);backdrop-filter:blur(5px); }
+        .slip-row { display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9; }
+        .dark .slip-row { border-color:#1e293b; }
+        canvas { max-height:260px; }
     </style>
     <script>
         tailwind.config = {
@@ -529,6 +570,37 @@ let state = {
                 { name:'Supplies', subs:['Stationery','Books','Equipment'] }
             ]
         }
+    },
+    // ── HR System state ──
+    openEmployeeId: null,
+    openSlipId: null,
+    hr: {
+        directoryView: 'table',
+        directoryFilter: 'All',
+        directorySearch: '',
+        directoryDept: 'All',
+        attendanceDate: new Date().toISOString().split('T')[0],
+        attendanceDept: 'All',
+        attendanceTab: 'log',
+        leaveFilter: 'All',
+        leaveTab: 'requests',
+        payrollMonth: 'March 2025',
+        payrollTab: 'summary',
+        payrollSelected: [],
+        contractFilter: 'All',
+        contractSearch: '',
+        recruitStageFilter: 'all',
+        performancePeriod: 'Q1 2025',
+        performanceTab: 'reviews',
+        performanceSelected: null,
+        trainingTab: 'courses',
+        reportTab: 'overview',
+        settingsTab: 'policies',
+        leaveFormEmployee: '',
+        leaveFormType: 'Annual',
+        leaveFormStart: '',
+        leaveFormEnd: '',
+        leaveFormReason: '',
     }
 };
 
@@ -2550,12 +2622,29 @@ function renderApp() {
             </div>
         </div>
         ${state.isMobileMenuOpen ? renderMobileNav() : ''}
-        ${state.isModalOpen ? (state.addLeadMode ? renderAddLeadModal() : renderModal()) : ''}
+        ${state.isModalOpen ? (state.module === 'hr' ? renderHRModal() : state.addLeadMode ? renderAddLeadModal() : renderModal()) : ''}
         ${state.openLeadId ? renderLeadDrawer() : ''}
+        ${state.module === 'hr' && state.openEmployeeId ? renderEmployeeDrawer() : ''}
     `;
 }
 
 function renderWorkspace() {
+    // HR System pages
+    if (state.module === MODULES.HR) {
+        if (state.page === 'dashboard')   return renderHRDashboard();
+        if (state.page === 'analytics')   return renderHRAnalytics();
+        if (state.page === 'directory')   return renderDirectory();
+        if (state.page === 'attendance')  return renderAttendance();
+        if (state.page === 'leaves')      return renderLeaves();
+        if (state.page === 'payroll')     return renderPayroll();
+        if (state.page === 'contracts')   return renderContracts();
+        if (state.page === 'recruitment') return renderRecruitment();
+        if (state.page === 'performance') return renderPerformance();
+        if (state.page === 'training')    return renderTraining();
+        if (state.page === 'reports')     return renderReports();
+        if (state.page === 'settings')    return renderSettings();
+        return renderDashboard();
+    }
     if (state.page === 'dashboard') return renderDashboard();
     if (state.page === 'analytics') return renderAnalytics();
     // Lead pipeline for CRM and Sales
@@ -2583,12 +2672,16 @@ const TOUR_STEPS = {
         { page:'analytics',     selector:null, title:{en:'Analytics & Charts',ar:'التحليلات والرسوم البيانية'}, body:{en:'Monthly lead trends, lead source breakdown, and pipeline stage distribution — all visual. KPI progress bars show health at a glance.',ar:'اتجاهات العملاء الشهرية ومصادرهم وتوزيع مراحل المسار — كلها مرئية. أشرطة KPI تظهر الصحة بنظرة واحدة.'} }
     ],
     [MODULES.HR]: [
-        { page:'dashboard',     selector:null, title:{en:'Welcome to HR System',ar:'مرحبًا في نظام الموارد البشرية'}, body:{en:'Your HR dashboard shows total headcount, employees on leave today, this month\'s payroll total, and average performance score.',ar:'لوحة HR تظهر إجمالي الموظفين والغائبين اليوم وإجمالي الرواتب الشهري ومتوسط نقاط الأداء.'} },
-        { page:'directory',     selector:'table', title:{en:'Employee Directory',ar:'دليل الموظفين'}, body:{en:'Every employee with their ID, job title, department, hire date, contract type, and status. Click a row to view their full profile.',ar:'كل موظف بمعرّفه ومنصبه وقسمه وتاريخ التعيين ونوع العقد وحالته. انقر على صف لعرض ملفه الكامل.'} },
-        { page:'attendance',    selector:'table', title:{en:'Attendance Tracking',ar:'تتبع الحضور'}, body:{en:'Daily punch records with automatic overtime calculation. Late arrivals are flagged red. Filter by department or date range.',ar:'سجلات الحضور اليومية مع حساب تلقائي للعمل الإضافي. التأخر مُعلَّم باللون الأحمر. فلتر حسب القسم أو الفترة.'} },
-        { page:'payroll',       selector:'table', title:{en:'Payroll Processing',ar:'معالجة الرواتب'}, body:{en:'Each row shows base salary, allowances, deductions, income tax, and net pay. Status updates from Draft to Approved to Paid.',ar:'كل صف يظهر الراتب الأساسي والبدلات والخصومات وضريبة الدخل وصافي الراتب. الحالة تتحدث من مسودة إلى معتمد إلى مدفوع.'} },
-        { page:'performance',   selector:'table', title:{en:'Performance Reviews',ar:'تقييمات الأداء'}, body:{en:'KPI scores and behaviour ratings per employee per period. Managers submit reviews here; HR exports them for compensation decisions.',ar:'نقاط مؤشرات الأداء وتقييمات السلوك لكل موظف لكل فترة. المديرون يرسلون المراجعات هنا؛ يصدّرها HR لقرارات التعويض.'} },
-        { page:'analytics',     selector:null, title:{en:'HR Analytics',ar:'تحليلات الموارد البشرية'}, body:{en:'Headcount growth over 6 months, attendance rate by weekday, and staff distribution by department — all in one view.',ar:'نمو القوى العاملة على 6 أشهر ومعدل الحضور حسب اليوم وتوزيع الموظفين حسب القسم — كل ذلك في مكان واحد.'} }
+        { page:'dashboard',     selector:null,    title:{en:'Welcome to HR System',ar:'مرحبًا في نظام الموارد البشرية'}, body:{en:'Your command center: live headcount, employees on leave today, monthly payroll total, and average performance score — plus action alerts for expiring contracts and pending approvals.',ar:'مركزك: إجمالي الموظفين والغائبين اليوم وإجمالي الرواتب ومتوسط الأداء — مع تنبيهات العقود المنتهية والطلبات المعلقة.'} },
+        { page:'directory',     selector:'table', title:{en:'Employee Directory',ar:'دليل الموظفين'}, body:{en:'25 real employee profiles with salary, contract, leave balances, and performance data. Click any row to open a full side-panel with 4 tabs: Profile, Salary, Leaves, and Attendance.',ar:'25 ملف موظف حقيقي بالراتب والعقد ورصيد الإجازات والأداء. انقر أي صف لفتح لوحة جانبية بـ4 تبويبات: الملف، الراتب، الإجازات، الحضور.'} },
+        { page:'attendance',    selector:'table', title:{en:'Attendance Tracking',ar:'تتبع الحضور'}, body:{en:'Daily punch-in/out log with auto-calculated overtime. Late arrivals are flagged amber, overtime in blue. Switch to Summary for daily stats or Overtime tab to bulk-approve hours.',ar:'سجل الحضور اليومي مع حساب تلقائي للعمل الإضافي. التأخر بالأصفر والإضافي بالأزرق. بدّل إلى الملخص أو تبويب الإضافي لاعتماد الساعات.'} },
+        { page:'leaves',        selector:null,    title:{en:'Leave Management',ar:'إدارة الإجازات'}, body:{en:'Approve or reject leave requests with one click. The Balances tab shows each employee\'s remaining Annual, Sick, and Emergency days with a visual progress bar.',ar:'اعتمد أو ارفض طلبات الإجازة بنقرة واحدة. تبويب الأرصدة يظهر الأيام المتبقية لكل موظف بشريط مرئي.'} },
+        { page:'payroll',       selector:'table', title:{en:'Payroll Processing',ar:'معالجة الرواتب'}, body:{en:'Full payroll breakdown per employee: base salary, allowances, social insurance (11%), income tax (tiered), and net pay. Click Process to mark as paid, or generate a PDF payslip instantly.',ar:'تفصيل كامل للراتب: الأساسي والبدلات والتأمين الاجتماعي 11% وضريبة الدخل والصافي. انقر معالجة للتأشير كمدفوع أو أنشئ قسيمة PDF فورًا.'} },
+        { page:'contracts',     selector:'table', title:{en:'Contract Management',ar:'إدارة العقود'}, body:{en:'Track all employment contracts with expiry alerts. Contracts expiring within 30 days are highlighted in amber — click Renew directly from the alert banner.',ar:'تتبع جميع عقود العمل مع تنبيهات الانتهاء. العقود التي تنتهي خلال 30 يومًا مُعلَّمة بالأصفر — انقر تجديد مباشرة من شريط التنبيه.'} },
+        { page:'recruitment',   selector:'.kanban-board', title:{en:'Recruitment Kanban',ar:'كانبان التوظيف'}, body:{en:'Applicants flow through 6 stages: Applied → Screening → Interview → Offer Sent → Hired / Rejected. Advance or reject candidates directly from their card.',ar:'المتقدمون يتدفقون عبر 6 مراحل: تقدّم → فرز → مقابلة → عرض → توظيف / رفض. قدّم أو ارفض المرشحين مباشرة من بطاقتهم.'} },
+        { page:'performance',   selector:null,    title:{en:'Performance Reviews',ar:'تقييمات الأداء'}, body:{en:'Each review card shows 5-axis scoring: KPI, Attitude, Teamwork, Communication, and Initiative. Overall score is color-coded — green is excellent, red needs improvement.',ar:'كل بطاقة تقييم تظهر 5 محاور: مؤشرات الأداء والسلوك والعمل الجماعي والتواصل والمبادرة. النتيجة الإجمالية ملوّنة — أخضر ممتاز، أحمر يحتاج تحسينًا.'} },
+        { page:'training',      selector:null,    title:{en:'Training & Development',ar:'التدريب والتطوير'}, body:{en:'Course catalog with completion rates, costs, and certifications. Each card shows enrollment count and a visual progress bar. Add new courses or enroll employees directly.',ar:'كتالوج الدورات بمعدلات الإتمام والتكاليف والشهادات. كل بطاقة تظهر عدد المسجلين وشريط تقدم مرئي. أضف دورات أو سجّل موظفين مباشرة.'} },
+        { page:'analytics',     selector:null,    title:{en:'HR Analytics',ar:'تحليلات الموارد البشرية'}, body:{en:'6 live charts: headcount trend, employees by department, weekly attendance %, leave type distribution, monthly payroll cost, and performance score distribution — plus 6 KPI progress bars.',ar:'6 رسوم بيانية حية: اتجاه القوى العاملة وتوزيع الأقسام ونسبة الحضور وأنواع الإجازات وتكلفة الرواتب وتوزيع نقاط الأداء — بالإضافة إلى 6 أشرطة KPI.'} }
     ],
     [MODULES.FINANCE]: [
         { page:'dashboard',     selector:null, title:{en:'Welcome to Finance Tracker',ar:'مرحبًا في متتبع المالية'}, body:{en:'Live financials at a glance: MTD revenue, expenses, net profit, and outstanding invoices — with growth deltas vs last month.',ar:'المالية الحية بنظرة واحدة: الإيرادات والمصاريف والربح الصافي والفواتير المعلقة — مع نسب النمو مقارنة بالشهر الماضي.'} },
@@ -2752,7 +2845,7 @@ function render() {
     const root = document.getElementById('app');
     root.innerHTML = state.module === MODULES.LANDING ? renderLanding() : renderApp();
     lucide.createIcons();
-    if (state.page === 'analytics') renderCharts();
+    if (state.page === 'analytics') { if (state.module === MODULES.HR) renderHRCharts(); else renderCharts(); }
 
     // Inject tour invite as DOM overlay (not inside app innerHTML, so it survives re-renders)
     document.getElementById('tour-invite-overlay')?.remove();
@@ -2770,8 +2863,1874 @@ function render() {
     }
 }
 
+
+// ════════════════════════════════════════════════════════════════
+// HR SYSTEM — ENHANCED MODULE
+// ════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════════════
+const HR_COLOR = '#a78bfa';
+const HR_NAVY  = '#001e3c';
+
+const DEPT_COLORS = {
+    'Engineering':'#38bdf8','Sales':'#fb923c','Finance':'#34d399',
+    'HR':'#a78bfa','Operations':'#f472b6','Marketing':'#fbbf24',
+    'Legal':'#94a3b8','Customer Success':'#4ade80'
+};
+
+const CONTRACT_BADGE = { 'Full-Time':'badge-green','Part-Time':'badge-blue','Contractor':'badge-amber','Internship':'badge-purple' };
+
+const LEAVE_COLORS = { 'Annual':'#38bdf8','Sick':'#f87171','Emergency':'#fb923c','Unpaid':'#94a3b8','Maternity/Paternity':'#f472b6' };
+
+const RECRUIT_STAGES = [
+    { id:'applied',    label:{en:'Applied',ar:'تقدَّم'},        color:'#94a3b8', icon:'inbox' },
+    { id:'screening',  label:{en:'Screening',ar:'فرز أولي'},   color:'#38bdf8', icon:'search' },
+    { id:'interview',  label:{en:'Interview',ar:'مقابلة'},      color:'#818cf8', icon:'video' },
+    { id:'offer',      label:{en:'Offer Sent',ar:'عرض أُرسل'}, color:'#fb923c', icon:'send' },
+    { id:'hired',      label:{en:'Hired ✓',ar:'تم التعيين ✓'}, color:'#34d399', icon:'check-circle' },
+    { id:'rejected',   label:{en:'Rejected',ar:'مرفوض'},        color:'#f87171', icon:'x-circle' }
+];
+
+
+
+
+
+// ═══════════════════════════════════════════════════════════════
+// DATA INITIALIZATION
+// ═══════════════════════════════════════════════════════════════
+function initHRData() {
+    const NAMES = ['Ahmed Hassan','Mona Zaki','Kareem Abdelaziz','Sara El-Gohary','Youssef El-Shamy',
+        'Omar Khairat','Layla Eloui','Tarek El-Sheikh','Hana Mustafa','Ramy Saleh',
+        'Dina Kamal','Islam Raafat','Rana Magdy','Bassem Atef','Nour El-Din',
+        'Salma Khaled','Ziad Mostafa','Mariam Sherif','Hassan Abdalla','Fatma Ibrahim',
+        'Sherif Gaber','Asmaa Lotfy','Mahmoud Tarek','Enas Saad','Walid Nour'];
+    const DEPTS = ['Engineering','Sales','Finance','HR','Operations','Marketing','Legal','Customer Success'];
+    const JOBS = ['Software Engineer','Sales Manager','Financial Analyst','HR Specialist','Operations Director',
+        'Marketing Lead','Legal Counsel','Customer Success Manager','Senior Developer','Sales Rep',
+        'Accountant','HR Coordinator','Logistics Manager','Content Creator','Junior Developer'];
+    const MANAGERS = ['Ahmed Hassan','Sara El-Gohary','Youssef El-Shamy','Omar Khairat','Layla Eloui'];
+    const rnd = a => a[Math.floor(Math.random()*a.length)];
+    const rndN = (mn,mx) => Math.floor(Math.random()*(mx-mn+1))+mn;
+    const d = (m=0) => { const dt=new Date(2024,8+m,rndN(1,28)); return dt.toISOString().slice(0,10); };
+
+    // ── Employees (25)
+    state.data.employees = NAMES.map((name,i) => ({
+        id: 'EMP-' + String(1001+i).padStart(4,'0'),
+        name,
+        firstName: name.split(' ')[0],
+        avatar: name.slice(0,2).toUpperCase(),
+        jobTitle: JOBS[i % JOBS.length],
+        dept: DEPTS[i % DEPTS.length],
+        manager: i < 5 ? 'C-Level' : MANAGERS[i % MANAGERS.length],
+        email: name.toLowerCase().replace(/ /g,'.') + '@company.com',
+        phone: '010' + rndN(10000000,99999999),
+        mobile: '011' + rndN(10000000,99999999),
+        hireDate: d(-(i % 4)),
+        contractType: ['Full-Time','Full-Time','Full-Time','Part-Time','Contractor'][i % 5],
+        contractEnd: i % 4 === 0 ? d(2) : i % 6 === 0 ? d(1) : null,
+        salary: (rndN(8,60) * 1000),
+        allowances: (rndN(1,8) * 1000),
+        transportAllowance: (rndN(5,15) * 100),
+        mobileAllowance: 500,
+        deductions: (rndN(0,3) * 500),
+        socialInsurance: null, // computed
+        incomeTax: null,       // computed
+        dept_color: DEPTS[i % DEPTS.length],
+        status: i % 8 === 0 ? 'On Leave' : i % 12 === 0 ? 'Inactive' : 'Active',
+        leaveBalance: { Annual: rndN(5,21), Sick: rndN(3,10), Emergency: 3 },
+        nationality: ['Egyptian','Egyptian','Egyptian','Egyptian','Saudi','Jordanian','Egyptian'][i%7],
+        nationalId: '29' + rndN(1000000000,9999999999),
+        startDate: d(-(i%4)),
+        probationEnd: d(-(i%4-3)),
+        emergencyContact: NAMES[(i+3)%NAMES.length],
+        emergencyPhone: '012' + rndN(10000000,99999999),
+        address: ['Cairo','Giza','Alexandria','New Cairo','6th October'][i%5],
+        education: ['Bachelor\'s - Computer Science','MBA','Bachelor\'s - Commerce','BSc Engineering','Bachelor\'s - Arts'][i%5],
+        lastReview: d(-(i%2)),
+        performanceScore: (rndN(28,50)/10).toFixed(1),
+        notes: '',
+        photo: null,
+    }));
+
+    // Compute social insurance & tax
+    state.data.employees.forEach(e => {
+        e.socialInsurance = Math.round(e.salary * 0.11);
+        const gross = e.salary + e.allowances + e.transportAllowance + e.mobileAllowance;
+        e.incomeTax = gross > 40000 ? Math.round((gross - 40000)*0.25) : gross > 20000 ? Math.round((gross-20000)*0.15) : 0;
+        e.netSalary = gross - e.deductions - e.socialInsurance - e.incomeTax;
+    });
+
+    // ── Attendance (last 20 days × sample employees)
+    state.data.attendance = [];
+    const empSample = state.data.employees.slice(0,15);
+    for (let d2=0; d2<10; d2++) {
+        const dt = new Date(2025,2,10-d2);
+        const dateStr = dt.toISOString().slice(0,10);
+        empSample.forEach((e,i) => {
+            const inH = rndN(8,10);
+            const inM = rndN(0,59);
+            const outH = rndN(16,19);
+            const outM = rndN(0,59);
+            const lateMin = inH > 9 ? (inH-9)*60+inM : inH===9&&inM>0 ? inM : 0;
+            const workedH = outH - inH + (outM - inM)/60;
+            const overtime = Math.max(0, workedH - 8);
+            const absent = (i + d2) % 7 === 0;
+            state.data.attendance.push({
+                id: 'ATT-' + String(state.data.attendance.length+1).padStart(5,'0'),
+                empId: e.id, empName: e.name, dept: e.dept,
+                date: dateStr,
+                checkIn:  absent ? null : `${String(inH).padStart(2,'0')}:${String(inM).padStart(2,'0')}`,
+                checkOut: absent ? null : `${String(outH).padStart(2,'0')}:${String(outM).padStart(2,'0')}`,
+                workedHours: absent ? 0 : +workedH.toFixed(1),
+                lateMinutes: absent ? 0 : lateMin,
+                overtime: absent ? 0 : +overtime.toFixed(1),
+                status: absent ? 'Absent' : lateMin > 15 ? 'Late' : 'Present',
+                note: absent ? 'No check-in recorded' : ''
+            });
+        });
+    }
+
+    // ── Leaves
+    const LEAVE_REASONS = ['Family vacation','Medical appointment','Emergency family issue','Personal matter','Medical procedure','Honeymoon','Religious holiday'];
+    state.data.leaves = state.data.employees.slice(0,18).map((e,i) => ({
+        id: 'LV-' + String(1001+i).padStart(4,'0'),
+        empId: e.id,
+        empName: e.name,
+        dept: e.dept,
+        type: ['Annual','Annual','Sick','Emergency','Maternity/Paternity','Unpaid','Annual'][i%7],
+        startDate: `2025-0${(i%3)+1}-${String(rndN(1,20)).padStart(2,'0')}`,
+        endDate:   `2025-0${(i%3)+1}-${String(rndN(21,28)).padStart(2,'0')}`,
+        days: rndN(1,14),
+        reason: LEAVE_REASONS[i%LEAVE_REASONS.length],
+        status: ['Pending','Approved','Approved','Rejected','Pending','Approved','Approved'][i%7],
+        appliedDate: `2025-0${(i%3)+1}-01`,
+        approvedBy: i%3===0 ? null : MANAGERS[i%MANAGERS.length],
+        hrApproved: i%4===0 ? false : true,
+        comment: i%5===0 ? 'Please ensure coverage for your tasks.' : '',
+    }));
+
+    // ── Payroll (March 2025)
+    state.data.payroll = state.data.employees.map((e,i) => ({
+        id: 'PAY-' + String(2001+i).padStart(4,'0'),
+        empId: e.id,
+        empName: e.name,
+        dept: e.dept,
+        month: 'March 2025',
+        baseSalary: e.salary,
+        allowances: e.allowances,
+        transport: e.transportAllowance,
+        mobile: e.mobileAllowance,
+        bonus: i%5===0 ? rndN(1,5)*1000 : 0,
+        deductions: e.deductions,
+        socialInsurance: e.socialInsurance,
+        incomeTax: e.incomeTax,
+        lateDeductions: Math.round((state.data.attendance.filter(a=>a.empId===e.id&&a.lateMinutes>0).reduce((s,a)=>s+a.lateMinutes,0)/60) * (e.salary/176)),
+        netSalary: e.netSalary,
+        paymentMethod: ['Bank Transfer','Bank Transfer','Bank Transfer','Cash','Bank Transfer'][i%5],
+        bankAccount: 'XXXX-XXXX-' + rndN(1000,9999),
+        status: i%8===0 ? 'Pending' : i%12===0 ? 'On Hold' : 'Processed',
+        processedDate: i%8===0 ? null : '2025-03-28',
+        slipGenerated: i%8!==0,
+    }));
+
+    // ── Contracts
+    state.data.contracts = state.data.employees.map((e,i) => ({
+        id: 'CTR-' + String(3001+i).padStart(4,'0'),
+        empId: e.id,
+        empName: e.name,
+        dept: e.dept,
+        type: e.contractType,
+        startDate: e.hireDate,
+        endDate: e.contractEnd,
+        duration: e.contractEnd ? '1 Year' : 'Permanent',
+        noticePeriod: ['30 Days','60 Days','30 Days','14 Days','90 Days'][i%5],
+        probationEnd: e.probationEnd,
+        renewalAlert: e.contractEnd ? (new Date(e.contractEnd) - new Date() < 30*24*3600*1000 ? 'Expiring Soon' : 'Active') : 'Permanent',
+        status: e.contractEnd && new Date(e.contractEnd) < new Date() ? 'Expired' : 'Active',
+        signedDate: e.hireDate,
+        documents: ['Employment Contract.pdf','ID Copy.pdf','Offer Letter.pdf'].slice(0,rndN(1,3)),
+    }));
+
+    // ── Recruitment pipeline
+    state.data.recruitment = [];
+    const POSITIONS = ['Senior Developer','Sales Representative','Financial Controller','HR Manager','Marketing Specialist','Operations Lead','UX Designer','DevOps Engineer'];
+    const APPLICANT_NAMES = ['Mohamed Ali','Nadia Salem','Khaled Ibrahim','Rania Tawfik','Amr Hassan','Dalia Nour','Faisal Ahmad','Yasmin Sherif','Amir Kamal','Lena Hossam','Tariq Fouad','Sara Gaber'];
+    const SOURCES = ['LinkedIn','Indeed','Referral','Company Website','Wuzzuf','Forasna'];
+    let rid=4001;
+    RECRUIT_STAGES.forEach((stage,si) => {
+        const count=[4,3,3,2,2,2][si]||2;
+        for(let i=0;i<count;i++){
+            const ni=(rid+i)%APPLICANT_NAMES.length;
+            state.data.recruitment.push({
+                id:'APP-'+String(rid++).padStart(4,'0'),
+                name: APPLICANT_NAMES[ni],
+                position: POSITIONS[(si+i)%POSITIONS.length],
+                dept: ['Engineering','Sales','Finance','HR','Marketing','Operations'][si%6],
+                source: SOURCES[(si+i)%SOURCES.length],
+                stage: stage.id,
+                appliedDate: `2025-0${rndN(1,3)}-${String(rndN(1,28)).padStart(2,'0')}`,
+                experience: rndN(1,12) + ' yrs',
+                salary_expect: (rndN(15,60)*1000) + ' EGP',
+                score: rndN(40,98),
+                interviewer: MANAGERS[(si+i)%MANAGERS.length],
+                interviewDate: stage.id==='interview'||stage.id==='offer' ? `2025-03-${String(rndN(10,28)).padStart(2,'0')}` : null,
+                notes: si===0?'':'Promising candidate, strong technical background.',
+                email: APPLICANT_NAMES[ni].toLowerCase().replace(/ /g,'.') + '@gmail.com',
+                phone: '010' + rndN(10000000,99999999),
+            });
+        }
+    });
+
+    // ── Performance Reviews
+    state.data.performance = state.data.employees.slice(0,20).map((e,i) => ({
+        id:'PER-'+String(5001+i).padStart(4,'0'),
+        empId: e.id,
+        empName: e.name,
+        dept: e.dept,
+        period: 'Q1 2025',
+        reviewer: MANAGERS[i%MANAGERS.length],
+        kpiScore: (rndN(28,50)/10).toFixed(1),
+        attitudeScore: (rndN(30,50)/10).toFixed(1),
+        teamworkScore: (rndN(30,50)/10).toFixed(1),
+        communicationScore: (rndN(28,50)/10).toFixed(1),
+        initiativeScore: (rndN(25,50)/10).toFixed(1),
+        overallScore: null, // computed
+        kpiDetails: [
+            { label:'Targets Met', val: rndN(60,100)+'%' },
+            { label:'Projects Completed', val: rndN(2,8) },
+            { label:'On-Time Delivery', val: rndN(70,100)+'%' },
+        ],
+        strengths: ['Technical skills','Leadership','Communication'][i%3],
+        improvements: ['Time management','Documentation','Delegation'][i%3],
+        managerComment: 'Strong performer this quarter. Delivered all major milestones on time.',
+        status: i%5===0 ? 'Pending Submission' : i%7===0 ? 'Under Review' : 'Completed',
+        submitDate: i%5===0 ? null : '2025-03-15',
+    }));
+    state.data.performance.forEach(p => {
+        p.overallScore = ((parseFloat(p.kpiScore)+parseFloat(p.attitudeScore)+parseFloat(p.teamworkScore)+parseFloat(p.communicationScore)+parseFloat(p.initiativeScore))/5).toFixed(1);
+    });
+
+    // ── Training
+    state.data.training = [
+        { id:'TRN-001', name:'Leadership Excellence', provider:'Dale Carnegie', type:'External', mode:'In-Person', enrollees:12, completed:8, hours:16, cost:24000, startDate:'2025-02-01', endDate:'2025-02-15', status:'Completed', cert:true },
+        { id:'TRN-002', name:'Advanced Excel & Power BI', provider:'Internal L&D', type:'Internal', mode:'Online', enrollees:18, completed:15, hours:8, cost:0, startDate:'2025-01-20', endDate:'2025-01-27', status:'Completed', cert:false },
+        { id:'TRN-003', name:'Project Management (PMP)', provider:'PMI Egypt', type:'External', mode:'In-Person', enrollees:6, completed:3, hours:40, cost:48000, startDate:'2025-03-01', endDate:'2025-03-31', status:'In Progress', cert:true },
+        { id:'TRN-004', name:'ISO 9001 Quality Awareness', provider:'Bureau Veritas', type:'External', mode:'Online', enrollees:30, completed:22, hours:4, cost:9000, startDate:'2025-01-10', endDate:'2025-01-12', status:'Completed', cert:true },
+        { id:'TRN-005', name:'Sales Excellence Program', provider:'ESLSCA', type:'External', mode:'In-Person', enrollees:10, completed:0, hours:24, cost:36000, startDate:'2025-04-05', endDate:'2025-04-20', status:'Scheduled', cert:false },
+        { id:'TRN-006', name:'Cybersecurity Basics', provider:'Internal IT', type:'Internal', mode:'Online', enrollees:45, completed:38, hours:3, cost:0, startDate:'2025-02-10', endDate:'2025-02-12', status:'Completed', cert:true },
+        { id:'TRN-007', name:'Customer Service Excellence', provider:'AUC Exec Ed', type:'External', mode:'Blended', enrollees:14, completed:9, hours:12, cost:21000, startDate:'2025-03-15', endDate:'2025-03-22', status:'In Progress', cert:false },
+        { id:'TRN-008', name:'Arabic Business Writing', provider:'Internal L&D', type:'Internal', mode:'In-Person', enrollees:20, completed:0, hours:6, cost:0, startDate:'2025-04-15', endDate:'2025-04-17', status:'Scheduled', cert:false },
+    ];
+
+    // ── HR Reports (metric snapshots)
+    state.data.hrReports = {
+        headcount: { current:25, lastMonth:24, target:30, byDept:{ Engineering:5, Sales:6, Finance:4, HR:3, Operations:4, Marketing:3 } },
+        turnover: { rate:'8%', resigned:2, terminated:0, period:'Q1 2025' },
+        avgTenure: '2.4 yrs',
+        timeToHire: '18 days',
+        offerAcceptance: '82%',
+        trainingHoursAvg: 14,
+        payrollCost: 1850000,
+        absenteeism: '3.2%',
+        openPositions: 5,
+        pendingLeaves: state.data.leaves.filter(l=>l.status==='Pending').length,
+        expiringContracts: state.data.contracts.filter(c=>c.renewalAlert==='Expiring Soon').length,
+    };
+
+    // ── Settings
+    state.data.hrSettings = {
+        workingHours: { start:'09:00', end:'17:00', days:['Sun','Mon','Tue','Wed','Thu'] },
+        leavePolicy: { annual:21, sick:10, emergency:3, unpaid:'unlimited', carryover:5 },
+        overtimeRate: 1.5,
+        probationDays: 90,
+        noticePeriod: { 'Full-Time':30, 'Part-Time':14, 'Contractor':7 },
+        taxBands: [{ from:0, to:20000, rate:'0%' },{ from:20001, to:40000, rate:'15%' },{ from:40001, to:Infinity, rate:'25%' }],
+        socialInsurance: '11%',
+        departments: ['Engineering','Sales','Finance','HR','Operations','Marketing','Legal','Customer Success'],
+        roles: ['Super Admin','HR Manager','Department Manager','Team Lead','Employee','Read Only'],
+    };
+}
+
+
+function scoreColor(s) {
+    const n=parseFloat(s);
+    if(n>=4.5) return '#34d399';
+    if(n>=3.5) return '#38bdf8';
+    if(n>=2.5) return '#fb923c';
+    return '#f87171';
+}
+
+function daysUntil(dateStr) {
+    if(!dateStr) return null;
+    const diff = new Date(dateStr) - new Date();
+    return Math.ceil(diff/(1000*60*60*24));
+}
+
+function formatCurrency(n) {
+    return Math.abs(n).toLocaleString() + ' EGP';
+}
+
+function getEmp(id) { return state.data.employees.find(e=>e.id===id); }
+
+
+function openEmployee(id) { state.openEmployeeId=id; render(); }
+function closeEmployee() { state.openEmployeeId=null; render(); }
+
+function renderHRCharts() {
+    const isDark = state.darkMode;
+    const grid   = isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
+    const text   = isDark?'#94a3b8':'#64748b';
+    Chart.defaults.color=text; Chart.defaults.borderColor=grid;
+    document.querySelectorAll('canvas[data-chart]').forEach(c=>{const e=Chart.getChart(c);if(e)e.destroy();});
+    setTimeout(()=>{
+        const c1=document.getElementById('ch-headcount');
+        if(c1) new Chart(c1,{type:'line',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'Headcount',data:[22,23,23,24,24,25],borderColor:HR_COLOR,backgroundColor:'rgba(167,139,250,0.1)',tension:0.4,fill:true,pointRadius:5,pointBackgroundColor:HR_COLOR}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:grid},min:18}}}});
+        const c2=document.getElementById('ch-dept');
+        if(c2) new Chart(c2,{type:'bar',data:{labels:['Eng','Sales','Fin','HR','Ops','Mkt'],datasets:[{label:'Employees',data:[5,6,4,3,4,3],backgroundColor:'rgba(167,139,250,0.7)',borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:grid}}}}});
+        const c3=document.getElementById('ch-attendance');
+        if(c3) new Chart(c3,{type:'line',data:{labels:['Mon','Tue','Wed','Thu','Sun'],datasets:[{label:'Attendance %',data:[94,91,97,89,88],borderColor:'#34d399',backgroundColor:'rgba(52,211,153,0.1)',tension:0.4,fill:true,pointRadius:5,pointBackgroundColor:'#34d399'}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{min:75,max:100,grid:{color:grid}}}}});
+        const c4=document.getElementById('ch-leave-types');
+        if(c4) new Chart(c4,{type:'doughnut',data:{labels:['Annual','Sick','Emergency','Maternity','Unpaid'],datasets:[{data:[45,28,12,10,5],backgroundColor:['#38bdf8','#f87171','#fb923c','#f472b6','#94a3b8'],borderWidth:0,hoverOffset:8}]},options:{responsive:true,cutout:'62%',plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:14}}}}});
+        const c5=document.getElementById('ch-payroll-trend');
+        if(c5) new Chart(c5,{type:'bar',data:{labels:['Oct','Nov','Dec','Jan','Feb','Mar'],datasets:[{label:'Payroll Cost (K EGP)',data:[1720,1740,1750,1800,1820,1850],backgroundColor:'rgba(167,139,250,0.7)',borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:grid}}}}});
+        const c6=document.getElementById('ch-perf-dist');
+        if(c6) new Chart(c6,{type:'bar',data:{labels:['< 2.5','2.5–3.5','3.5–4.5','4.5–5'],datasets:[{label:'Employees',data:[1,4,14,6],backgroundColor:['#f87171','#fb923c','#38bdf8','#34d399'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{grid:{display:false}},y:{grid:{color:grid}}}}});
+    },80);
+}
+
+
+function renderEmployeeDrawer() {
+    const e = getEmp(state.openEmployeeId);
+    if(!e) return '';
+    const dc = DEPT_COLORS[e.dept]||HR_COLOR;
+    const payRow = state.data.payroll.find(p=>p.empId===e.id);
+    const leaveRows = state.data.leaves.filter(l=>l.empId===e.id);
+    const attRows = state.data.attendance.filter(a=>a.empId===e.id).slice(0,7);
+    const perf = state.data.performance.find(p=>p.empId===e.id);
+    const contract = state.data.contracts.find(c=>c.empId===e.id);
+
+    const tabs = [
+        {id:'profile',label:_t('Profile','الملف')},
+        {id:'salary', label:_t('Salary','الراتب')},
+        {id:'leaves', label:_t('Leaves','الإجازات')},
+        {id:'attend', label:_t('Attendance','الحضور')},
+    ];
+    const activeTab = state.empDrawerTab||'profile';
+
+    const profileContent = `
+        <div class="space-y-5">
+            <div class="grid grid-cols-2 gap-4">
+                ${[
+                    [_t('Employee ID','المعرف'), e.id],
+                    [_t('Job Title','المنصب'), e.jobTitle],
+                    [_t('Department','القسم'), `<span style="color:${dc}">${e.dept}</span>`],
+                    [_t('Reports To','المدير'), e.manager],
+                    [_t('Email','البريد'), `<span class="text-mantiq-cyan text-[11px]">${e.email}</span>`],
+                    [_t('Phone','الهاتف'), e.phone],
+                    [_t('Mobile','المحمول'), e.mobile],
+                    [_t('Nationality','الجنسية'), e.nationality],
+                    [_t('Address','العنوان'), e.address],
+                    [_t('Education','التعليم'), e.education],
+                    [_t('Hire Date','تاريخ التعيين'), e.hireDate],
+                    [_t('Contract Type','نوع العقد'), badgeHtml(e.contractType, CONTRACT_BADGE[e.contractType]||'badge-blue')],
+                    [_t('Status','الحالة'), badgeHtml(e.status)],
+                    [_t('National ID','الرقم القومي'), e.nationalId],
+                    [_t('Emergency Contact','جهة الطوارئ'), e.emergencyContact],
+                    [_t('Emergency Phone','هاتف الطوارئ'), e.emergencyPhone],
+                ].map(([k,v])=>`
+                    <div class="bg-slate-50 dark:bg-slate-800/40 p-3 rounded-xl">
+                        <p class="text-[9px] font-black uppercase text-slate-400 mb-1">${k}</p>
+                        <p class="text-xs font-bold text-mantiq-navy dark:text-white">${v}</p>
+                    </div>
+                `).join('')}
+            </div>
+            ${contract ? `
+            <div class="bg-amber-50 dark:bg-amber-950/30 p-4 rounded-2xl border border-amber-200 dark:border-amber-900">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-[9px] font-black uppercase text-amber-600 mb-1">${_t('Contract','العقد')}</p>
+                        <p class="text-sm font-black text-mantiq-navy dark:text-white">${contract.type} — ${contract.duration}</p>
+                        ${contract.endDate?`<p class="text-xs text-amber-600 font-bold">${_t('Expires:','ينتهي:')} ${contract.endDate}</p>`:''}
+                    </div>
+                    ${badgeHtml(contract.renewalAlert)}
+                </div>
+            </div>` : ''}
+            ${perf ? `
+            <div class="p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <p class="text-[9px] font-black uppercase text-slate-400 mb-3">${_t('Latest Performance Score','آخر تقييم أداء')} (${perf.period})</p>
+                <div class="flex items-center gap-4">
+                    <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl text-white" style="background:${scoreColor(perf.overallScore)}">${perf.overallScore}</div>
+                    <div class="flex-1 space-y-1.5">
+                        ${[['KPI',perf.kpiScore],['Teamwork',perf.teamworkScore],['Communication',perf.communicationScore]].map(([l,v])=>`
+                            <div class="flex items-center gap-2">
+                                <span class="text-[9px] font-bold text-slate-400 w-24">${l}</span>
+                                <div class="flex-1 kpi-bar"><div class="kpi-bar-fill" style="width:${parseFloat(v)/5*100}%;background:${scoreColor(v)}"></div></div>
+                                <span class="text-[9px] font-black" style="color:${scoreColor(v)}">${v}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>` : ''}
+            <div class="flex gap-2">
+                <button onclick="pushNotify('${_t('Opening email...','فتح البريد...')}')" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-black text-slate-600 dark:text-slate-300 uppercase"><i data-lucide="mail" size="13"></i>${_t('Email','بريد')}</button>
+                <button onclick="pushNotify('${_t('Generating payslip...','إنشاء قسيمة راتب...')}')" class="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-black text-slate-600 dark:text-slate-300 uppercase"><i data-lucide="receipt" size="13"></i>${_t('Payslip','الراتب')}</button>
+                <button onclick="pushNotify('${_t('Editing employee...','تعديل الموظف...')}')" class="py-3 px-4 rounded-xl bg-purple-100 dark:bg-purple-950/40 text-purple-600 font-black"><i data-lucide="edit" size="14"></i></button>
+                <button onclick="if(confirm('${_t('Archive this employee?','أرشفة هذا الموظف؟')}')){ const e=state.data.employees.find(x=>x.id==='${e.id}'); if(e)e.status='Inactive'; pushNotify('${_t('Employee archived.','تم أرشفة الموظف.')}'); closeEmployee(); }" class="py-3 px-4 rounded-xl bg-red-50 dark:bg-red-950/40 text-rose-500 font-black"><i data-lucide="archive" size="14"></i></button>
+            </div>
+        </div>
+    `;
+
+    const salaryContent = payRow ? `
+        <div class="space-y-4">
+            <div class="p-6 rounded-2xl border border-slate-100 dark:border-slate-800">
+                <p class="text-[10px] font-black uppercase text-slate-400 mb-4">${_t('Salary Breakdown — March 2025','تفاصيل الراتب — مارس 2025')}</p>
+                <div class="space-y-1">
+                    ${[
+                        {label:_t('Base Salary','الراتب الأساسي'), val:payRow.baseSalary, type:'earning'},
+                        {label:_t('Housing Allowance','بدل سكن'), val:payRow.allowances, type:'earning'},
+                        {label:_t('Transport','النقل'), val:payRow.transport, type:'earning'},
+                        {label:_t('Mobile','المحمول'), val:payRow.mobile, type:'earning'},
+                        {label:_t('Bonus','مكافأة'), val:payRow.bonus, type:'earning'},
+                        {label:'—', val:null, type:'divider'},
+                        {label:_t('Deductions','خصومات'), val:payRow.deductions, type:'deduction'},
+                        {label:_t('Social Insurance (11%)','تأمينات اجتماعية (11%)'), val:payRow.socialInsurance, type:'deduction'},
+                        {label:_t('Income Tax','ضريبة دخل'), val:payRow.incomeTax, type:'deduction'},
+                        {label:_t('Late Penalty','خصم تأخير'), val:payRow.lateDeductions, type:'deduction'},
+                    ].map(row=>{
+                        if(row.type==='divider') return `<div class="border-t border-slate-100 dark:border-slate-800 my-2"></div>`;
+                        if(!row.val && row.type!=='earning') return '';
+                        return `<div class="slip-row"><span class="text-xs font-bold text-slate-600 dark:text-slate-300">${row.label}</span><span class="text-xs font-black ${row.type==='earning'?'text-mantiq-navy dark:text-white':'text-rose-500'}">${row.type==='earning'?'+':'-'} ${formatCurrency(row.val||0)}</span></div>`;
+                    }).join('')}
+                    <div class="pt-3 mt-2 border-t-2 border-mantiq-navy dark:border-white">
+                        <div class="slip-row">
+                            <span class="text-sm font-black text-mantiq-navy dark:text-white uppercase">${_t('Net Salary','صافي الراتب')}</span>
+                            <span class="text-lg font-black text-emerald-600">${formatCurrency(payRow.netSalary)}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 p-3 rounded-xl bg-slate-50 dark:bg-slate-800/40 flex justify-between items-center">
+                    <span class="text-xs font-bold text-slate-500">${_t('Payment Method','طريقة الدفع')}</span>
+                    <span class="text-xs font-black text-mantiq-navy dark:text-white">${payRow.paymentMethod} — ${payRow.bankAccount}</span>
+                </div>
+            </div>
+            <button onclick="pushNotify('${_t('Payslip PDF generated...','تم إنشاء قسيمة الراتب PDF...')}')" class="w-full py-4 rounded-2xl font-black text-sm uppercase text-white flex items-center justify-center gap-2" style="background:${HR_COLOR}">
+                <i data-lucide="download" size="16"></i>${_t('Download Payslip','تحميل قسيمة الراتب')}
+            </button>
+        </div>
+    ` : `<p class="text-slate-400 italic text-sm">${_t('No payroll record found.','لا يوجد سجل رواتب.')}</p>`;
+
+    const leavesContent = `
+        <div class="space-y-4">
+            <div class="grid grid-cols-3 gap-3">
+                ${Object.entries(e.leaveBalance).map(([type,bal])=>`
+                    <div class="text-center p-4 rounded-2xl border border-slate-100 dark:border-slate-800">
+                        <p class="text-2xl font-black mb-1" style="color:${LEAVE_COLORS[type]||HR_COLOR}">${bal}</p>
+                        <p class="text-[9px] font-black uppercase text-slate-400">${type}</p>
+                        <p class="text-[8px] text-slate-400">${_t('days left','أيام متبقية')}</p>
+                    </div>
+                `).join('')}
+            </div>
+            <p class="text-[10px] font-black uppercase text-slate-400">${_t('Leave History','سجل الإجازات')}</p>
+            ${leaveRows.length ? leaveRows.map(l=>`
+                <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-sm font-black text-mantiq-navy dark:text-white">${l.type}</p>
+                            <p class="text-xs text-slate-400">${l.startDate} → ${l.endDate} (${l.days} ${_t('days','أيام')})</p>
+                            <p class="text-xs text-slate-500 mt-1 italic">"${l.reason}"</p>
+                        </div>
+                        ${badgeHtml(l.status)}
+                    </div>
+                </div>
+            `).join('') : `<p class="text-xs text-slate-400 italic">${_t('No leave records.','لا توجد سجلات إجازات.')}</p>`}
+        </div>
+    `;
+
+    const attendContent = `
+        <div class="space-y-3">
+            ${attRows.length ? attRows.map(a=>`
+                <div class="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40">
+                    <div>
+                        <p class="text-xs font-black text-mantiq-navy dark:text-white">${a.date}</p>
+                        <p class="text-[10px] text-slate-400 font-bold">${a.checkIn||'—'} → ${a.checkOut||'—'} · ${a.workedHours}h</p>
+                        ${a.lateMinutes>0?`<p class="text-[9px] text-amber-500 font-bold">⚠ ${a.lateMinutes} min late</p>`:''}
+                        ${a.overtime>0?`<p class="text-[9px] text-blue-500 font-bold">+${a.overtime}h overtime</p>`:''}
+                    </div>
+                    ${badgeHtml(a.status)}
+                </div>
+            `).join('') : `<p class="text-xs text-slate-400 italic">${_t('No attendance records.','لا توجد سجلات حضور.')}</p>`}
+        </div>
+    `;
+
+    const tabContent = { profile:profileContent, salary:salaryContent, leaves:leavesContent, attend:attendContent };
+
+    return `
+        <div class="emp-drawer-overlay" onclick="closeEmployee()"></div>
+        <div class="emp-drawer custom-scrollbar">
+            <!-- Header -->
+            <div class="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-8 py-6 flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-black text-sm shadow-lg" style="background:${dc}">${e.avatar}</div>
+                    <div>
+                        <p class="font-black text-mantiq-navy dark:text-white text-base">${e.name}</p>
+                        <p class="text-xs text-slate-400 font-bold">${e.jobTitle} · ${e.dept}</p>
+                    </div>
+                </div>
+                <button onclick="closeEmployee()" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="x" size="20"></i></button>
+            </div>
+            <!-- Tabs -->
+            <div class="px-8 py-4 flex gap-2 border-b border-slate-100 dark:border-slate-800 overflow-x-auto">
+                ${tabs.map(tab=>`
+                    <button onclick="state.empDrawerTab='${tab.id}'; render();" class="tab-pill ${activeTab===tab.id?'active':''} whitespace-nowrap">${tab.label}</button>
+                `).join('')}
+            </div>
+            <div class="p-8">${tabContent[activeTab]||profileContent}</div>
+        </div>
+    `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: DASHBOARD
+// ═══════════════════════════════════════════════════════════════
+function renderHRDashboard() {
+    const r = state.data.hrReports;
+    const expiringContracts = state.data.contracts.filter(c=>c.renewalAlert==='Expiring Soon');
+    const pendingLeaves     = state.data.leaves.filter(l=>l.status==='Pending');
+    const onLeave           = state.data.employees.filter(e=>e.status==='On Leave');
+    const todayAtt          = state.data.attendance.filter(a=>a.date==='2025-03-10');
+    const presentToday      = todayAtt.filter(a=>a.status==='Present').length;
+    const lateToday         = todayAtt.filter(a=>a.status==='Late').length;
+
+    const kpis = [
+        { label:_t('Total Employees','إجمالي الموظفين'), value:'25', delta:'+1 this month', icon:'users', color:'#a78bfa' },
+        { label:_t('Present Today','حاضرون اليوم'), value:String(presentToday), delta:lateToday+' late', icon:'clipboard-check', color:'#34d399' },
+        { label:_t('Payroll (MTD)','الرواتب (الشهر)'), value:'1.85M EGP', delta:'+2% vs Feb', icon:'wallet', color:'#38bdf8' },
+        { label:_t('Open Positions','وظائف شاغرة'), value:String(r.openPositions), delta:r.timeToHire+' avg hire time', icon:'briefcase', color:'#fb923c' },
+    ];
+
+    const alertItems = [
+        ...expiringContracts.map(c=>({ icon:'alert-triangle', color:'#fb923c', text:`${c.empName}'s contract expires ${c.endDate}`, action:()=>setPage('contracts') })),
+        ...pendingLeaves.map(l=>({ icon:'calendar', color:'#38bdf8', text:`${l.empName} requesting ${l.type} leave (${l.days} days)`, action:()=>setPage('leaves') })),
+        ...state.data.employees.filter(e=>state.data.performance.find(p=>p.empId===e.id&&p.status==='Pending Submission')).slice(0,2).map(e=>({ icon:'trending-up', color:'#a78bfa', text:`${e.name}'s performance review pending submission`, action:()=>setPage('performance') })),
+    ].slice(0,6);
+
+    const quickStats = [
+        { label:_t('Avg Performance','متوسط الأداء'), value:'3.9/5', icon:'star', color:'#fbbf24' },
+        { label:_t('Turnover Rate','معدل الدوران'), value:'8%', icon:'trending-down', color:'#f87171' },
+        { label:_t('Training Hours','ساعات تدريب'), value:'14 avg', icon:'graduation-cap', color:'#34d399' },
+        { label:_t('Offer Acceptance','قبول العروض'), value:'82%', icon:'check-circle', color:'#38bdf8' },
+    ];
+
+    return `
+    <div class="fade-in space-y-8">
+        <!-- KPIs -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            ${kpis.map(k=>`
+                <div class="stat-card bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="p-3 rounded-2xl" style="background:${k.color}20;color:${k.color}"><i data-lucide="${k.icon}" size="20"></i></div>
+                        <span class="text-[10px] font-black text-slate-400">${k.delta}</span>
+                    </div>
+                    <p class="text-3xl font-black text-mantiq-navy dark:text-white mb-1">${k.value}</p>
+                    <p class="text-xs font-bold uppercase tracking-widest text-slate-500">${k.label}</p>
+                </div>
+            `).join('')}
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Alerts Panel -->
+            <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 dark:text-white flex items-center gap-2">
+                        <i data-lucide="bell-ring" size="16" class="text-amber-500"></i>${_t('Action Required','يتطلب إجراء')}
+                    </h3>
+                    <span class="badge badge-red">${alertItems.length} ${_t('items','عناصر')}</span>
+                </div>
+                <div class="space-y-3">
+                    ${alertItems.map(a=>`
+                        <div onclick="${a.action.toString()}" class="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/40 hover:bg-amber-50 dark:hover:bg-amber-950/20 cursor-pointer transition-all border border-transparent hover:border-amber-200 dark:hover:border-amber-800">
+                            <div class="p-2 rounded-xl flex-shrink-0" style="background:${a.color}20;color:${a.color}"><i data-lucide="${a.icon}" size="16"></i></div>
+                            <p class="text-sm font-bold text-slate-700 dark:text-slate-200 flex-1">${a.text}</p>
+                            <i data-lucide="chevron-right" size="16" class="text-slate-300 flex-shrink-0 mt-0.5 ${state.language==='ar'?'rotate-180':''}"></i>
+                        </div>
+                    `).join('')||`<p class="text-slate-400 italic text-sm">${_t('No alerts — all clear!','لا تنبيهات — كل شيء على ما يرام!')}</p>`}
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="space-y-4">
+                <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-5">${_t('HR Health','صحة الموارد البشرية')}</h3>
+                    <div class="space-y-4">
+                        ${quickStats.map(s=>`
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 rounded-xl" style="background:${s.color}20;color:${s.color}"><i data-lucide="${s.icon}" size="14"></i></div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-bold text-slate-500 dark:text-slate-400">${s.label}</p>
+                                    <p class="text-base font-black text-mantiq-navy dark:text-white">${s.value}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <!-- Today attendance mini -->
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <p class="text-[10px] font-black uppercase text-slate-400 mb-4">${_t("Today's Attendance","حضور اليوم")}</p>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/30"><p class="text-xl font-black text-emerald-600">${presentToday}</p><p class="text-[8px] uppercase font-black text-emerald-500">${_t('Present','حاضر')}</p></div>
+                        <div class="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30"><p class="text-xl font-black text-amber-500">${lateToday}</p><p class="text-[8px] uppercase font-black text-amber-500">${_t('Late','متأخر')}</p></div>
+                        <div class="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/30"><p class="text-xl font-black text-rose-500">${todayAtt.filter(a=>a.status==='Absent').length}</p><p class="text-[8px] uppercase font-black text-rose-400">${_t('Absent','غائب')}</p></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Department overview -->
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 dark:text-white">${_t('Department Overview','نظرة حسب الأقسام')}</h3>
+                <button onclick="setPage('analytics')" class="text-[11px] font-black uppercase text-purple-500 flex items-center gap-1.5">${_t('Full Analytics','تحليلات كاملة')} <i data-lucide="${state.language==='ar'?'arrow-left':'arrow-right'}" size="12"></i></button>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                ${Object.entries(state.data.hrReports.headcount.byDept).map(([dept,count])=>`
+                    <div class="p-5 rounded-2xl border border-slate-100 dark:border-slate-800 card-hover cursor-pointer" onclick="state.hr.directoryDept='${dept}'; setPage('directory')">
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="w-3 h-3 rounded-full" style="background:${DEPT_COLORS[dept]||HR_COLOR}"></div>
+                            <span class="text-xs font-black text-slate-600 dark:text-slate-300 uppercase">${dept}</span>
+                        </div>
+                        <p class="text-3xl font-black text-mantiq-navy dark:text-white">${count}</p>
+                        <p class="text-[9px] text-slate-400 uppercase font-bold">${_t('employees','موظف')}</p>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: ANALYTICS
+// ═══════════════════════════════════════════════════════════════
+function renderHRAnalytics() {
+    const perf = [
+        { label:_t('Attendance Rate','معدل الحضور'), val:94, color:'#a78bfa' },
+        { label:_t('Training Completion','إتمام التدريب'), val:71, color:'#34d399' },
+        { label:_t('Performance Review Coverage','تغطية تقييم الأداء'), val:88, color:'#38bdf8' },
+        { label:_t('Retention Rate','معدل الاستبقاء'), val:92, color:'#fb923c' },
+        { label:_t('Offer Acceptance Rate','معدل قبول العروض'), val:82, color:'#f472b6' },
+        { label:_t('Internal Promotion Rate','معدل الترقية الداخلية'), val:35, color:'#fbbf24' },
+    ];
+    return `
+    <div class="fade-in space-y-8">
+        <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR Analytics','تحليلات الموارد البشرية')}</h2>
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-6">
+            ${[
+                {id:'ch-headcount',title:_t('Headcount Trend','اتجاه عدد الموظفين')},
+                {id:'ch-dept',title:_t('Employees by Department','الموظفين حسب القسم')},
+                {id:'ch-attendance',title:_t('Weekly Attendance %','نسبة الحضور الأسبوعي')},
+                {id:'ch-leave-types',title:_t('Leave Type Distribution','توزيع أنواع الإجازات')},
+                {id:'ch-payroll-trend',title:_t('Monthly Payroll Cost (K EGP)','تكلفة الرواتب الشهرية')},
+                {id:'ch-perf-dist',title:_t('Performance Score Distribution','توزيع نقاط الأداء')},
+            ].map(c=>`
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h4 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-5">${c.title}</h4>
+                    <div><canvas id="${c.id}" data-chart></canvas></div>
+                </div>
+            `).join('')}
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-8">${_t('Key HR Indicators','مؤشرات الموارد البشرية الرئيسية')}</h4>
+            ${perf.map(p=>`
+                <div class="mb-5">
+                    <div class="flex justify-between mb-2"><span class="text-sm font-bold text-slate-700 dark:text-slate-200">${p.label}</span><span class="text-sm font-black" style="color:${p.color}">${p.val}%</span></div>
+                    <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${p.val}%;background:${p.color}"></div></div>
+                </div>
+            `).join('')}
+        </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: DIRECTORY
+// ═══════════════════════════════════════════════════════════════
+function renderDirectory() {
+    const hr = state.hr;
+    let emps = [...state.data.employees];
+    if(hr.directoryDept!=='All') emps=emps.filter(e=>e.dept===hr.directoryDept);
+    if(hr.directoryFilter!=='All') emps=emps.filter(e=>e.status===hr.directoryFilter||e.contractType===hr.directoryFilter);
+    if(hr.directorySearch) { const q=hr.directorySearch.toLowerCase(); emps=emps.filter(e=>e.name.toLowerCase().includes(q)||e.jobTitle.toLowerCase().includes(q)||e.id.toLowerCase().includes(q)); }
+
+    const depts = ['All',...new Set(state.data.employees.map(e=>e.dept))];
+    const filters = ['All','Active','On Leave','Inactive','Full-Time','Part-Time','Contractor'];
+
+    const tableView = `
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
+                    <tr>${[_t('Employee','الموظف'),_t('Department','القسم'),_t('Job Title','المنصب'),_t('Phone','الهاتف'),_t('Contract','العقد'),_t('Hire Date','التعيين'),_t('Status','الحالة'),''].map(h=>`<th class="px-7 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                    ${emps.map(e=>{
+                        const dc=DEPT_COLORS[e.dept]||HR_COLOR;
+                        return `
+                        <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-50 dark:border-slate-800 last:border-0 cursor-pointer" onclick="openEmployee('${e.id}')">
+                            <td class="px-7 py-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs text-white shadow-sm" style="background:${dc}">${e.avatar}</div>
+                                    <div><p class="text-sm font-black text-mantiq-navy dark:text-white">${e.name}</p><p class="text-[10px] text-slate-400">${e.id}</p></div>
+                                </div>
+                            </td>
+                            <td class="px-7 py-5"><span class="text-xs font-black px-2 py-1 rounded-lg" style="background:${dc}20;color:${dc}">${e.dept}</span></td>
+                            <td class="px-7 py-5 text-sm font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${e.jobTitle}</td>
+                            <td class="px-7 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${e.phone}</td>
+                            <td class="px-7 py-5">${badgeHtml(e.contractType, CONTRACT_BADGE[e.contractType]||'badge-blue')}</td>
+                            <td class="px-7 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${e.hireDate}</td>
+                            <td class="px-7 py-5">${badgeHtml(e.status)}</td>
+                            <td class="px-7 py-5">
+                                <div class="flex gap-1.5 justify-end" onclick="event.stopPropagation()">
+                                    <button onclick="openEmployee('${e.id}')" class="p-2 rounded-xl hover:bg-purple-50 dark:hover:bg-slate-700 transition-colors" style="color:${HR_COLOR}"><i data-lucide="user" size="15"></i></button>
+                                    <button onclick="pushNotify('${_t('Email sent to ','تم إرسال بريد إلى ')}${e.name}')" class="p-2 rounded-xl hover:bg-sky-50 dark:hover:bg-slate-700 text-slate-400 hover:text-sky-500 transition-colors"><i data-lucide="mail" size="15"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    }).join('')||`<tr><td colspan="8" class="py-20 text-center text-slate-400 italic">${_t('No employees found.','لا يوجد موظفون.')}</td></tr>`}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    const cardsView = `
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            ${emps.map(e=>{
+                const dc=DEPT_COLORS[e.dept]||HR_COLOR;
+                const perf=state.data.performance.find(p=>p.empId===e.id);
+                return `
+                <div class="card-hover bg-white dark:bg-slate-900 rounded-[2rem] p-7 border border-slate-200 dark:border-slate-800 shadow-sm cursor-pointer" onclick="openEmployee('${e.id}')">
+                    <div class="flex items-start justify-between mb-5">
+                        <div class="flex items-center gap-3">
+                            <div class="w-14 h-14 rounded-[1.5rem] flex items-center justify-center font-black text-xl text-white shadow-lg" style="background:${dc}">${e.avatar}</div>
+                            <div>
+                                <p class="font-black text-base text-mantiq-navy dark:text-white">${e.name}</p>
+                                <p class="text-[10px] text-slate-400 font-bold">${e.jobTitle}</p>
+                            </div>
+                        </div>
+                        ${badgeHtml(e.status)}
+                    </div>
+                    <div class="space-y-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center gap-2 text-xs"><span class="font-black px-2 py-0.5 rounded-lg" style="background:${dc}20;color:${dc}">${e.dept}</span><span class="text-slate-400">${e.id}</span></div>
+                        <div class="flex items-center gap-2 text-xs text-slate-500"><i data-lucide="phone" size="11"></i>${e.phone}</div>
+                        <div class="flex items-center gap-2 text-xs text-mantiq-cyan truncate"><i data-lucide="mail" size="11"></i>${e.email}</div>
+                        ${perf?`<div class="flex items-center gap-2 text-xs"><i data-lucide="star" size="11" style="color:#fbbf24"></i><span class="font-black" style="color:${scoreColor(perf.overallScore)}">${perf.overallScore}/5</span><span class="text-slate-400">${_t('Performance','أداء')}</span></div>`:''}
+                    </div>
+                </div>`;
+            }).join('')||`<p class="col-span-3 py-20 text-center text-slate-400 italic">${_t('No employees found.','لا يوجد موظفون.')}</p>`}
+        </div>
+    `;
+
+    return `
+    <div class="fade-in space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Employee Directory','دليل الموظفين')}</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${emps.length} ${_t('employees','موظف')}</p>
+            </div>
+            <div class="flex flex-wrap gap-3">
+                <!-- View toggle -->
+                <div class="flex bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
+                    <button onclick="state.hr.directoryView='table'; render();" class="px-4 py-2.5 text-[10px] font-black uppercase transition-all ${hr.directoryView==='table'?'bg-mantiq-navy text-white':'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}">
+                        <i data-lucide="list" size="14"></i>
+                    </button>
+                    <button onclick="state.hr.directoryView='cards'; render();" class="px-4 py-2.5 text-[10px] font-black uppercase transition-all ${hr.directoryView==='cards'?'bg-mantiq-navy text-white':'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'}">
+                        <i data-lucide="grid-3x3" size="14"></i>
+                    </button>
+                </div>
+                <button onclick="pushNotify('${_t('Exporting...','تصدير...')}')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-2xl font-black text-xs text-slate-500 flex items-center gap-2 shadow-sm">
+                    <i data-lucide="download" size="14"></i>${_t('Export','تصدير')}
+                </button>
+                <button onclick="state.isModalOpen=true; state.modalType='add_employee'; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2">
+                    <i data-lucide="plus" size="14"></i>${_t('Add Employee','إضافة موظف')}
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-wrap gap-3 items-center">
+            <div class="relative flex-1 min-w-[200px]">
+                <i data-lucide="search" class="absolute ${state.language==='en'?'left-4':'right-4'} top-1/2 -translate-y-1/2 text-slate-400" size="15"></i>
+                <input type="text" placeholder="${_t('Search by name, title, ID...','بحث بالاسم، المنصب، المعرف...')}"
+                    oninput="state.hr.directorySearch=this.value; render();"
+                    value="${hr.directorySearch}"
+                    class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 ${state.language==='en'?'pl-12':'pr-12'} px-4 py-3 rounded-2xl text-sm outline-none shadow-sm" />
+            </div>
+            <select onchange="state.hr.directoryDept=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm">
+                ${depts.map(d=>`<option value="${d}" ${hr.directoryDept===d?'selected':''}>${d}</option>`).join('')}
+            </select>
+            <select onchange="state.hr.directoryFilter=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm">
+                ${filters.map(f=>`<option value="${f}" ${hr.directoryFilter===f?'selected':''}>${f}</option>`).join('')}
+            </select>
+        </div>
+
+        ${hr.directoryView==='cards' ? cardsView : tableView}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: ATTENDANCE
+// ═══════════════════════════════════════════════════════════════
+function renderAttendance() {
+    const hr = state.hr;
+    let records = [...state.data.attendance].filter(a=>a.date===hr.attendanceDate);
+    if(hr.attendanceDept!=='All') records=records.filter(r=>r.dept===hr.attendanceDept);
+
+    const depts = ['All',...new Set(state.data.employees.map(e=>e.dept))];
+    const present = records.filter(r=>r.status==='Present').length;
+    const late    = records.filter(r=>r.status==='Late').length;
+    const absent  = records.filter(r=>r.status==='Absent').length;
+    const totalOT = records.reduce((s,r)=>s+r.overtime,0).toFixed(1);
+
+    const summaryTab = `
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            ${[
+                {label:_t('Present','حاضر'),     val:present, color:'#34d399', icon:'check-circle'},
+                {label:_t('Late','متأخر'),        val:late,    color:'#fb923c', icon:'clock'},
+                {label:_t('Absent','غائب'),       val:absent,  color:'#f87171', icon:'x-circle'},
+                {label:_t('Overtime Hours','ساعات إضافية'), val:totalOT+'h', color:'#38bdf8', icon:'timer'},
+            ].map(s=>`
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm flex items-center gap-4">
+                    <div class="p-3 rounded-xl flex-shrink-0" style="background:${s.color}20;color:${s.color}"><i data-lucide="${s.icon}" size="20"></i></div>
+                    <div><p class="text-2xl font-black text-mantiq-navy dark:text-white">${s.val}</p><p class="text-[9px] font-black uppercase text-slate-400">${s.label}</p></div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    const logTab = `
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
+                    <tr>${[_t('Employee','الموظف'),_t('Dept','القسم'),_t('Check In','دخول'),_t('Check Out','خروج'),_t('Hours','ساعات'),_t('Late','تأخر'),_t('Overtime','إضافي'),_t('Status','الحالة'),''].map(h=>`<th class="px-7 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                    ${records.map(r=>`
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-50 dark:border-slate-800 last:border-0">
+                            <td class="px-7 py-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-[10px] text-white flex-shrink-0" style="background:${DEPT_COLORS[r.dept]||HR_COLOR}">${r.empName.slice(0,2).toUpperCase()}</div>
+                                    <div><p class="text-sm font-black text-mantiq-navy dark:text-white">${r.empName}</p><p class="text-[9px] text-slate-400">${r.empId}</p></div>
+                                </div>
+                            </td>
+                            <td class="px-7 py-5"><span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:${DEPT_COLORS[r.dept]||HR_COLOR}20;color:${DEPT_COLORS[r.dept]||HR_COLOR}">${r.dept}</span></td>
+                            <td class="px-7 py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">${r.checkIn||'—'}</td>
+                            <td class="px-7 py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">${r.checkOut||'—'}</td>
+                            <td class="px-7 py-5 font-black text-sm text-mantiq-navy dark:text-white">${r.workedHours}h</td>
+                            <td class="px-7 py-5 whitespace-nowrap">
+                                ${r.lateMinutes>0?`<span class="text-[10px] font-black text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-lg">⚠ ${r.lateMinutes}m</span>`:'<span class="text-slate-300">—</span>'}
+                            </td>
+                            <td class="px-7 py-5 whitespace-nowrap">
+                                ${r.overtime>0?`<span class="text-[10px] font-black text-blue-500 bg-blue-50 dark:bg-blue-950/30 px-2 py-1 rounded-lg">+${r.overtime}h</span>`:'<span class="text-slate-300">—</span>'}
+                            </td>
+                            <td class="px-7 py-5">${badgeHtml(r.status)}</td>
+                            <td class="px-7 py-5">
+                                <button onclick="pushNotify('${_t('Editing attendance record','تعديل سجل الحضور')}')" class="p-1.5 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-700 transition-colors" style="color:${HR_COLOR}"><i data-lucide="edit-3" size="14"></i></button>
+                            </td>
+                        </tr>
+                    `).join('')||`<tr><td colspan="9" class="py-20 text-center text-slate-400 italic">${_t('No records for this date.','لا توجد سجلات لهذا التاريخ.')}</td></tr>`}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    // Overtime summary
+    const overtimeEmps = records.filter(r=>r.overtime>0).sort((a,b)=>b.overtime-a.overtime);
+    const overtimeTab = `
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="font-black text-sm uppercase tracking-widest text-slate-500">${_t('Overtime Records','سجلات العمل الإضافي')} — ${hr.attendanceDate}</h3>
+                <span class="badge badge-blue">${_t('Total:','الإجمالي:')} ${totalOT}h</span>
+            </div>
+            ${overtimeEmps.length ? `
+            <div class="space-y-3">
+                ${overtimeEmps.map(r=>`
+                    <div class="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-2xl border border-blue-100 dark:border-blue-900">
+                        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-xs text-white" style="background:${DEPT_COLORS[r.dept]||HR_COLOR}">${r.empName.slice(0,2).toUpperCase()}</div>
+                        <div class="flex-1">
+                            <p class="font-black text-sm text-mantiq-navy dark:text-white">${r.empName}</p>
+                            <p class="text-[10px] text-slate-400">${r.dept} · ${r.checkIn} – ${r.checkOut}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-black text-lg text-blue-600">+${r.overtime}h</p>
+                            <p class="text-[9px] text-slate-400 uppercase">${_t('overtime','إضافي')}</p>
+                        </div>
+                        <button onclick="pushNotify('${_t('Overtime approved for ','تمت الموافقة على إضافي ')}${r.empName}')" class="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-white" style="background:${HR_COLOR}">${_t('Approve','موافقة')}</button>
+                    </div>
+                `).join('')}
+            </div>` : `<p class="text-slate-400 italic">${_t('No overtime recorded.','لا يوجد عمل إضافي.')}</p>`}
+        </div>
+    `;
+
+    const tabContent = { log:logTab, summary:summaryTab+logTab, overtime:overtimeTab };
+
+    return `
+    <div class="fade-in space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Attendance','الحضور والانصراف')}</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${records.length} ${_t('records','سجل')}</p>
+            </div>
+            <div class="flex flex-wrap gap-3 items-center">
+                <input type="date" value="${hr.attendanceDate}" onchange="state.hr.attendanceDate=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl text-xs font-bold outline-none shadow-sm" />
+                <select onchange="state.hr.attendanceDept=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl text-xs font-bold outline-none shadow-sm">
+                    ${depts.map(d=>`<option value="${d}" ${hr.attendanceDept===d?'selected':''}>${d}</option>`).join('')}
+                </select>
+                <button onclick="pushNotify('${_t('Exporting attendance...','تصدير الحضور...')}')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-2xl font-black text-xs text-slate-500 flex items-center gap-2 shadow-sm"><i data-lucide="download" size="14"></i>${_t('Export','تصدير')}</button>
+                <button onclick="state.isModalOpen=true; state.modalType='add_attendance'; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2"><i data-lucide="plus" size="14"></i>${_t('Manual Entry','إدخال يدوي')}</button>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm w-fit">
+            ${[{id:'summary',label:_t('Summary','ملخص')},{id:'log',label:_t('Full Log','السجل الكامل')},{id:'overtime',label:_t('Overtime','الإضافي')}].map(t=>`
+                <button onclick="state.hr.attendanceTab='${t.id}'; render();" class="tab-pill ${hr.attendanceTab===t.id?'active':''}">${t.label}</button>
+            `).join('')}
+        </div>
+
+        ${tabContent[hr.attendanceTab]||logTab}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: LEAVES
+// ═══════════════════════════════════════════════════════════════
+function renderLeaves() {
+    const hr = state.hr;
+    let requests = [...state.data.leaves];
+    if(hr.leaveFilter!=='All') requests=requests.filter(l=>l.status===hr.leaveFilter||l.type===hr.leaveFilter);
+
+    const pending  = state.data.leaves.filter(l=>l.status==='Pending');
+    const approved = state.data.leaves.filter(l=>l.status==='Approved');
+    const rejected = state.data.leaves.filter(l=>l.status==='Rejected');
+
+    const requestsTab = `
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            ${[{label:_t('Pending','معلق'),val:pending.length,color:'#fb923c',icon:'clock'},{label:_t('Approved','موافق عليه'),val:approved.length,color:'#34d399',icon:'check-circle'},{label:_t('Rejected','مرفوض'),val:rejected.length,color:'#f87171',icon:'x-circle'}].map(s=>`
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800 text-center shadow-sm stat-card cursor-pointer" onclick="state.hr.leaveFilter='${s.label.split(' ')[0]}'; render();">
+                    <div class="p-3 rounded-xl inline-block mb-3" style="background:${s.color}20;color:${s.color}"><i data-lucide="${s.icon}" size="20"></i></div>
+                    <p class="text-2xl font-black text-mantiq-navy dark:text-white">${s.val}</p>
+                    <p class="text-[9px] font-black uppercase text-slate-400">${s.label}</p>
+                </div>
+            `).join('')}
+        </div>
+        <div class="space-y-3">
+            ${requests.map(l=>{
+                const emp = getEmp(l.empId);
+                const ltColor = LEAVE_COLORS[l.type]||'#94a3b8';
+                const isPending = l.status==='Pending';
+                return `
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm card-hover">
+                    <div class="flex flex-col md:flex-row md:items-center gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-sm text-white shadow-sm" style="background:${DEPT_COLORS[l.dept]||HR_COLOR}">${l.empName.slice(0,2).toUpperCase()}</div>
+                            <div>
+                                <p class="font-black text-base text-mantiq-navy dark:text-white">${l.empName}</p>
+                                <p class="text-xs text-slate-400 font-bold">${l.dept} · ${l.id}</p>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-black text-white mb-2" style="background:${ltColor}">${l.type}</span>
+                            <p class="text-sm font-bold text-mantiq-navy dark:text-white">${l.startDate} → ${l.endDate}</p>
+                            <p class="text-xs text-slate-500">${l.days} ${_t('days','أيام')} · "${l.reason}"</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            ${badgeHtml(l.status)}
+                            ${isPending ? `
+                                <button onclick="const lv=state.data.leaves.find(x=>x.id==='${l.id}'); if(lv){lv.status='Approved';lv.approvedBy='HR Manager';} pushNotify('${_t('Leave approved for ','تمت الموافقة على إجازة ')}${l.empName}'); render();" 
+                                    class="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-white bg-emerald-500 hover:bg-emerald-600 transition-colors">${_t('Approve','موافقة')}</button>
+                                <button onclick="const lv=state.data.leaves.find(x=>x.id==='${l.id}'); if(lv)lv.status='Rejected'; pushNotify('${_t('Leave rejected.','تم رفض الإجازة.')}'); render();"
+                                    class="px-4 py-2 rounded-xl text-[10px] font-black uppercase text-rose-500 bg-rose-50 dark:bg-rose-950/30 hover:bg-rose-100 transition-colors">${_t('Reject','رفض')}</button>
+                            ` : `${l.approvedBy?`<span class="text-[10px] text-slate-400">${_t('by','من')} ${l.approvedBy}</span>`:''}` }
+                        </div>
+                    </div>
+                    ${l.comment?`<div class="mt-3 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl text-xs text-slate-500 italic">"${l.comment}"</div>`:''}
+                </div>`;
+            }).join('')||`<p class="text-slate-400 italic text-center py-12">${_t('No leave requests match the filter.','لا توجد طلبات إجازة تطابق الفلتر.')}</p>`}
+        </div>
+    `;
+
+    // Leave balances
+    const balancesTab = `
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
+                    <tr>${[_t('Employee','الموظف'),_t('Annual Remaining','سنوية متبقية'),_t('Sick Remaining','مرضية متبقية'),_t('Emergency','طارئة'),_t('Used This Year','مستخدمة هذا العام'),''].map(h=>`<th class="px-7 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                    ${state.data.employees.map(e=>{
+                        const usedLeaves = state.data.leaves.filter(l=>l.empId===e.id&&l.status==='Approved').reduce((s,l)=>s+l.days,0);
+                        return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-50 dark:border-slate-800 last:border-0">
+                            <td class="px-7 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-[10px] text-white" style="background:${DEPT_COLORS[e.dept]||HR_COLOR}">${e.avatar}</div>
+                                    <div><p class="text-sm font-black text-mantiq-navy dark:text-white">${e.name}</p><p class="text-[9px] text-slate-400">${e.dept}</p></div>
+                                </div>
+                            </td>
+                            <td class="px-7 py-4">
+                                <div class="flex items-center gap-2">
+                                    <div class="kpi-bar w-24"><div class="kpi-bar-fill" style="width:${(e.leaveBalance.Annual/21)*100}%;background:#38bdf8"></div></div>
+                                    <span class="text-sm font-black text-mantiq-navy dark:text-white">${e.leaveBalance.Annual}</span>
+                                </div>
+                            </td>
+                            <td class="px-7 py-4 text-sm font-black text-mantiq-navy dark:text-white">${e.leaveBalance.Sick}</td>
+                            <td class="px-7 py-4 text-sm font-black text-mantiq-navy dark:text-white">${e.leaveBalance.Emergency}</td>
+                            <td class="px-7 py-4"><span class="text-sm font-black ${usedLeaves>15?'text-amber-500':'text-slate-500'}">${usedLeaves} ${_t('days','أيام')}</span></td>
+                            <td class="px-7 py-4">
+                                <button onclick="state.hr.leaveFormEmployee='${e.id}'; state.isModalOpen=true; state.modalType='request_leave'; render();" class="action-btn text-white text-[9px]" style="background:${HR_COLOR}">${_t('Request','طلب')}</button>
+                            </td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    return `
+    <div class="fade-in space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Leaves & Absences','الإجازات والغيابات')}</h2>
+            <div class="flex gap-3">
+                <select onchange="state.hr.leaveFilter=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl text-xs font-bold outline-none shadow-sm">
+                    ${['All','Pending','Approved','Rejected','Annual','Sick','Emergency','Maternity/Paternity','Unpaid'].map(f=>`<option value="${f}" ${hr.leaveFilter===f?'selected':''}>${f}</option>`).join('')}
+                </select>
+                <button onclick="state.isModalOpen=true; state.modalType='request_leave'; state.hr.leaveFormEmployee=''; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2"><i data-lucide="plus" size="14"></i>${_t('New Request','طلب جديد')}</button>
+            </div>
+        </div>
+        <div class="flex gap-2 bg-white dark:bg-slate-900 p-2 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm w-fit">
+            ${[{id:'requests',label:_t('Requests','الطلبات')},{id:'balances',label:_t('Balances','الأرصدة')}].map(t=>`
+                <button onclick="state.hr.leaveTab='${t.id}'; render();" class="tab-pill ${hr.leaveTab===t.id?'active':''}">${t.label}</button>
+            `).join('')}
+        </div>
+        ${hr.leaveTab==='balances' ? balancesTab : requestsTab}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: PAYROLL
+// ═══════════════════════════════════════════════════════════════
+function renderPayroll() {
+    const hr = state.hr;
+    const payrollData = state.data.payroll;
+    const totalNet     = payrollData.reduce((s,p)=>s+p.netSalary,0);
+    const totalGross   = payrollData.reduce((s,p)=>s+p.baseSalary+p.allowances+p.transport+p.mobile+p.bonus,0);
+    const totalTax     = payrollData.reduce((s,p)=>s+p.incomeTax,0);
+    const totalSI      = payrollData.reduce((s,p)=>s+p.socialInsurance,0);
+    const pending      = payrollData.filter(p=>p.status==='Pending').length;
+
+    const summaryTab = `
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            ${[
+                {label:_t('Total Gross','الإجمالي الخام'),     val:formatCurrency(totalGross), color:'#38bdf8'},
+                {label:_t('Total Net Paid','صافي المدفوع'),     val:formatCurrency(totalNet),  color:'#34d399'},
+                {label:_t('Total Income Tax','ضريبة الدخل'),    val:formatCurrency(totalTax),  color:'#fb923c'},
+                {label:_t('Soc. Insurance','تأمينات اجتماعية'),val:formatCurrency(totalSI),   color:'#a78bfa'},
+            ].map(s=>`
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm stat-card">
+                    <p class="text-[9px] font-black uppercase text-slate-400 mb-2">${s.label}</p>
+                    <p class="text-xl font-black" style="color:${s.color}">${s.val}</p>
+                </div>
+            `).join('')}
+        </div>
+        ${pending>0?`<div class="p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-2xl flex items-center gap-3 mb-6">
+            <i data-lucide="alert-triangle" class="text-amber-500" size="18"></i>
+            <p class="text-sm font-bold text-amber-700 dark:text-amber-300">${pending} ${_t('payroll records are pending processing. Review and approve to finalize.','سجلات رواتب معلقة. راجع واعتمد لإتمام الصرف.')}</p>
+        </div>`:``}
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
+                    <tr>${[_t('Employee','الموظف'),_t('Department','القسم'),_t('Base','أساسي'),_t('Allowances','بدلات'),_t('Deductions','خصومات'),_t('Tax','ضريبة'),_t('SI','تأمينات'),_t('Net Salary','صافي الراتب'),_t('Method','طريقة'),_t('Status','الحالة'),''].map(h=>`<th class="px-6 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                    ${payrollData.map(p=>{
+                        const gross=p.baseSalary+p.allowances+p.transport+p.mobile+p.bonus;
+                        return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-50 dark:border-slate-800 last:border-0">
+                            <td class="px-6 py-4">
+                                <p class="text-sm font-black text-mantiq-navy dark:text-white">${p.empName}</p>
+                                <p class="text-[9px] text-slate-400">${p.dept}</p>
+                            </td>
+                            <td class="px-6 py-4"><span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:${DEPT_COLORS[p.dept]||HR_COLOR}20;color:${DEPT_COLORS[p.dept]||HR_COLOR}">${p.dept}</span></td>
+                            <td class="px-6 py-4 text-sm font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap">${formatCurrency(p.baseSalary)}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-emerald-600 whitespace-nowrap">+${formatCurrency(p.allowances+p.transport+p.mobile+(p.bonus||0))}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-rose-500 whitespace-nowrap">-${formatCurrency(p.deductions)}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-amber-500 whitespace-nowrap">-${formatCurrency(p.incomeTax)}</td>
+                            <td class="px-6 py-4 text-sm font-bold text-slate-500 whitespace-nowrap">-${formatCurrency(p.socialInsurance)}</td>
+                            <td class="px-6 py-4 font-black text-mantiq-navy dark:text-white whitespace-nowrap text-base">${formatCurrency(p.netSalary)}</td>
+                            <td class="px-6 py-4 text-xs font-bold text-slate-500 whitespace-nowrap">${p.paymentMethod}</td>
+                            <td class="px-6 py-4">${badgeHtml(p.status)}</td>
+                            <td class="px-6 py-4">
+                                <div class="flex gap-1.5">
+                                    ${p.status==='Pending'?`<button onclick="const pr=state.data.payroll.find(x=>x.id==='${p.id}'); if(pr){pr.status='Processed';pr.slipGenerated=true;pr.processedDate='2025-03-28';} pushNotify('${_t('Payroll processed for ','تم صرف راتب ')}${p.empName}'); render();" class="action-btn text-white text-[8px]" style="background:#34d399">${_t('Process','صرف')}</button>`:''}
+                                    <button onclick="pushNotify('${_t('Generating payslip PDF...','إنشاء قسيمة PDF...')}')" class="p-1.5 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-700" style="color:${HR_COLOR}"><i data-lucide="receipt" size="14"></i></button>
+                                </div>
+                            </td>
+                        </tr>`;
+                    }).join('')}
+                </tbody>
+            </table>
+        </div>
+    `;
+
+    return `
+    <div class="fade-in space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Payroll','الرواتب')}</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${hr.payrollMonth}</p>
+            </div>
+            <div class="flex gap-3">
+                <select onchange="state.hr.payrollMonth=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl text-xs font-bold outline-none shadow-sm">
+                    ${['March 2025','February 2025','January 2025','December 2024'].map(m=>`<option ${hr.payrollMonth===m?'selected':''}>${m}</option>`).join('')}
+                </select>
+                <button onclick="pushNotify('${_t('Bulk payroll run initiated...','بدء تشغيل الرواتب الدفعي...')}')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-2.5 rounded-2xl font-black text-xs text-slate-500 flex items-center gap-2 shadow-sm"><i data-lucide="play-circle" size="14"></i>${_t('Run Payroll','تشغيل الرواتب')}</button>
+                <button onclick="pushNotify('${_t('Exporting payroll...','تصدير الرواتب...')}')" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2"><i data-lucide="download" size="14"></i>${_t('Export','تصدير')}</button>
+            </div>
+        </div>
+        ${summaryTab}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: CONTRACTS
+// ═══════════════════════════════════════════════════════════════
+function renderContracts() {
+    const hr = state.hr;
+    let contracts = [...state.data.contracts];
+    if(hr.contractFilter!=='All') contracts=contracts.filter(c=>c.type===hr.contractFilter||c.status===hr.contractFilter||c.renewalAlert===hr.contractFilter);
+    if(hr.contractSearch){ const q=hr.contractSearch.toLowerCase(); contracts=contracts.filter(c=>c.empName.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)); }
+
+    const expiringSoon = state.data.contracts.filter(c=>c.renewalAlert==='Expiring Soon');
+
+    return `
+    <div class="fade-in space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Contracts','العقود')}</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${contracts.length} ${_t('contracts','عقود')}</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="state.isModalOpen=true; state.modalType='add_contract'; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2"><i data-lucide="plus" size="14"></i>${_t('New Contract','عقد جديد')}</button>
+            </div>
+        </div>
+
+        ${expiringSoon.length?`
+        <div class="p-5 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded-[2rem]">
+            <div class="flex items-center gap-2 mb-4"><i data-lucide="alert-triangle" class="text-amber-500" size="18"></i><p class="font-black text-sm text-amber-700 dark:text-amber-300 uppercase">${_t('Contracts Expiring Within 30 Days','عقود تنتهي خلال 30 يومًا')}</p></div>
+            <div class="flex flex-wrap gap-3">
+                ${expiringSoon.map(c=>`
+                    <div class="flex items-center gap-3 bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl border border-amber-200 dark:border-amber-800">
+                        <div class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs text-white" style="background:${DEPT_COLORS[c.dept]||HR_COLOR}">${c.empName.slice(0,2).toUpperCase()}</div>
+                        <div><p class="text-xs font-black text-mantiq-navy dark:text-white">${c.empName}</p><p class="text-[9px] text-amber-600 font-bold">${_t('Expires:','ينتهي:')} ${c.endDate}</p></div>
+                        <button onclick="pushNotify('${_t('Renewal process started for ','بدء تجديد عقد ')}${c.empName}')" class="text-[9px] font-black uppercase px-3 py-1.5 rounded-xl text-white" style="background:#fb923c">${_t('Renew','تجديد')}</button>
+                    </div>
+                `).join('')}
+            </div>
+        </div>` : ''}
+
+        <!-- Filters -->
+        <div class="flex flex-wrap gap-3">
+            <div class="relative flex-1 min-w-[200px]">
+                <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size="15"></i>
+                <input type="text" placeholder="${_t('Search employee or contract ID...','بحث باسم موظف أو رقم عقد...')}" oninput="state.hr.contractSearch=this.value; render();" value="${hr.contractSearch}" class="w-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 pl-12 px-4 py-3 rounded-2xl text-sm outline-none shadow-sm" />
+            </div>
+            <select onchange="state.hr.contractFilter=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl text-xs font-bold outline-none shadow-sm">
+                ${['All','Full-Time','Part-Time','Contractor','Internship','Active','Expired','Expiring Soon'].map(f=>`<option value="${f}" ${hr.contractFilter===f?'selected':''}>${f}</option>`).join('')}
+            </select>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
+                    <tr>${[_t('Contract ID','رقم العقد'),_t('Employee','الموظف'),_t('Type','النوع'),_t('Start Date','البداية'),_t('End Date','النهاية'),_t('Notice Period','فترة إشعار'),_t('Alert','تنبيه'),_t('Status','الحالة'),''].map(h=>`<th class="px-7 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                    ${contracts.map(c=>{
+                        const days = c.endDate ? daysUntil(c.endDate) : null;
+                        return `
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-50 dark:border-slate-800 last:border-0">
+                            <td class="px-7 py-5 text-sm font-black text-slate-500">${c.id}</td>
+                            <td class="px-7 py-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-[10px] text-white" style="background:${DEPT_COLORS[c.dept]||HR_COLOR}">${c.empName.slice(0,2).toUpperCase()}</div>
+                                    <div><p class="text-sm font-black text-mantiq-navy dark:text-white">${c.empName}</p><p class="text-[9px] text-slate-400">${c.dept}</p></div>
+                                </div>
+                            </td>
+                            <td class="px-7 py-5">${badgeHtml(c.type, CONTRACT_BADGE[c.type]||'badge-blue')}</td>
+                            <td class="px-7 py-5 text-sm font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${c.startDate}</td>
+                            <td class="px-7 py-5 text-sm font-bold whitespace-nowrap ${days!==null&&days<30?'text-amber-500 font-black':' text-slate-600 dark:text-slate-300'}">${c.endDate||_t('Permanent','دائم')}</td>
+                            <td class="px-7 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${c.noticePeriod}</td>
+                            <td class="px-7 py-5">${days!==null?badgeHtml(days<30?'Expiring Soon':'Active'):badgeHtml('Permanent','badge-green')}</td>
+                            <td class="px-7 py-5">${badgeHtml(c.status)}</td>
+                            <td class="px-7 py-5">
+                                <div class="flex gap-1.5">
+                                    <button onclick="pushNotify('${_t('Opening contract...','فتح العقد...')}')" class="p-1.5 rounded-lg hover:bg-sky-50 dark:hover:bg-slate-700 text-sky-500 transition-colors"><i data-lucide="eye" size="14"></i></button>
+                                    ${c.endDate&&days<30?`<button onclick="pushNotify('${_t('Renewal initiated for ','بدء تجديد ')}${c.empName}')" class="action-btn text-white text-[8px]" style="background:#fb923c">${_t('Renew','تجديد')}</button>`:''}
+                                </div>
+                            </td>
+                        </tr>`;
+                    }).join('')||`<tr><td colspan="9" class="py-20 text-center text-slate-400 italic">${_t('No contracts found.','لا توجد عقود.')}</td></tr>`}
+                </tbody>
+            </table>
+        </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: RECRUITMENT
+// ═══════════════════════════════════════════════════════════════
+function renderRecruitment() {
+    const applications = state.data.recruitment;
+
+    // Summary
+    const totalApps = applications.length;
+    const totalHired = applications.filter(a=>a.stage==='hired').length;
+    const inProgress = applications.filter(a=>!['hired','rejected'].includes(a.stage)).length;
+
+    // Kanban
+    const board = RECRUIT_STAGES.map(stage=>{
+        const cards = applications.filter(a=>a.stage===stage.id);
+        const isDark = state.darkMode;
+        const bg = isDark ? `rgba(${stage.color.slice(1).match(/.{2}/g).map(x=>parseInt(x,16)).join(',')},0.08)` : `rgba(${stage.color.slice(1).match(/.{2}/g).map(x=>parseInt(x,16)).join(',')},0.07)`;
+        return `
+            <div class="kanban-col">
+                <div class="kanban-col-header" style="background:${bg};color:${stage.color}">
+                    <div class="flex items-center gap-2"><i data-lucide="${stage.icon}" size="13"></i>${_t(stage.label.en,stage.label.ar)}</div>
+                    <span class="w-5 h-5 flex items-center justify-center rounded-full text-white text-[9px] font-black" style="background:${stage.color}">${cards.length}</span>
+                </div>
+                ${cards.map(app=>{
+                    const nextStage = RECRUIT_STAGES[RECRUIT_STAGES.findIndex(s=>s.id===app.stage)+1];
+                    return `
+                    <div class="kanban-card">
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <p class="font-black text-sm text-mantiq-navy dark:text-white leading-tight">${app.name}</p>
+                                <p class="text-[10px] text-slate-400 font-bold">${app.position}</p>
+                            </div>
+                            <span class="text-[9px] font-black px-2 py-0.5 rounded-lg" style="background:${DEPT_COLORS[app.dept]||HR_COLOR}20;color:${DEPT_COLORS[app.dept]||HR_COLOR}">${app.dept}</span>
+                        </div>
+                        <div class="text-[10px] text-slate-500 space-y-1 mb-3">
+                            <div class="flex justify-between"><span>${app.source}</span><span class="font-black" style="color:${app.score>=80?'#34d399':app.score>=60?'#fb923c':'#f87171'}">${app.score}/100</span></div>
+                            <div>${app.experience} · ${app.salary_expect}</div>
+                            ${app.interviewDate?`<div class="font-bold text-purple-500">📅 ${app.interviewDate}</div>`:''}
+                        </div>
+                        <div class="flex gap-1.5">
+                            ${nextStage&&!['hired','rejected'].includes(app.stage)?`
+                                <button onclick="const a=state.data.recruitment.find(x=>x.id==='${app.id}'); if(a)a.stage='${nextStage.id}'; pushNotify('${app.name} → ${_t(nextStage.label.en,nextStage.label.ar)}'); render();"
+                                    class="flex-1 text-[9px] font-black uppercase py-2 rounded-xl text-white transition-colors" style="background:${nextStage.color}">
+                                    ${_t(nextStage.label.en,nextStage.label.ar)} →
+                                </button>
+                            `:''}
+                            ${!['rejected','hired'].includes(app.stage)?`
+                                <button onclick="const a=state.data.recruitment.find(x=>x.id==='${app.id}'); if(a)a.stage='rejected'; pushNotify('${app.name} ${_t('rejected.','مرفوض.')}'); render();"
+                                    class="p-2 rounded-xl text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition-colors text-[9px]">
+                                    <i data-lucide="x" size="12"></i>
+                                </button>
+                            `:''}
+                        </div>
+                    </div>`;
+                }).join('')||`<div class="text-center py-8 text-slate-300 dark:text-slate-700 text-[10px] font-black uppercase">${_t('Empty','فارغ')}</div>`}
+            </div>
+        `;
+    }).join('');
+
+    return `
+    <div class="fade-in space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Recruitment Pipeline','مسار التوظيف')}</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${totalApps} ${_t('applicants','متقدم')} · ${inProgress} ${_t('in progress','في المسار')} · ${totalHired} ${_t('hired','تم تعيينهم')}</p>
+            </div>
+            <button onclick="state.isModalOpen=true; state.modalType='add_applicant'; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2 self-start">
+                <i data-lucide="plus" size="14"></i>${_t('Add Applicant','إضافة متقدم')}
+            </button>
+        </div>
+        <!-- Summary badges -->
+        <div class="flex flex-wrap gap-3">
+            ${RECRUIT_STAGES.map(s=>`
+                <div class="flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-black" style="border-color:${s.color}30;background:rgba(${s.color.slice(1).match(/.{2}/g).map(x=>parseInt(x,16)).join(',')},0.07);color:${s.color}">
+                    <i data-lucide="${s.icon}" size="13"></i>${_t(s.label.en,s.label.ar)}
+                    <span class="px-1.5 py-0.5 rounded-full text-white text-[9px]" style="background:${s.color}">${applications.filter(a=>a.stage===s.id).length}</span>
+                </div>
+            `).join('')}
+        </div>
+        <div class="kanban-board">${board}</div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: PERFORMANCE
+// ═══════════════════════════════════════════════════════════════
+function renderPerformance() {
+    const hr = state.hr;
+    const reviews = state.data.performance.filter(p=>p.period===hr.performancePeriod);
+
+    const reviewsTab = `
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            ${[
+                {label:_t('Completed','مكتملة'), val:reviews.filter(r=>r.status==='Completed').length, color:'#34d399'},
+                {label:_t('Under Review','قيد المراجعة'), val:reviews.filter(r=>r.status==='Under Review').length, color:'#38bdf8'},
+                {label:_t('Pending Submission','لم يُرسل بعد'), val:reviews.filter(r=>r.status==='Pending Submission').length, color:'#fb923c'},
+            ].map(s=>`
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800 text-center shadow-sm stat-card">
+                    <p class="text-2xl font-black mb-1" style="color:${s.color}">${s.val}</p>
+                    <p class="text-[9px] font-black uppercase text-slate-400">${s.label}</p>
+                </div>
+            `).join('')}
+        </div>
+        <div class="space-y-3">
+            ${reviews.map(p=>`
+                <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-6 border border-slate-200 dark:border-slate-800 shadow-sm card-hover">
+                    <div class="flex flex-col md:flex-row md:items-center gap-4">
+                        <div class="flex items-center gap-4 flex-1">
+                            <div class="w-14 h-14 rounded-[1.5rem] flex items-center justify-center font-black text-base text-white shadow-lg" style="background:${scoreColor(p.overallScore)}">${p.overallScore}</div>
+                            <div>
+                                <p class="font-black text-base text-mantiq-navy dark:text-white">${p.empName}</p>
+                                <p class="text-xs text-slate-400 font-bold">${p.dept} · ${_t('Reviewer:','المقيم:')} ${p.reviewer}</p>
+                            </div>
+                        </div>
+                        <div class="flex-1 space-y-1.5">
+                            ${[['KPI',p.kpiScore],['Attitude',p.attitudeScore],['Teamwork',p.teamworkScore]].map(([l,v])=>`
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[9px] font-black uppercase text-slate-400 w-16">${l}</span>
+                                    <div class="flex-1 kpi-bar"><div class="kpi-bar-fill" style="width:${parseFloat(v)/5*100}%;background:${scoreColor(v)}"></div></div>
+                                    <span class="text-[10px] font-black w-6 text-right" style="color:${scoreColor(v)}">${v}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="flex flex-col items-end gap-2">
+                            ${badgeHtml(p.status)}
+                            ${p.status!=='Completed'?`<button onclick="const pr=state.data.performance.find(x=>x.id==='${p.id}'); if(pr)pr.status='Completed'; pushNotify('Review completed for ${p.empName}'); render();" class="action-btn text-white text-[9px]" style="background:${HR_COLOR}">${_t('Mark Done','إتمام')}</button>`:''}
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <div class="grid grid-cols-2 gap-4 text-xs">
+                            <div><p class="font-black text-slate-400 uppercase mb-1">${_t('Strengths','نقاط القوة')}</p><p class="text-slate-600 dark:text-slate-300">${p.strengths}</p></div>
+                            <div><p class="font-black text-slate-400 uppercase mb-1">${_t('Areas to Improve','مجالات التحسين')}</p><p class="text-slate-600 dark:text-slate-300">${p.improvements}</p></div>
+                        </div>
+                        <p class="text-xs text-slate-400 italic mt-3">"${p.managerComment}"</p>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    return `
+    <div class="fade-in space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Performance Reviews','تقييمات الأداء')}</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${hr.performancePeriod}</p>
+            </div>
+            <div class="flex gap-3">
+                <select onchange="state.hr.performancePeriod=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl text-xs font-bold outline-none shadow-sm">
+                    ${['Q1 2025','Q4 2024','Q3 2024','Annual 2024'].map(p=>`<option ${hr.performancePeriod===p?'selected':''}>${p}</option>`).join('')}
+                </select>
+                <button onclick="state.isModalOpen=true; state.modalType='new_review'; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2"><i data-lucide="plus" size="14"></i>${_t('New Review','تقييم جديد')}</button>
+            </div>
+        </div>
+        ${reviewsTab}
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: TRAINING
+// ═══════════════════════════════════════════════════════════════
+function renderTraining() {
+    const hr = state.hr;
+    const courses = state.data.training;
+    const totalCost = courses.reduce((s,t)=>s+t.cost,0);
+    const totalHours = courses.reduce((s,t)=>s+t.hours*t.enrollees,0);
+
+    return `
+    <div class="fade-in space-y-6">
+        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Training & Development','التدريب والتطوير')}</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${courses.length} ${_t('programs','برنامج')} · ${formatCurrency(totalCost)} ${_t('total budget','إجمالي الميزانية')}</p>
+            </div>
+            <button onclick="state.isModalOpen=true; state.modalType='add_training'; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2 self-start">
+                <i data-lucide="plus" size="14"></i>${_t('Add Course','إضافة دورة')}
+            </button>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            ${[
+                {label:_t('Total Courses','إجمالي الدورات'),      val:courses.length,           color:'#a78bfa', icon:'book-open'},
+                {label:_t('Completed','مكتملة'),                   val:courses.filter(t=>t.status==='Completed').length, color:'#34d399', icon:'check-circle'},
+                {label:_t('In Progress','جارية'),                  val:courses.filter(t=>t.status==='In Progress').length, color:'#38bdf8', icon:'play-circle'},
+                {label:_t('Training Budget Used','ميزانية التدريب'), val:formatCurrency(totalCost), color:'#fb923c', icon:'dollar-sign'},
+            ].map(s=>`
+                <div class="stat-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center gap-3 mb-3"><div class="p-2 rounded-xl" style="background:${s.color}20;color:${s.color}"><i data-lucide="${s.icon}" size="18"></i></div></div>
+                    <p class="text-2xl font-black text-mantiq-navy dark:text-white mb-1">${s.val}</p>
+                    <p class="text-[9px] font-black uppercase text-slate-400">${s.label}</p>
+                </div>
+            `).join('')}
+        </div>
+
+        <!-- Course cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            ${courses.map(t=>{
+                const completionPct = t.enrollees>0 ? Math.round((t.completed/t.enrollees)*100) : 0;
+                const statusColor = t.status==='Completed'?'#34d399':t.status==='In Progress'?'#38bdf8':'#94a3b8';
+                return `
+                <div class="card-hover bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                ${badgeHtml(t.status)}
+                                ${t.cert?`<span class="badge badge-amber">Cert</span>`:''}
+                                <span class="badge badge-slate">${t.mode}</span>
+                            </div>
+                            <h4 class="font-black text-base text-mantiq-navy dark:text-white mt-2">${t.name}</h4>
+                            <p class="text-xs text-slate-400 font-bold">${t.provider}</p>
+                        </div>
+                        <div class="text-right flex-shrink-0">
+                            <p class="text-xl font-black" style="color:${statusColor}">${completionPct}%</p>
+                            <p class="text-[9px] text-slate-400 uppercase">${_t('Completion','إتمام')}</p>
+                        </div>
+                    </div>
+                    <div class="kpi-bar mb-4"><div class="kpi-bar-fill" style="width:${completionPct}%;background:${statusColor}"></div></div>
+                    <div class="grid grid-cols-3 gap-3 text-center pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <div><p class="text-sm font-black text-mantiq-navy dark:text-white">${t.enrollees}</p><p class="text-[8px] uppercase text-slate-400">${_t('Enrolled','مسجلون')}</p></div>
+                        <div><p class="text-sm font-black text-mantiq-navy dark:text-white">${t.hours}h</p><p class="text-[8px] uppercase text-slate-400">${_t('Duration','المدة')}</p></div>
+                        <div><p class="text-sm font-black ${t.cost>0?'text-amber-500':'text-emerald-500'}">${t.cost>0?formatCurrency(t.cost):_t('Free','مجاني')}</p><p class="text-[8px] uppercase text-slate-400">${_t('Cost','التكلفة')}</p></div>
+                    </div>
+                    <div class="flex justify-between items-center mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 text-[9px] text-slate-400 font-bold">
+                        <span>${t.startDate} → ${t.endDate}</span>
+                        <button onclick="pushNotify('${_t('Opening enrollment list...','فتح قائمة المسجلين...')}')" class="text-purple-500 font-black hover:underline">${_t('View Enrollees','عرض المسجلين')}</button>
+                    </div>
+                </div>`;
+            }).join('')}
+        </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: HR REPORTS
+// ═══════════════════════════════════════════════════════════════
+function renderReports() {
+    const r = state.data.hrReports;
+    const metrics = [
+        {label:_t('Total Headcount','إجمالي الموظفين'),         val:r.headcount.current,   target:r.headcount.target, unit:'',    color:'#a78bfa'},
+        {label:_t('Monthly Payroll Cost','تكلفة الرواتب'),      val:'1.85M',                 target:'2M',               unit:' EGP',color:'#38bdf8'},
+        {label:_t('Turnover Rate','معدل الدوران'),               val:r.turnover.rate,         target:'< 10%',            unit:'',    color:'#f87171'},
+        {label:_t('Time to Hire','وقت التوظيف'),                 val:r.timeToHire,            target:'< 21 days',        unit:'',    color:'#fb923c'},
+        {label:_t('Offer Acceptance','قبول العروض'),             val:r.offerAcceptance,       target:'> 80%',            unit:'',    color:'#34d399'},
+        {label:_t('Avg Training Hrs/Employee','متوسط ساعات التدريب'), val:r.trainingHoursAvg, target:'16h',              unit:'h',   color:'#818cf8'},
+        {label:_t('Absenteeism Rate','معدل الغياب'),             val:r.absenteeism,           target:'< 5%',             unit:'',    color:'#fbbf24'},
+        {label:_t('Open Positions','وظائف شاغرة'),              val:r.openPositions,         target:'0',                unit:'',    color:'#f472b6'},
+    ];
+
+    return `
+    <div class="fade-in space-y-8">
+        <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR Reports & KPIs','تقارير ومؤشرات الموارد البشرية')}</h2>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            ${metrics.map(m=>`
+                <div class="stat-card bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <p class="text-[9px] font-black uppercase text-slate-400 mb-2">${m.label}</p>
+                    <p class="text-2xl font-black mb-1" style="color:${m.color}">${m.val}${m.unit}</p>
+                    <p class="text-[9px] text-slate-400">${_t('Target:','الهدف:')} ${m.target}</p>
+                </div>
+            `).join('')}
+        </div>
+
+        <!-- Analytics charts for reports -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 class="font-black text-xs uppercase tracking-widest text-slate-500 mb-5">${_t('Headcount Trend','اتجاه عدد الموظفين')}</h4>
+                <canvas id="ch-headcount-r" data-chart></canvas>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h4 class="font-black text-xs uppercase tracking-widest text-slate-500 mb-5">${_t('Payroll Cost (K EGP)','تكلفة الرواتب (ألف ج.م)')}</h4>
+                <canvas id="ch-payroll-r" data-chart></canvas>
+            </div>
+        </div>
+
+        <!-- Dept headcount table -->
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Department Breakdown','تفصيل الأقسام')}</h3>
+            <div class="space-y-4">
+                ${Object.entries(r.headcount.byDept).map(([dept,count])=>{
+                    const pct = Math.round((count/r.headcount.current)*100);
+                    const dc = DEPT_COLORS[dept]||HR_COLOR;
+                    return `
+                    <div>
+                        <div class="flex justify-between mb-1.5">
+                            <div class="flex items-center gap-2">
+                                <div class="w-3 h-3 rounded-full" style="background:${dc}"></div>
+                                <span class="text-sm font-black text-mantiq-navy dark:text-white">${dept}</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-xs text-slate-400 font-bold">${count} ${_t('employees','موظف')}</span>
+                                <span class="text-xs font-black" style="color:${dc}">${pct}%</span>
+                            </div>
+                        </div>
+                        <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${pct}%;background:${dc}"></div></div>
+                    </div>`;
+                }).join('')}
+            </div>
+        </div>
+
+        <div class="flex gap-4">
+            <button onclick="pushNotify('${_t('Generating HR report PDF...','إنشاء تقرير HR PDF...')}')" class="flex items-center gap-2 px-8 py-4 rounded-2xl font-black text-sm text-white" style="background:${HR_COLOR}">
+                <i data-lucide="file-down" size="16"></i>${_t('Export Full Report','تصدير التقرير الكامل')}
+            </button>
+            <button onclick="pushNotify('${_t('Sending report to management...','إرسال التقرير للإدارة...')}')" class="flex items-center gap-2 px-8 py-4 rounded-2xl font-black text-sm bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shadow-sm">
+                <i data-lucide="send" size="16"></i>${_t('Share with Management','مشاركة مع الإدارة')}
+            </button>
+        </div>
+    </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PAGE: SETTINGS
+// ═══════════════════════════════════════════════════════════════
+function renderSettings() {
+    const s = state.data.hrSettings;
+    const hr = state.hr;
+
+    const policiesTab = `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Working Hours -->
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-sm uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="clock" size="14"></i>${_t('Working Hours','ساعات العمل')}</h3>
+                <div class="space-y-4">
+                    <div class="flex gap-4">
+                        <div class="flex-1"><label class="text-[9px] font-black uppercase text-slate-400 mb-1 block">${_t('Start Time','وقت البداية')}</label>
+                            <input type="time" value="${s.workingHours.start}" onchange="state.data.hrSettings.workingHours.start=this.value; pushNotify('${_t('Saved.','تم الحفظ.')}');" class="w-full bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-sm font-bold outline-none" /></div>
+                        <div class="flex-1"><label class="text-[9px] font-black uppercase text-slate-400 mb-1 block">${_t('End Time','وقت النهاية')}</label>
+                            <input type="time" value="${s.workingHours.end}" onchange="state.data.hrSettings.workingHours.end=this.value; pushNotify('${_t('Saved.','تم الحفظ.')}');" class="w-full bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-sm font-bold outline-none" /></div>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map(day=>`
+                            <button onclick="const idx=state.data.hrSettings.workingHours.days.indexOf('${day}'); if(idx>-1)state.data.hrSettings.workingHours.days.splice(idx,1); else state.data.hrSettings.workingHours.days.push('${day}'); render();"
+                                class="px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${s.workingHours.days.includes(day)?'text-white':'bg-slate-100 dark:bg-slate-800 text-slate-500'}"
+                                style="${s.workingHours.days.includes(day)?`background:${HR_COLOR}`:''}">
+                                ${day}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+            <!-- Leave Policy -->
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-sm uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="calendar" size="14"></i>${_t('Leave Policy','سياسة الإجازات')}</h3>
+                <div class="space-y-3">
+                    ${[
+                        {key:'annual',        label:_t('Annual Leave Days','أيام الإجازة السنوية'), suffix:_t('days','أيام')},
+                        {key:'sick',          label:_t('Sick Leave Days','أيام الإجازة المرضية'),   suffix:_t('days','أيام')},
+                        {key:'emergency',     label:_t('Emergency Leave Days','أيام الطوارئ'),       suffix:_t('days','أيام')},
+                        {key:'carryover',     label:_t('Max Carry-over Days','أقصى أيام ترحيل'),     suffix:_t('days','أيام')},
+                    ].map(f=>`
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+                            <span class="text-xs font-bold text-slate-600 dark:text-slate-300">${f.label}</span>
+                            <div class="flex items-center gap-2">
+                                <input type="number" value="${s.leavePolicy[f.key]}" onchange="state.data.hrSettings.leavePolicy['${f.key}']=parseInt(this.value); pushNotify('${_t('Policy updated.','تم تحديث السياسة.')}');" class="w-16 bg-white dark:bg-slate-700 px-2 py-1.5 rounded-lg text-xs font-black text-center outline-none border border-slate-200 dark:border-slate-600" />
+                                <span class="text-[9px] text-slate-400">${f.suffix}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+            <!-- Tax Bands -->
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-sm uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="percent" size="14"></i>${_t('Tax & Social Insurance','الضرائب والتأمينات')}</h3>
+                <div class="space-y-3 mb-4">
+                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">${_t('Social Insurance Rate','نسبة التأمين الاجتماعي')}</span>
+                        <span class="text-sm font-black text-mantiq-navy dark:text-white">${s.socialInsurance}</span>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+                        <span class="text-xs font-bold text-slate-600 dark:text-slate-300">${_t('Overtime Multiplier','معامل الإضافي')}</span>
+                        <span class="text-sm font-black text-mantiq-navy dark:text-white">${s.overtimeRate}×</span>
+                    </div>
+                </div>
+                <p class="text-[9px] font-black uppercase text-slate-400 mb-3">${_t('Income Tax Bands','شرائح ضريبة الدخل')}</p>
+                ${s.taxBands.map(b=>`
+                    <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl mb-2">
+                        <span class="text-xs font-bold text-slate-500">${b.from.toLocaleString()} – ${b.to===Infinity?'∞':b.to.toLocaleString()} EGP</span>
+                        <span class="text-sm font-black text-amber-500">${b.rate}</span>
+                    </div>
+                `).join('')}
+            </div>
+            <!-- Departments & Roles -->
+            <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-sm uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="shield" size="14"></i>${_t('Access Roles','صلاحيات الوصول')}</h3>
+                <div class="space-y-2">
+                    ${s.roles.map((role,i)=>`
+                        <div class="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl">
+                            <div class="flex items-center gap-2">
+                                <div class="w-2 h-2 rounded-full" style="background:${['#34d399','#a78bfa','#38bdf8','#fb923c','#94a3b8','#e2e8f0'][i]||HR_COLOR}"></div>
+                                <span class="text-sm font-bold text-mantiq-navy dark:text-white">${role}</span>
+                            </div>
+                            <span class="text-[9px] font-black uppercase text-slate-400">${['Full Access','HR Module','Dept Only','Team Only','Read Profile','Read Only'][i]||'Custom'}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+
+    return `
+    <div class="fade-in space-y-6">
+        <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR System Settings','إعدادات نظام الموارد البشرية')}</h2>
+        ${policiesTab}
+    </div>`;
+}
+
+
+function renderHRModal() {
+    const type = state.modalType;
+    const empOptions = state.data.employees.map(e=>`<option value="${e.id}">${e.name} (${e.dept})</option>`).join('');
+
+    const forms = {
+        add_employee: {
+            title: _t('Add New Employee','إضافة موظف جديد'),
+            fields: [
+                {key:'name',label:_t('Full Name','الاسم الكامل'),type:'text',required:true},
+                {key:'jobTitle',label:_t('Job Title','المنصب'),type:'text',required:true},
+                {key:'dept',label:_t('Department','القسم'),type:'select',options:state.data.hrSettings.departments},
+                {key:'email',label:_t('Work Email','البريد الوظيفي'),type:'email',required:true},
+                {key:'phone',label:_t('Phone','الهاتف'),type:'text'},
+                {key:'salary',label:_t('Base Salary (EGP)','الراتب الأساسي (ج.م)'),type:'number',required:true},
+                {key:'contractType',label:_t('Contract Type','نوع العقد'),type:'select',options:['Full-Time','Part-Time','Contractor','Internship']},
+                {key:'hireDate',label:_t('Hire Date','تاريخ التعيين'),type:'date',required:true},
+                {key:'nationalId',label:_t('National ID','الرقم القومي'),type:'text'},
+                {key:'manager',label:_t('Reports To (Manager)','المدير المسؤول'),type:'text'},
+            ]
+        },
+        request_leave: {
+            title: _t('Leave Request','طلب إجازة'),
+            fields: [
+                {key:'empId',label:_t('Employee','الموظف'),type:'select_emp'},
+                {key:'type',label:_t('Leave Type','نوع الإجازة'),type:'select',options:['Annual','Sick','Emergency','Maternity/Paternity','Unpaid']},
+                {key:'startDate',label:_t('Start Date','تاريخ البداية'),type:'date',required:true},
+                {key:'endDate',label:_t('End Date','تاريخ النهاية'),type:'date',required:true},
+                {key:'reason',label:_t('Reason','السبب'),type:'text',required:true},
+                {key:'comment',label:_t('HR Comment (optional)','ملاحظة HR (اختياري)'),type:'text'},
+            ]
+        },
+        add_attendance: {
+            title: _t('Manual Attendance Entry','إدخال حضور يدوي'),
+            fields: [
+                {key:'empId',label:_t('Employee','الموظف'),type:'select_emp'},
+                {key:'date',label:_t('Date','التاريخ'),type:'date',required:true},
+                {key:'checkIn',label:_t('Check In Time','وقت الدخول'),type:'time'},
+                {key:'checkOut',label:_t('Check Out Time','وقت الخروج'),type:'time'},
+                {key:'note',label:_t('Note','ملاحظة'),type:'text'},
+            ]
+        },
+        add_applicant: {
+            title: _t('Add Applicant','إضافة متقدم'),
+            fields: [
+                {key:'name',label:_t('Full Name','الاسم الكامل'),type:'text',required:true},
+                {key:'position',label:_t('Applied Position','الوظيفة المتقدم لها'),type:'text',required:true},
+                {key:'dept',label:_t('Department','القسم'),type:'select',options:state.data.hrSettings.departments},
+                {key:'source',label:_t('Source','المصدر'),type:'select',options:['LinkedIn','Indeed','Referral','Company Website','Wuzzuf','Forasna']},
+                {key:'email',label:_t('Email','البريد'),type:'email'},
+                {key:'phone',label:_t('Phone','الهاتف'),type:'text'},
+                {key:'experience',label:_t('Years of Experience','سنوات الخبرة'),type:'text'},
+                {key:'salary_expect',label:_t('Salary Expectation','توقعات الراتب'),type:'text'},
+            ]
+        },
+        new_review: {
+            title: _t('New Performance Review','تقييم أداء جديد'),
+            fields: [
+                {key:'empId',label:_t('Employee','الموظف'),type:'select_emp'},
+                {key:'period',label:_t('Review Period','فترة التقييم'),type:'select',options:['Q1 2025','Q4 2024','Q3 2024','Annual 2024']},
+                {key:'kpiScore',label:_t('KPI Score (1-5)','نقاط KPI (1-5)'),type:'number'},
+                {key:'attitudeScore',label:_t('Attitude Score (1-5)','الموقف (1-5)'),type:'number'},
+                {key:'teamworkScore',label:_t('Teamwork Score (1-5)','العمل الجماعي (1-5)'),type:'number'},
+                {key:'communicationScore',label:_t('Communication Score (1-5)','التواصل (1-5)'),type:'number'},
+                {key:'strengths',label:_t('Strengths','نقاط القوة'),type:'text'},
+                {key:'improvements',label:_t('Areas to Improve','مجالات التطوير'),type:'text'},
+                {key:'managerComment',label:_t("Manager's Comment","تعليق المدير"),type:'text'},
+            ]
+        },
+        add_contract: {
+            title: _t('New Contract','عقد جديد'),
+            fields: [
+                {key:'empId',label:_t('Employee','الموظف'),type:'select_emp'},
+                {key:'type',label:_t('Contract Type','نوع العقد'),type:'select',options:['Full-Time','Part-Time','Contractor','Internship']},
+                {key:'startDate',label:_t('Start Date','تاريخ البداية'),type:'date',required:true},
+                {key:'endDate',label:_t('End Date (leave blank if permanent)','تاريخ النهاية (اتركه فارغًا إذا كان دائمًا)'),type:'date'},
+                {key:'noticePeriod',label:_t('Notice Period','فترة الإشعار'),type:'select',options:['7 Days','14 Days','30 Days','60 Days','90 Days']},
+                {key:'documents',label:_t('Document Notes','ملاحظات المستندات'),type:'text'},
+            ]
+        },
+        add_training: {
+            title: _t('Add Training Course','إضافة دورة تدريبية'),
+            fields: [
+                {key:'name',label:_t('Course Name','اسم الدورة'),type:'text',required:true},
+                {key:'provider',label:_t('Provider','المزود'),type:'text',required:true},
+                {key:'type',label:_t('Type','النوع'),type:'select',options:['Internal','External']},
+                {key:'mode',label:_t('Mode','طريقة التنفيذ'),type:'select',options:['In-Person','Online','Blended']},
+                {key:'hours',label:_t('Duration (hours)','المدة (ساعات)'),type:'number'},
+                {key:'cost',label:_t('Cost (EGP)','التكلفة (ج.م)'),type:'number'},
+                {key:'startDate',label:_t('Start Date','تاريخ البداية'),type:'date'},
+                {key:'endDate',label:_t('End Date','تاريخ النهاية'),type:'date'},
+            ]
+        },
+    };
+
+    const form = forms[type] || forms.add_employee;
+
+    const fieldHtml = form.fields.map(f=>`
+        <div class="flex flex-col gap-1.5">
+            <label class="text-[9px] font-black uppercase tracking-widest text-slate-400">${f.label}${f.required?'<span class="text-rose-400 ml-0.5">*</span>':''}</label>
+            ${f.type==='select_emp'
+                ? `<select id="mf-${f.key}" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-purple-400"><option value="">${_t('Select employee...','اختر موظفًا...')}</option>${empOptions}</select>`
+                : f.type==='select'
+                ? `<select id="mf-${f.key}" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-purple-400">${f.options.map(o=>`<option>${o}</option>`).join('')}</select>`
+                : `<input id="mf-${f.key}" type="${f.type||'text'}" placeholder="${f.label}" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-sm font-bold outline-none focus:ring-2 focus:ring-purple-400" />`
+            }
+        </div>
+    `).join('');
+
+    const handleSave = `
+        const formData = {};
+        ${form.fields.map(f=>`formData['${f.key}'] = document.getElementById('mf-${f.key}')?.value || '';`).join('\n')}
+        ${type==='add_employee' ? `
+            state.data.employees.push({
+                id:'EMP-'+String(1001+state.data.employees.length).padStart(4,'0'),
+                name:formData.name||'New Employee',
+                firstName:(formData.name||'New').split(' ')[0],
+                avatar:(formData.name||'NE').slice(0,2).toUpperCase(),
+                jobTitle:formData.jobTitle||'—',
+                dept:formData.dept||'HR',
+                manager:formData.manager||'—',
+                email:formData.email||'—',
+                phone:formData.phone||'—',
+                mobile:'—',
+                hireDate:formData.hireDate||new Date().toISOString().slice(0,10),
+                contractType:formData.contractType||'Full-Time',
+                contractEnd:null,
+                salary:parseInt(formData.salary)||0,
+                allowances:0,transportAllowance:0,mobileAllowance:0,deductions:0,
+                socialInsurance:Math.round(parseInt(formData.salary||0)*0.11),
+                incomeTax:0,
+                netSalary:parseInt(formData.salary||0)*0.89,
+                status:'Active',
+                leaveBalance:{Annual:21,Sick:10,Emergency:3},
+                nationality:'Egyptian',nationalId:formData.nationalId||'—',
+                address:'—',education:'—',
+                lastReview:'—',performanceScore:'—',notes:'',photo:null,
+                probationEnd:'—',emergencyContact:'—',emergencyPhone:'—',startDate:formData.hireDate,
+            });
+            pushNotify('${_t('Employee added successfully.','تم إضافة الموظف بنجاح.')}', 'success');
+        ` : type==='request_leave' ? `
+            const empL = state.data.employees.find(e=>e.id===formData.empId);
+            if(empL){
+                const start=new Date(formData.startDate), end=new Date(formData.endDate);
+                const days=Math.max(1,Math.ceil((end-start)/(1000*60*60*24))+1);
+                state.data.leaves.push({
+                    id:'LV-'+String(1001+state.data.leaves.length).padStart(4,'0'),
+                    empId:empL.id, empName:empL.name, dept:empL.dept,
+                    type:formData.type||'Annual',
+                    startDate:formData.startDate,endDate:formData.endDate,
+                    days, reason:formData.reason||'—',
+                    status:'Pending', appliedDate:new Date().toISOString().slice(0,10),
+                    approvedBy:null, hrApproved:false, comment:formData.comment||''
+                });
+                pushNotify('${_t('Leave request submitted.','تم تقديم طلب الإجازة.')}', 'success');
+            } else { pushNotify('${_t('Please select an employee.','الرجاء اختيار موظف.')}', 'error'); return; }
+        ` : type==='add_applicant' ? `
+            state.data.recruitment.push({
+                id:'APP-'+String(4001+state.data.recruitment.length).padStart(4,'0'),
+                name:formData.name||'New Applicant',
+                position:formData.position||'—',
+                dept:formData.dept||'HR',
+                source:formData.source||'Manual',
+                stage:'applied',
+                appliedDate:new Date().toISOString().slice(0,10),
+                experience:formData.experience||'—',
+                salary_expect:formData.salary_expect||'—',
+                score:50, interviewer:'—', interviewDate:null, notes:'',
+                email:formData.email||'—', phone:formData.phone||'—',
+            });
+            pushNotify('${_t('Applicant added.','تم إضافة المتقدم.')}', 'success');
+        ` : type==='new_review' ? `
+            const empR = state.data.employees.find(e=>e.id===formData.empId);
+            if(empR){
+                const scores=[parseFloat(formData.kpiScore||3),parseFloat(formData.attitudeScore||3),parseFloat(formData.teamworkScore||3),parseFloat(formData.communicationScore||3),3];
+                const overall=(scores.reduce((a,b)=>a+b,0)/5).toFixed(1);
+                state.data.performance.push({
+                    id:'PER-'+String(5001+state.data.performance.length).padStart(4,'0'),
+                    empId:empR.id,empName:empR.name,dept:empR.dept,
+                    period:formData.period||'Q1 2025',
+                    reviewer:state.data.hrSettings.roles[1],
+                    kpiScore:formData.kpiScore||'3.0',
+                    attitudeScore:formData.attitudeScore||'3.0',
+                    teamworkScore:formData.teamworkScore||'3.0',
+                    communicationScore:formData.communicationScore||'3.0',
+                    initiativeScore:'3.0',
+                    overallScore:overall,
+                    kpiDetails:[],
+                    strengths:formData.strengths||'—',
+                    improvements:formData.improvements||'—',
+                    managerComment:formData.managerComment||'—',
+                    status:'Completed',
+                    submitDate:new Date().toISOString().slice(0,10),
+                });
+                pushNotify('${_t('Performance review saved.','تم حفظ التقييم.')}', 'success');
+            }
+        ` : type==='add_training' ? `
+            state.data.training.push({
+                id:'TRN-'+String(100+state.data.training.length).padStart(3,'0'),
+                name:formData.name||'New Course',
+                provider:formData.provider||'—',
+                type:formData.type||'Internal',
+                mode:formData.mode||'Online',
+                enrollees:0, completed:0,
+                hours:parseInt(formData.hours||0),
+                cost:parseInt(formData.cost||0),
+                startDate:formData.startDate||'—',
+                endDate:formData.endDate||'—',
+                status:'Scheduled',
+                cert:false
+            });
+            pushNotify('${_t('Course added.','تم إضافة الدورة.')}', 'success');
+        ` : `pushNotify('${_t('Saved.','تم الحفظ.')}', 'success');`}
+        state.isModalOpen=false; state.modalType=null; render();
+    `;
+
+    return `
+        <div class="fixed inset-0 z-[101] flex items-center justify-center p-6 modal-overlay fade-in" onclick="if(event.target===this){state.isModalOpen=false;state.modalType=null;render();}">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-xl rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[88vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h2 class="text-xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${form.title}</h2>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase mt-1">MANTIQ HR System</p>
+                    </div>
+                    <button onclick="state.isModalOpen=false; state.modalType=null; render();" class="text-slate-400 hover:text-rose-500 p-2 transition-colors"><i data-lucide="x" size="22"></i></button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    ${fieldHtml}
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="state.isModalOpen=false; state.modalType=null; render();" class="flex-1 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 font-black text-sm uppercase text-slate-600 dark:text-slate-300">${_t('Cancel','إلغاء')}</button>
+                    <button onclick="${handleSave}" class="flex-1 py-4 rounded-2xl font-black text-sm uppercase text-white shadow-xl" style="background:${HR_COLOR}">${_t('Save','حفظ')}</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+
 window.addEventListener('contextmenu', e => { e.preventDefault(); pushNotify(ut('restricted')); });
-window.onload = () => { initData(); render(); };
+window.onload = () => { initData(); initHRData(); render(); };
     </script>
 </body>
 </html>
