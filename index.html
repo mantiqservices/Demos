@@ -1310,7 +1310,7 @@ function renderLeadsPipeline() {
     return `
         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Lead Pipeline','مسار العملاء')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Lead Pipeline','مسار العملاء')}</h2>
                 <p class="text-slate-400 text-xs font-bold mt-1">${_t('Transfer leads across stages by clicking the stage buttons on each card','انقل العملاء بين المراحل بالضغط على أزرار المرحلة في كل بطاقة')}</p>
             </div>
             <div class="flex gap-3">
@@ -1370,7 +1370,7 @@ function renderLeadsTable() {
 
     return `
         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
-            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Leads — Table View','العملاء — عرض الجدول')}</h2>
+            <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Leads — Table View','العملاء — عرض الجدول')}</h2>
             <div class="flex gap-3">
                 <button onclick="state.leadsView='pipeline'; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3.5 rounded-2xl font-black text-xs text-slate-500 flex items-center gap-2">
                     <i data-lucide="kanban" size="14"></i>${_t('Pipeline View','عرض المسار')}
@@ -2027,7 +2027,7 @@ function renderEduStudentsList() {
     return `
         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Students','الطلاب')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Students','الطلاب')}</h2>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${students.length} ${_t('Records','سجل')}</p>
             </div>
             <div class="flex gap-3">
@@ -2133,7 +2133,7 @@ function renderEduTeachers() {
 
     return `
         <div class="flex justify-between items-center mb-8">
-            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Teachers','المعلمون')}</h2>
+            <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Teachers','المعلمون')}</h2>
             <button onclick="state.isModalOpen=true; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-3 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2">
                 <i data-lucide="plus" size="14"></i>${_t('Add Teacher','إضافة معلم')}
             </button>
@@ -2230,7 +2230,7 @@ function renderEduAttendance() {
     return `
         <div class="fade-in space-y-6">
             <div class="flex flex-col lg:flex-row justify-between gap-6">
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Attendance','الحضور والانصراف')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Attendance','الحضور والانصراف')}</h2>
                 <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 flex flex-wrap gap-4 items-end shadow-sm">
                     <div>
                         <label class="text-[9px] font-black uppercase text-slate-400 mb-1 block">${_t('Date','التاريخ')}</label>
@@ -2310,7 +2310,7 @@ function renderEduCashflow() {
     return `
         <div class="fade-in space-y-6">
             <div class="flex justify-between items-center flex-wrap gap-4">
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Cash Flow','التدفق المالي')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Cash Flow','التدفق المالي')}</h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
                 <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm text-center">
@@ -2409,7 +2409,7 @@ function renderEduConfig() {
 
     return `
         <div class="fade-in space-y-8 pb-16">
-            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Settings','الإعدادات')}</h2>
+            <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Settings','الإعدادات')}</h2>
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                     <h3 class="font-black text-sm uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="user-plus" size="14"></i>${_t('Teachers','المعلمون')}</h3>
@@ -2464,7 +2464,7 @@ function renderTable() {
 
     return `
         <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
-            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t(currentNav.label.en,currentNav.label.ar)}</h2>
+            <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t(currentNav.label.en,currentNav.label.ar)}</h2>
             <div class="flex gap-3">
                 <button onclick="pushNotify('${ut('export')}...')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-4 rounded-2xl font-black text-sm text-slate-600 dark:text-slate-300 shadow-sm flex items-center gap-2">
                     <i data-lucide="download" size="15"></i>${ut('export')}
@@ -2611,12 +2611,23 @@ function renderApp() {
                 </header>
 
                 <!-- Mobile Header -->
-                <div class="lg:hidden flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-30">
-                    <button onclick="setModule(MODULES.LANDING)">${getLogo("h-6 text-lg")}</button>
-                    <button onclick="toggleMobileMenu()" class="p-2 bg-mantiq-cyan text-white rounded-lg shadow-lg"><i data-lucide="menu" size="18"></i></button>
+                <div class="lg:hidden bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-0 z-30">
+                    <div class="flex items-center justify-between px-5 py-4">
+                        <button onclick="setModule(MODULES.LANDING)">${getLogo("h-6 text-base")}</button>
+                        <div class="flex items-center gap-2">
+                            <button onclick="setLanguage('${state.language==='en'?'ar':'en'}')" class="p-2 text-slate-400 hover:text-mantiq-cyan"><i data-lucide="languages" size="18"></i></button>
+                            <button onclick="toggleDarkMode()" class="p-2 text-slate-400 hover:text-mantiq-cyan"><i data-lucide="${state.darkMode?'sun':'moon'}" size="18"></i></button>
+                            <button onclick="state.showTourInvite=true; render();" class="p-2 rounded-lg text-white" style="background:${config.color}88"><i data-lucide="map" size="16"></i></button>
+                            <button onclick="toggleMobileMenu()" class="p-2 bg-mantiq-cyan text-white rounded-lg shadow-lg"><i data-lucide="menu" size="18"></i></button>
+                        </div>
+                    </div>
+                    <div class="px-5 pb-3">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-slate-400" style="color:${config.color}">${_t(config.title.en,config.title.ar)}</p>
+                        <h1 class="text-lg font-black text-mantiq-navy dark:text-white tracking-tight">${_t(currentNavItem.label.en, currentNavItem.label.ar)}</h1>
+                    </div>
                 </div>
 
-                <main class="p-6 md:p-14 max-w-[1600px] mx-auto fade-in">
+                <main class="p-4 md:p-8 lg:p-14 max-w-[1600px] mx-auto fade-in">
                     ${renderWorkspace()}
                 </main>
             </div>
@@ -3367,7 +3378,7 @@ function renderEmployeeDrawer() {
 
     return `
         <div class="emp-drawer-overlay" onclick="closeEmployee()"></div>
-        <div class="emp-drawer custom-scrollbar">
+        <div class="emp-drawer custom-scrollbar" onclick="event.stopPropagation()">
             <!-- Header -->
             <div class="sticky top-0 z-10 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-8 py-6 flex items-center justify-between">
                 <div class="flex items-center gap-4">
@@ -3425,14 +3436,14 @@ function renderHRDashboard() {
     return `
     <div class="fade-in space-y-8">
         <!-- KPIs -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             ${kpis.map(k=>`
                 <div class="stat-card bg-white dark:bg-slate-900 p-7 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div class="flex items-center justify-between mb-4">
                         <div class="p-3 rounded-2xl" style="background:${k.color}20;color:${k.color}"><i data-lucide="${k.icon}" size="20"></i></div>
                         <span class="text-[10px] font-black text-slate-400">${k.delta}</span>
                     </div>
-                    <p class="text-3xl font-black text-mantiq-navy dark:text-white mb-1">${k.value}</p>
+                    <p class="text-2xl md:text-3xl font-black text-mantiq-navy dark:text-white mb-1">${k.value}</p>
                     <p class="text-xs font-bold uppercase tracking-widest text-slate-500">${k.label}</p>
                 </div>
             `).join('')}
@@ -3492,7 +3503,7 @@ function renderHRDashboard() {
                 <h3 class="font-black text-sm uppercase tracking-widest text-slate-800 dark:text-white">${_t('Department Overview','نظرة حسب الأقسام')}</h3>
                 <button onclick="setPage('analytics')" class="text-[11px] font-black uppercase text-purple-500 flex items-center gap-1.5">${_t('Full Analytics','تحليلات كاملة')} <i data-lucide="${state.language==='ar'?'arrow-left':'arrow-right'}" size="12"></i></button>
             </div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
                 ${Object.entries(state.data.hrReports.headcount.byDept).map(([dept,count])=>`
                     <div class="p-5 rounded-2xl border border-slate-100 dark:border-slate-800 card-hover cursor-pointer" onclick="state.hr.directoryDept='${dept}'; setPage('directory')">
                         <div class="flex items-center gap-2 mb-3">
@@ -3522,8 +3533,8 @@ function renderHRAnalytics() {
     ];
     return `
     <div class="fade-in space-y-8">
-        <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR Analytics','تحليلات الموارد البشرية')}</h2>
-        <div class="grid grid-cols-2 lg:grid-cols-3 gap-6">
+        <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR Analytics','تحليلات الموارد البشرية')}</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             ${[
                 {id:'ch-headcount',title:_t('Headcount Trend','اتجاه عدد الموظفين')},
                 {id:'ch-dept',title:_t('Employees by Department','الموظفين حسب القسم')},
@@ -3567,7 +3578,7 @@ function renderDirectory() {
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
-                    <tr>${[_t('Employee','الموظف'),_t('Department','القسم'),_t('Job Title','المنصب'),_t('Phone','الهاتف'),_t('Contract','العقد'),_t('Hire Date','التعيين'),_t('Status','الحالة'),''].map(h=>`<th class="px-7 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                    <tr>${[_t('Employee','الموظف'),_t('Department','القسم'),_t('Job Title','المنصب'),_t('Phone','الهاتف'),_t('Contract','العقد'),_t('Hire Date','التعيين'),_t('Status','الحالة'),''].map(h=>`<th class="px-3 md:px-7 py-3 md:py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
                 </thead>
                 <tbody>
                     ${emps.map(e=>{
@@ -3581,10 +3592,10 @@ function renderDirectory() {
                                 </div>
                             </td>
                             <td class="px-7 py-5"><span class="text-xs font-black px-2 py-1 rounded-lg" style="background:${dc}20;color:${dc}">${e.dept}</span></td>
-                            <td class="px-7 py-5 text-sm font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${e.jobTitle}</td>
-                            <td class="px-7 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${e.phone}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 text-sm font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${e.jobTitle}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${e.phone}</td>
                             <td class="px-7 py-5">${badgeHtml(e.contractType, CONTRACT_BADGE[e.contractType]||'badge-blue')}</td>
-                            <td class="px-7 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${e.hireDate}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${e.hireDate}</td>
                             <td class="px-7 py-5">${badgeHtml(e.status)}</td>
                             <td class="px-7 py-5">
                                 <div class="flex gap-1.5 justify-end" onclick="event.stopPropagation()">
@@ -3629,9 +3640,9 @@ function renderDirectory() {
 
     return `
     <div class="fade-in space-y-6">
-        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 md:gap-4">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Employee Directory','دليل الموظفين')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Employee Directory','دليل الموظفين')}</h2>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${emps.length} ${_t('employees','موظف')}</p>
             </div>
             <div class="flex flex-wrap gap-3">
@@ -3708,7 +3719,7 @@ function renderAttendance() {
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
-                    <tr>${[_t('Employee','الموظف'),_t('Dept','القسم'),_t('Check In','دخول'),_t('Check Out','خروج'),_t('Hours','ساعات'),_t('Late','تأخر'),_t('Overtime','إضافي'),_t('Status','الحالة'),''].map(h=>`<th class="px-7 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                    <tr>${[_t('Employee','الموظف'),_t('Dept','القسم'),_t('Check In','دخول'),_t('Check Out','خروج'),_t('Hours','ساعات'),_t('Late','تأخر'),_t('Overtime','إضافي'),_t('Status','الحالة'),''].map(h=>`<th class="px-3 md:px-7 py-3 md:py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
                 </thead>
                 <tbody>
                     ${records.map(r=>`
@@ -3720,13 +3731,13 @@ function renderAttendance() {
                                 </div>
                             </td>
                             <td class="px-7 py-5"><span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:${DEPT_COLORS[r.dept]||HR_COLOR}20;color:${DEPT_COLORS[r.dept]||HR_COLOR}">${r.dept}</span></td>
-                            <td class="px-7 py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">${r.checkIn||'—'}</td>
-                            <td class="px-7 py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">${r.checkOut||'—'}</td>
-                            <td class="px-7 py-5 font-black text-sm text-mantiq-navy dark:text-white">${r.workedHours}h</td>
-                            <td class="px-7 py-5 whitespace-nowrap">
+                            <td class="px-3 md:px-7 py-3 md:py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">${r.checkIn||'—'}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 font-bold text-sm text-slate-700 dark:text-slate-200 whitespace-nowrap">${r.checkOut||'—'}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 font-black text-sm text-mantiq-navy dark:text-white">${r.workedHours}h</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 whitespace-nowrap">
                                 ${r.lateMinutes>0?`<span class="text-[10px] font-black text-amber-500 bg-amber-50 dark:bg-amber-950/30 px-2 py-1 rounded-lg">⚠ ${r.lateMinutes}m</span>`:'<span class="text-slate-300">—</span>'}
                             </td>
-                            <td class="px-7 py-5 whitespace-nowrap">
+                            <td class="px-3 md:px-7 py-3 md:py-5 whitespace-nowrap">
                                 ${r.overtime>0?`<span class="text-[10px] font-black text-blue-500 bg-blue-50 dark:bg-blue-950/30 px-2 py-1 rounded-lg">+${r.overtime}h</span>`:'<span class="text-slate-300">—</span>'}
                             </td>
                             <td class="px-7 py-5">${badgeHtml(r.status)}</td>
@@ -3772,9 +3783,9 @@ function renderAttendance() {
 
     return `
     <div class="fade-in space-y-6">
-        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 md:gap-4">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Attendance','الحضور والانصراف')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Attendance','الحضور والانصراف')}</h2>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${records.length} ${_t('records','سجل')}</p>
             </div>
             <div class="flex flex-wrap gap-3 items-center">
@@ -3811,7 +3822,7 @@ function renderLeaves() {
     const rejected = state.data.leaves.filter(l=>l.status==='Rejected');
 
     const requestsTab = `
-        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
             ${[{label:_t('Pending','معلق'),val:pending.length,color:'#fb923c',icon:'clock'},{label:_t('Approved','موافق عليه'),val:approved.length,color:'#34d399',icon:'check-circle'},{label:_t('Rejected','مرفوض'),val:rejected.length,color:'#f87171',icon:'x-circle'}].map(s=>`
                 <div class="bg-white dark:bg-slate-900 p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800 text-center shadow-sm stat-card cursor-pointer" onclick="state.hr.leaveFilter='${s.label.split(' ')[0]}'; render();">
                     <div class="p-3 rounded-xl inline-block mb-3" style="background:${s.color}20;color:${s.color}"><i data-lucide="${s.icon}" size="20"></i></div>
@@ -3861,7 +3872,7 @@ function renderLeaves() {
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
-                    <tr>${[_t('Employee','الموظف'),_t('Annual Remaining','سنوية متبقية'),_t('Sick Remaining','مرضية متبقية'),_t('Emergency','طارئة'),_t('Used This Year','مستخدمة هذا العام'),''].map(h=>`<th class="px-7 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                    <tr>${[_t('Employee','الموظف'),_t('Annual Remaining','سنوية متبقية'),_t('Sick Remaining','مرضية متبقية'),_t('Emergency','طارئة'),_t('Used This Year','مستخدمة هذا العام'),''].map(h=>`<th class="px-3 md:px-7 py-3 md:py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
                 </thead>
                 <tbody>
                     ${state.data.employees.map(e=>{
@@ -3895,8 +3906,8 @@ function renderLeaves() {
 
     return `
     <div class="fade-in space-y-6">
-        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
-            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Leaves & Absences','الإجازات والغيابات')}</h2>
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 md:gap-4">
+            <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Leaves & Absences','الإجازات والغيابات')}</h2>
             <div class="flex gap-3">
                 <select onchange="state.hr.leaveFilter=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-2.5 rounded-2xl text-xs font-bold outline-none shadow-sm">
                     ${['All','Pending','Approved','Rejected','Annual','Sick','Emergency','Maternity/Paternity','Unpaid'].map(f=>`<option value="${f}" ${hr.leaveFilter===f?'selected':''}>${f}</option>`).join('')}
@@ -3946,7 +3957,7 @@ function renderPayroll() {
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
-                    <tr>${[_t('Employee','الموظف'),_t('Department','القسم'),_t('Base','أساسي'),_t('Allowances','بدلات'),_t('Deductions','خصومات'),_t('Tax','ضريبة'),_t('SI','تأمينات'),_t('Net Salary','صافي الراتب'),_t('Method','طريقة'),_t('Status','الحالة'),''].map(h=>`<th class="px-6 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                    <tr>${[_t('Employee','الموظف'),_t('Department','القسم'),_t('Base','أساسي'),_t('Allowances','بدلات'),_t('Deductions','خصومات'),_t('Tax','ضريبة'),_t('SI','تأمينات'),_t('Net Salary','صافي الراتب'),_t('Method','طريقة'),_t('Status','الحالة'),''].map(h=>`<th class="px-3 md:px-6 py-3 md:py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
                 </thead>
                 <tbody>
                     ${payrollData.map(p=>{
@@ -3958,13 +3969,13 @@ function renderPayroll() {
                                 <p class="text-[9px] text-slate-400">${p.dept}</p>
                             </td>
                             <td class="px-6 py-4"><span class="text-[10px] font-black px-2 py-1 rounded-lg" style="background:${DEPT_COLORS[p.dept]||HR_COLOR}20;color:${DEPT_COLORS[p.dept]||HR_COLOR}">${p.dept}</span></td>
-                            <td class="px-6 py-4 text-sm font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap">${formatCurrency(p.baseSalary)}</td>
-                            <td class="px-6 py-4 text-sm font-bold text-emerald-600 whitespace-nowrap">+${formatCurrency(p.allowances+p.transport+p.mobile+(p.bonus||0))}</td>
-                            <td class="px-6 py-4 text-sm font-bold text-rose-500 whitespace-nowrap">-${formatCurrency(p.deductions)}</td>
-                            <td class="px-6 py-4 text-sm font-bold text-amber-500 whitespace-nowrap">-${formatCurrency(p.incomeTax)}</td>
-                            <td class="px-6 py-4 text-sm font-bold text-slate-500 whitespace-nowrap">-${formatCurrency(p.socialInsurance)}</td>
-                            <td class="px-6 py-4 font-black text-mantiq-navy dark:text-white whitespace-nowrap text-base">${formatCurrency(p.netSalary)}</td>
-                            <td class="px-6 py-4 text-xs font-bold text-slate-500 whitespace-nowrap">${p.paymentMethod}</td>
+                            <td class="px-3 md:px-6 py-3 md:py-4 text-sm font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap">${formatCurrency(p.baseSalary)}</td>
+                            <td class="px-3 md:px-6 py-3 md:py-4 text-sm font-bold text-emerald-600 whitespace-nowrap">+${formatCurrency(p.allowances+p.transport+p.mobile+(p.bonus||0))}</td>
+                            <td class="px-3 md:px-6 py-3 md:py-4 text-sm font-bold text-rose-500 whitespace-nowrap">-${formatCurrency(p.deductions)}</td>
+                            <td class="px-3 md:px-6 py-3 md:py-4 text-sm font-bold text-amber-500 whitespace-nowrap">-${formatCurrency(p.incomeTax)}</td>
+                            <td class="px-3 md:px-6 py-3 md:py-4 text-sm font-bold text-slate-500 whitespace-nowrap">-${formatCurrency(p.socialInsurance)}</td>
+                            <td class="px-3 md:px-6 py-3 md:py-4 font-black text-mantiq-navy dark:text-white whitespace-nowrap text-base">${formatCurrency(p.netSalary)}</td>
+                            <td class="px-3 md:px-6 py-3 md:py-4 text-xs font-bold text-slate-500 whitespace-nowrap">${p.paymentMethod}</td>
                             <td class="px-6 py-4">${badgeHtml(p.status)}</td>
                             <td class="px-6 py-4">
                                 <div class="flex gap-1.5">
@@ -3981,9 +3992,9 @@ function renderPayroll() {
 
     return `
     <div class="fade-in space-y-6">
-        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 md:gap-4">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Payroll','الرواتب')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Payroll','الرواتب')}</h2>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${hr.payrollMonth}</p>
             </div>
             <div class="flex gap-3">
@@ -4011,9 +4022,9 @@ function renderContracts() {
 
     return `
     <div class="fade-in space-y-6">
-        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 md:gap-4">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Contracts','العقود')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Contracts','العقود')}</h2>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${contracts.length} ${_t('contracts','عقود')}</p>
             </div>
             <div class="flex gap-3">
@@ -4049,14 +4060,14 @@ function renderContracts() {
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
-                    <tr>${[_t('Contract ID','رقم العقد'),_t('Employee','الموظف'),_t('Type','النوع'),_t('Start Date','البداية'),_t('End Date','النهاية'),_t('Notice Period','فترة إشعار'),_t('Alert','تنبيه'),_t('Status','الحالة'),''].map(h=>`<th class="px-7 py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                    <tr>${[_t('Contract ID','رقم العقد'),_t('Employee','الموظف'),_t('Type','النوع'),_t('Start Date','البداية'),_t('End Date','النهاية'),_t('Notice Period','فترة إشعار'),_t('Alert','تنبيه'),_t('Status','الحالة'),''].map(h=>`<th class="px-3 md:px-7 py-3 md:py-5 whitespace-nowrap">${h}</th>`).join('')}</tr>
                 </thead>
                 <tbody>
                     ${contracts.map(c=>{
                         const days = c.endDate ? daysUntil(c.endDate) : null;
                         return `
                         <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 border-b border-slate-50 dark:border-slate-800 last:border-0">
-                            <td class="px-7 py-5 text-sm font-black text-slate-500">${c.id}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 text-sm font-black text-slate-500">${c.id}</td>
                             <td class="px-7 py-5">
                                 <div class="flex items-center gap-3">
                                     <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-[10px] text-white" style="background:${DEPT_COLORS[c.dept]||HR_COLOR}">${c.empName.slice(0,2).toUpperCase()}</div>
@@ -4064,9 +4075,9 @@ function renderContracts() {
                                 </div>
                             </td>
                             <td class="px-7 py-5">${badgeHtml(c.type, CONTRACT_BADGE[c.type]||'badge-blue')}</td>
-                            <td class="px-7 py-5 text-sm font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${c.startDate}</td>
-                            <td class="px-7 py-5 text-sm font-bold whitespace-nowrap ${days!==null&&days<30?'text-amber-500 font-black':' text-slate-600 dark:text-slate-300'}">${c.endDate||_t('Permanent','دائم')}</td>
-                            <td class="px-7 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${c.noticePeriod}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 text-sm font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${c.startDate}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 text-sm font-bold whitespace-nowrap ${days!==null&&days<30?'text-amber-500 font-black':' text-slate-600 dark:text-slate-300'}">${c.endDate||_t('Permanent','دائم')}</td>
+                            <td class="px-3 md:px-7 py-3 md:py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${c.noticePeriod}</td>
                             <td class="px-7 py-5">${days!==null?badgeHtml(days<30?'Expiring Soon':'Active'):badgeHtml('Permanent','badge-green')}</td>
                             <td class="px-7 py-5">${badgeHtml(c.status)}</td>
                             <td class="px-7 py-5">
@@ -4143,9 +4154,9 @@ function renderRecruitment() {
 
     return `
     <div class="fade-in space-y-6">
-        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 md:gap-4">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Recruitment Pipeline','مسار التوظيف')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Recruitment Pipeline','مسار التوظيف')}</h2>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${totalApps} ${_t('applicants','متقدم')} · ${inProgress} ${_t('in progress','في المسار')} · ${totalHired} ${_t('hired','تم تعيينهم')}</p>
             </div>
             <button onclick="state.isModalOpen=true; state.modalType='add_applicant'; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2 self-start">
@@ -4173,7 +4184,7 @@ function renderPerformance() {
     const reviews = state.data.performance.filter(p=>p.period===hr.performancePeriod);
 
     const reviewsTab = `
-        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-3 gap-2 md:gap-4 mb-4 md:mb-6">
             ${[
                 {label:_t('Completed','مكتملة'), val:reviews.filter(r=>r.status==='Completed').length, color:'#34d399'},
                 {label:_t('Under Review','قيد المراجعة'), val:reviews.filter(r=>r.status==='Under Review').length, color:'#38bdf8'},
@@ -4224,9 +4235,9 @@ function renderPerformance() {
 
     return `
     <div class="fade-in space-y-6">
-        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 md:gap-4">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Performance Reviews','تقييمات الأداء')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Performance Reviews','تقييمات الأداء')}</h2>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${hr.performancePeriod}</p>
             </div>
             <div class="flex gap-3">
@@ -4251,9 +4262,9 @@ function renderTraining() {
 
     return `
     <div class="fade-in space-y-6">
-        <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 md:gap-4">
             <div>
-                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Training & Development','التدريب والتطوير')}</h2>
+                <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Training & Development','التدريب والتطوير')}</h2>
                 <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${courses.length} ${_t('programs','برنامج')} · ${formatCurrency(totalCost)} ${_t('total budget','إجمالي الميزانية')}</p>
             </div>
             <button onclick="state.isModalOpen=true; state.modalType='add_training'; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-7 py-2.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2 self-start">
@@ -4333,7 +4344,7 @@ function renderReports() {
 
     return `
     <div class="fade-in space-y-8">
-        <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR Reports & KPIs','تقارير ومؤشرات الموارد البشرية')}</h2>
+        <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR Reports & KPIs','تقارير ومؤشرات الموارد البشرية')}</h2>
 
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             ${metrics.map(m=>`
@@ -4484,7 +4495,7 @@ function renderSettings() {
 
     return `
     <div class="fade-in space-y-6">
-        <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR System Settings','إعدادات نظام الموارد البشرية')}</h2>
+        <h2 class="text-xl md:text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('HR System Settings','إعدادات نظام الموارد البشرية')}</h2>
         ${policiesTab}
     </div>`;
 }
@@ -4706,8 +4717,8 @@ function renderHRModal() {
     `;
 
     return `
-        <div class="fixed inset-0 z-[101] flex items-center justify-center p-6 modal-overlay fade-in" onclick="if(event.target===this){state.isModalOpen=false;state.modalType=null;render();}">
-            <div class="bg-white dark:bg-slate-900 w-full max-w-xl rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[88vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
+        <div class="fixed inset-0 z-[101] flex items-end sm:items-center justify-center p-0 sm:p-4 modal-overlay fade-in" onclick="if(event.target===this){state.isModalOpen=false;state.modalType=null;render();}">
+            <div class="bg-white dark:bg-slate-900 w-full sm:max-w-xl rounded-t-[2rem] sm:rounded-[2.5rem] p-5 sm:p-10 border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[92vh] overflow-y-auto custom-scrollbar" onclick="event.stopPropagation()">
                 <div class="flex justify-between items-start mb-8">
                     <div>
                         <h2 class="text-xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${form.title}</h2>
