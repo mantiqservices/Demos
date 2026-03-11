@@ -162,7 +162,7 @@
 
 <script>
 // ─── CONSTANTS ────────────────────────────────────────────────────────────────
-const MODULES = { LANDING:'landing', CRM:'crm', SALES:'sales', HR:'hr', FINANCE:'finance' };
+const MODULES = { LANDING:'landing', CRM:'crm', SALES:'sales', HR:'hr', FINANCE:'finance', ACADEMY:'academy' };
 
 const UI = {
     en: {
@@ -423,6 +423,60 @@ const SYSTEM_MAP = {
               tour:{en:'Configure sales regions, rep territories, commission rules, and approval flows for your sales operation.',ar:'اضبط مناطق المبيعات وأقاليم المندوبين وقواعد العمولة وتدفقات الموافقة لعمليتك البيعية.'},
               tableCols:{ en:['Configuration Key','Value','Category','Last Sync'], ar:['مفتاح الإعداد','القيمة','الفئة','آخر مزامنة'] } }
         ]
+    },
+
+    [MODULES.ACADEMY]: {
+        title:{ en:"Academy System", ar:"نظام المراكز التعليمية" },
+        description:{ en:"Complete management for educational centers — students, teachers, schedules, attendance, income, and expenses in one place.", ar:"إدارة شاملة للمراكز التعليمية — الطلاب والمعلمون والجداول والحضور والإيرادات والمصاريف في مكان واحد." },
+        icon: 'graduation-cap',
+        color: '#a78bfa',
+        kpis: {
+            en: [
+                { label:'Total Students', value:'312', delta:'+18', icon:'users', color:'blue' },
+                { label:'Teachers', value:'24', delta:'+2', icon:'user-cog', color:'green' },
+                { label:'Monthly Revenue', value:'186K EGP', delta:'+14%', icon:'trending-up', color:'green' },
+                { label:'Attendance Rate', value:'91%', delta:'+3%', icon:'clipboard-check', color:'amber' }
+            ],
+            ar: [
+                { label:'إجمالي الطلاب', value:'312', delta:'+18', icon:'users', color:'blue' },
+                { label:'المعلمون', value:'24', delta:'+2', icon:'user-cog', color:'green' },
+                { label:'الإيرادات الشهرية', value:'186K ج.م', delta:'+14%', icon:'trending-up', color:'green' },
+                { label:'معدل الحضور', value:'91%', delta:'+3%', icon:'clipboard-check', color:'amber' }
+            ]
+        },
+        charts: {
+            enrollment: { labels:['Oct','Nov','Dec','Jan','Feb','Mar'], data:[260,275,285,295,305,312] },
+            revenue:    { labels:['Oct','Nov','Dec','Jan','Feb','Mar'], data:[142,155,148,168,175,186] },
+            grades:     { labels:['Year 1','Year 2','Year 3','Year 4','Year 5','Year 6'], data:[58,62,55,48,50,39] },
+            attendance: { labels:['Mon','Tue','Wed','Thu','Sun'], data:[93,91,95,89,88] }
+        },
+        nav:[
+            { id:'dashboard',      label:{en:'Dashboard',ar:'لوحة القيادة'},            icon:'layout-dashboard' },
+            { id:'analytics',      label:{en:'Analytics',ar:'التحليلات'},               icon:'bar-chart-3', isAnalytics:true },
+            { id:'edu_students',   label:{en:'Students',ar:'الطلاب'},                   icon:'users',
+              tour:{en:'Full student roster with grade, age, contact info, and status. Click any row to open the student\'s complete profile and attendance history.',ar:'قائمة الطلاب الكاملة بالمستوى والعمر وبيانات التواصل والحالة. انقر على أي صف لفتح الملف الكامل وسجل الحضور.'},
+              tableCols:{ en:['Stu-ID','Student Name','Age','Phone','Grade','Status'], ar:['رقم الطالب','اسم الطالب','العمر','الهاتف','المستوى','الحالة'] } },
+            { id:'edu_teachers',   label:{en:'Teachers',ar:'المعلمون'},                 icon:'user-cog',
+              tour:{en:'Teacher profiles with their assigned subjects, weekly schedule, and attendance history. Click a card to view their full timeline.',ar:'ملفات المعلمين مع موادهم المسندة والجدول الأسبوعي وسجل الحضور. انقر على بطاقة لعرض جدولهم الكامل.'},
+              tableCols:{ en:['Teacher ID','Full Name','Subject','Grade','Phone','Hire Date','Status'], ar:['المعرف','الاسم الكامل','المادة','المستوى','الهاتف','تاريخ التعيين','الحالة'] } },
+            { id:'edu_schedule',   label:{en:'Schedule',ar:'الجدول الدراسي'},           icon:'calendar-clock',
+              tour:{en:'Weekly class timetable per grade. Each row shows subject, teacher, day, room, and start time. Today\'s lectures appear on the dashboard.',ar:'الجدول الأسبوعي لكل مستوى. كل صف يظهر المادة والمعلم واليوم والقاعة ووقت البدء. محاضرات اليوم تظهر على لوحة القيادة.'},
+              tableCols:{ en:['Grade','Subject','Teacher','Day','Room','Start Time','Duration'], ar:['المستوى','المادة','المعلم','اليوم','القاعة','وقت البدء','المدة'] } },
+            { id:'edu_attendance', label:{en:'Attendance',ar:'الحضور والانصراف'},       icon:'clipboard-check',
+              tour:{en:'Take daily attendance for students or teachers per lecture. Mark present/absent, add notes for absences, and save with one click.',ar:'سجّل الحضور اليومي للطلاب أو المعلمين لكل محاضرة. حدد حاضر/غائب وأضف ملاحظات للغياب واحفظ بنقرة واحدة.'} },
+            { id:'edu_income',     label:{en:'Income',ar:'الإيرادات'},                  icon:'trending-up',
+              tour:{en:'All tuition fees and other income entries per student. Category and subcategory let you track what each payment is for.',ar:'جميع رسوم التعليم وإيرادات أخرى لكل طالب. الفئة والفئة الفرعية تتيح تتبع ما يخص كل دفعة.'},
+              tableCols:{ en:['Stu-ID','Student Name','Category','Subcategory','Amount','Date'], ar:['رقم الطالب','اسم الطالب','الفئة','الفئة الفرعية','المبلغ','التاريخ'] } },
+            { id:'edu_expenses',   label:{en:'Expenses',ar:'المصاريف'},                 icon:'trending-down',
+              tour:{en:'Every outgoing cost — salaries, rent, supplies, and more. Categorized so you can see exactly where your budget goes.',ar:'كل تكلفة صادرة — رواتب وإيجار ومستلزمات وغيرها. مصنّفة لترى بالضبط أين يذهب ميزانيتك.'},
+              tableCols:{ en:['Exp-ID','Title','Category','Subcategory','Amount','Date'], ar:['المعرف','العنوان','الفئة','الفئة الفرعية','المبلغ','التاريخ'] } },
+            { id:'edu_cashflow',   label:{en:'Cash Flow',ar:'التدفق المالي'},            icon:'arrow-left-right',
+              tour:{en:'Combined view of all income and expenses sorted by date. Filter by type (inflow/outflow) or category to spot any financial trend.',ar:'عرض موحد لجميع الإيرادات والمصاريف مرتبة بالتاريخ. فلتر بالنوع أو الفئة لرصد أي اتجاه مالي.'},
+              tableCols:{ en:['Type','Label','Category','Amount','Date'], ar:['النوع','البيان','الفئة','المبلغ','التاريخ'] } },
+            { id:'edu_config',     label:{en:'Settings',ar:'الإعدادات'},                icon:'settings-2',
+              tour:{en:'Define teachers, grade levels with their fees, and income/expense categories with subcategories. All forms use these settings dynamically.',ar:'عرّف المعلمين والمستويات الدراسية برسومها وفئات الإيرادات والمصاريف. جميع النماذج تستخدم هذه الإعدادات تلقائيًا.'},
+              tableCols:{ en:['Entity','Detail','Value'], ar:['الكيان','التفاصيل','القيمة'] } }
+        ]
     }
 };
 
@@ -448,7 +502,34 @@ let state = {
     leadsView: 'pipeline',
     showTourInvite: false,
     data: {},
-    leads: { crm: [], sales: [] }
+    leads: { crm: [], sales: [] },
+    // ── Academy state ──
+    edu: {
+        viewingStudentId: null,
+        viewingTeacherId: null,
+        attDate: new Date().toISOString().split('T')[0],
+        attType: 'Students',
+        attLecture: 'General',
+        tempAttendance: {},
+        cfTypeFilter: 'All',
+        cfCatFilter: 'All',
+        searchQuery: '',
+        gradeFilter: 'All',
+        config: {
+            teachers: ['Ahmed Hassan','Sara Mostafa','Kareem Nour','Mona Adel','Youssef Fathy'],
+            gradeFees: { 'Year 1':1800, 'Year 2':2000, 'Year 3':2200, 'Year 4':2400, 'Year 5':2600, 'Year 6':2800 },
+            incomeCategories: [
+                { name:'Tuition Fees', subs:['Monthly','Quarterly','Annual'] },
+                { name:'Registration', subs:['New Student','Re-enrollment'] },
+                { name:'Activities', subs:['Trip','Event','Workshop'] }
+            ],
+            expenseCategories: [
+                { name:'Salaries', subs:['Teacher','Admin','Security'] },
+                { name:'Facilities', subs:['Rent','Utilities','Maintenance'] },
+                { name:'Supplies', subs:['Stationery','Books','Equipment'] }
+            ]
+        }
+    }
 };
 
 const _t = (en, ar) => state.language === 'en' ? en : ar;
@@ -677,6 +758,104 @@ function initData() {
     };
     state.leads.crm = seedLeads();
     state.leads.sales = seedLeads();
+
+    // ── Seed Academy data ──
+    const STU_NAMES = [
+        'Ahmed Mostafa','Sara Ahmed','Kareem Nabil','Layla Hassan','Omar Samir','Hana Youssef','Tarek Adel','Mona Essam',
+        'Ramy Fawzy','Dina Kamal','Youssef Samy','Noha Adel','Amira Hossam','Islam Raafat','Rana Magdy','Bassem Atef',
+        'Nour El-Din','Salma Khaled','Ziad Mostafa','Mariam Sherif','Hassan Abdalla','Fatma Ibrahim','Sherif Gaber','Asmaa Lotfy',
+        'Mahmoud Tarek','Enas Saad','Walid Nour','Ghada Riad','Alaa Hassan','Rania Tawfik'
+    ];
+    const GRADES = Object.keys(state.edu.config.gradeFees);
+    const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday'];
+    const SUBJECTS = ['Mathematics','Arabic Language','English','Science','Social Studies','Religion','Computer','Art','Physical Education','French'];
+    const ROOMS = ['Room A1','Room A2','Room B1','Room B2','Hall 1','Lab 1','Library'];
+    const TIMES = ['08:00','09:00','10:00','11:00','12:00','13:00','14:00'];
+    const TEACHERS = state.edu.config.teachers;
+    const INC_CATS = state.edu.config.incomeCategories;
+    const EXP_CATS = state.edu.config.expenseCategories;
+    const EXP_TITLES = ['Teacher Salary','Admin Salary','Monthly Rent','Electricity Bill','Stationery Purchase','Book Bundle','Security Salary','Maintenance Work','Equipment Repair','Internet Bill'];
+
+    // Students (30)
+    state.data[MODULES.ACADEMY] = {};
+    state.data[MODULES.ACADEMY].edu_students = STU_NAMES.map((name,i) => ({
+        'Stu-ID':    'STU-' + String(1001+i).padStart(4,'0'),
+        'Student Name': name,
+        'Age':       String(rndN(6,18)),
+        'Phone':     '010' + rndN(10000000,99999999),
+        'Grade':     GRADES[i % GRADES.length],
+        'Status':    i % 7 === 0 ? 'Inactive' : 'Active'
+    }));
+
+    // Teachers (seeded via config already; table view)
+    state.data[MODULES.ACADEMY].edu_teachers = TEACHERS.map((name,i) => ({
+        'Teacher ID':  'TCH-' + String(101+i).padStart(3,'0'),
+        'Full Name':   name,
+        'Subject':     SUBJECTS[i % SUBJECTS.length],
+        'Grade':       GRADES[i % GRADES.length],
+        'Phone':       '011' + rndN(10000000,99999999),
+        'Hire Date':   '2023-0' + String((i%9)+1).padStart(2,'0') + '-01',
+        'Status':      'Active'
+    }));
+
+    // Schedule (one entry per teacher per day)
+    state.data[MODULES.ACADEMY].edu_schedule = TEACHERS.flatMap((teacher, ti) =>
+        DAYS.slice(0,3).map((day, di) => ({
+            'Grade':      GRADES[(ti+di) % GRADES.length],
+            'Subject':    SUBJECTS[(ti*2+di) % SUBJECTS.length],
+            'Teacher':    teacher,
+            'Day':        day,
+            'Room':       ROOMS[(ti+di) % ROOMS.length],
+            'Start Time': TIMES[(ti+di) % TIMES.length],
+            'Duration':   ['45 min','60 min','90 min'][(ti+di)%3]
+        }))
+    );
+
+    // Income (one per student, spread months)
+    state.data[MODULES.ACADEMY].edu_income = state.data[MODULES.ACADEMY].edu_students.map((stu,i) => {
+        const cat = INC_CATS[i % INC_CATS.length];
+        const sub = cat.subs[i % cat.subs.length];
+        const fee = state.edu.config.gradeFees[stu.Grade] || 2000;
+        return {
+            'Stu-ID':       stu['Stu-ID'],
+            'Student Name': stu['Student Name'],
+            'Category':     cat.name,
+            'Subcategory':  sub,
+            'Amount':       String(fee),
+            'Date':         '2025-' + String((i%3)+1).padStart(2,'0') + '-' + String(rndN(1,28)).padStart(2,'0')
+        };
+    });
+
+    // Expenses (10)
+    state.data[MODULES.ACADEMY].edu_expenses = EXP_TITLES.map((title,i) => {
+        const cat = EXP_CATS[i % EXP_CATS.length];
+        const sub = cat.subs[i % cat.subs.length];
+        return {
+            'Exp-ID':      'EXP-' + String(1001+i).padStart(4,'0'),
+            'Title':       title,
+            'Category':    cat.name,
+            'Subcategory': sub,
+            'Amount':      String(rndN(2,30) * 1000),
+            'Date':        '2025-0' + String(rndN(1,3)).padStart(2,'0') + '-' + String(rndN(1,28)).padStart(2,'0')
+        };
+    });
+
+    // Attendance records (sample)
+    state.data[MODULES.ACADEMY].edu_attendance = state.data[MODULES.ACADEMY].edu_students.slice(0,10).map((stu,i) => ({
+        'Date':     '2025-03-10',
+        'Type':     'Students',
+        'Lecture':  SUBJECTS[i % SUBJECTS.length],
+        'TargetID': stu['Stu-ID'],
+        'Label':    stu['Student Name'],
+        'Status':   i % 5 === 0 ? 'Absent' : 'Present',
+        'Note':     i % 5 === 0 ? 'Sick leave' : '',
+        'Grade':    stu.Grade
+    }));
+
+    // Cash flow (combined view — built dynamically)
+    state.data[MODULES.ACADEMY].edu_cashflow = [];
+    // Config placeholder for settings page
+    state.data[MODULES.ACADEMY].edu_config = [];
 }
 
 // ─── HELPERS ──────────────────────────────────────────────────────────────────
@@ -883,9 +1062,11 @@ function setModule(m) {
     state.addLeadMode=false; state.openLeadId=null;
     state.showTourInvite = (m !== MODULES.LANDING);
     tourState = { active:false, stepIndex:0, mod:m };
+    // Reset Academy sub-state
+    if (state.edu) { state.edu.viewingStudentId=null; state.edu.viewingTeacherId=null; state.edu.searchQuery=''; state.edu.gradeFilter='All'; state.edu.cfTypeFilter='All'; state.edu.cfCatFilter='All'; state.edu.tempAttendance={}; }
     render(); window.scrollTo({top:0,behavior:'smooth'});
 }
-function setPage(p) { state.page=p; state.isMobileMenuOpen=false; state.addLeadMode=false; state.openLeadId=null; render(); }
+function setPage(p) { state.page=p; state.isMobileMenuOpen=false; state.addLeadMode=false; state.openLeadId=null; if(state.edu){state.edu.viewingStudentId=null;state.edu.viewingTeacherId=null;state.edu.searchQuery='';state.edu.gradeFilter='All';state.edu.cfTypeFilter='All';state.edu.cfCatFilter='All';state.edu.tempAttendance={};} render(); }
 function toggleDarkMode() { state.darkMode=!state.darkMode; document.documentElement.classList.toggle('dark',state.darkMode); render(); }
 function toggleMobileMenu() { state.isMobileMenuOpen=!state.isMobileMenuOpen; render(); }
 function setAnalyticsTab(t) { state.analyticsTab=t; renderCharts(); }
@@ -1285,6 +1466,32 @@ function renderCharts() {
                 datasets:[{ data:charts.products.data, backgroundColor:['#fb923c','#38bdf8','#34d399','#818cf8','#f472b6'], borderWidth:0, hoverOffset:8 }]
             }, options:{ responsive:true, cutout:'60%', plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:14}}} }});
         }
+
+        if (mod === MODULES.ACADEMY) {
+            const c1 = document.getElementById('chart-enrollment');
+            if (c1) new Chart(c1, { type:'line', data:{
+                labels: charts.enrollment.labels,
+                datasets:[{ label:_t('Students','الطلاب'), data:charts.enrollment.data, borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,0.12)', tension:0.4, fill:true, pointRadius:5, pointBackgroundColor:'#a78bfa' }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+
+            const c2 = document.getElementById('chart-edu-revenue');
+            if (c2) new Chart(c2, { type:'bar', data:{
+                labels: charts.revenue.labels,
+                datasets:[{ label:_t('Revenue K EGP','الإيرادات ألف ج.م'), data:charts.revenue.data, backgroundColor:'rgba(167,139,250,0.7)', borderRadius:8, borderSkipped:false }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+
+            const c3 = document.getElementById('chart-grades');
+            if (c3) new Chart(c3, { type:'bar', data:{
+                labels: charts.grades.labels,
+                datasets:[{ label:_t('Students','الطلاب'), data:charts.grades.data, backgroundColor:['#a78bfa','#818cf8','#38bdf8','#34d399','#fb923c','#f472b6'], borderRadius:8, borderSkipped:false }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+
+            const c4 = document.getElementById('chart-edu-attendance');
+            if (c4) new Chart(c4, { type:'line', data:{
+                labels: charts.attendance.labels,
+                datasets:[{ label:_t('Attendance %','نسبة الحضور'), data:charts.attendance.data, borderColor:'#34d399', backgroundColor:'rgba(52,211,153,0.1)', tension:0.4, fill:true, pointRadius:5, pointBackgroundColor:'#34d399' }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{min:80, max:100, grid:{color:gridColor}} } }});
+        }
     }, 80);
 }
 
@@ -1373,6 +1580,12 @@ function renderAnalytics() {
             { label:_t('Win Rate','معدل الفوز'), val:62, color:'#34d399' },
             { label:_t('Lead Response Time','سرعة الاستجابة للعملاء'), val:88, color:'#38bdf8' },
             { label:_t('Customer Satisfaction','رضا العملاء'), val:92, color:'#818cf8' }
+        ],
+        [MODULES.ACADEMY]: [
+            { label:_t('Attendance Rate','معدل الحضور'), val:91, color:'#a78bfa' },
+            { label:_t('Fee Collection Rate','معدل تحصيل الرسوم'), val:84, color:'#34d399' },
+            { label:_t('Teacher Retention','استبقاء المعلمين'), val:96, color:'#38bdf8' },
+            { label:_t('Student Pass Rate','معدل نجاح الطلاب'), val:88, color:'#fb923c' }
         ]
     };
 
@@ -1456,6 +1669,29 @@ function renderAnalytics() {
         </div>
     `;
 
+    if (mod === MODULES.ACADEMY) chartGrid = `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Student Enrollment Trend','اتجاه التسجيل')}</h4>
+                <div class="chart-container"><canvas id="chart-enrollment" data-chart></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Monthly Revenue (K EGP)','الإيرادات الشهرية (ألف ج.م)')}</h4>
+                <div class="chart-container"><canvas id="chart-edu-revenue" data-chart></canvas></div>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Students by Grade','الطلاب حسب المستوى')}</h4>
+                <div class="chart-container"><canvas id="chart-grades" data-chart></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Weekly Attendance %','نسبة الحضور الأسبوعي')}</h4>
+                <div class="chart-container"><canvas id="chart-edu-attendance" data-chart></canvas></div>
+            </div>
+        </div>
+    `;
+
     return `
         <div class="mb-8">
             <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter mb-2">${ut('analytics')}</h2>
@@ -1472,6 +1708,7 @@ function renderAnalytics() {
 
 // ─── DASHBOARD ────────────────────────────────────────────────────────────────
 function renderDashboard() {
+    if (state.module === MODULES.ACADEMY) return renderEduDashboard();
     const config = SYSTEM_MAP[state.module];
     const kpis = state.language==='ar' ? config.kpis.ar : config.kpis.en;
     const color = config.color;
@@ -1514,6 +1751,617 @@ function renderDashboard() {
             <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
                 <h3 class="font-black text-xs uppercase tracking-[0.2em] text-slate-400 mb-6">${_t('Quick Access','وصول سريع')}</h3>
                 <div class="space-y-3">${quickLinks}</div>
+            </div>
+        </div>
+    `;
+}
+
+// ─── ACADEMY SYSTEM ───────────────────────────────────────────────────────────
+
+function renderEduDashboard() {
+    const color = '#a78bfa';
+    const students = state.data[MODULES.ACADEMY].edu_students || [];
+    const teachers = state.data[MODULES.ACADEMY].edu_teachers || [];
+    const income   = state.data[MODULES.ACADEMY].edu_income   || [];
+    const expenses = state.data[MODULES.ACADEMY].edu_expenses || [];
+    const schedule = state.data[MODULES.ACADEMY].edu_schedule || [];
+    const attendance = state.data[MODULES.ACADEMY].edu_attendance || [];
+
+    const totalIncome  = income.reduce((s,i) => s + (parseFloat(i.Amount)||0), 0);
+    const totalExpense = expenses.reduce((s,e) => s + (parseFloat(e.Amount)||0), 0);
+    const netCash = totalIncome - totalExpense;
+
+    const today = new Date().toLocaleDateString('en-US', { weekday:'long' });
+    const todayLectures = schedule.filter(s => s.Day === today);
+
+    const attToday = attendance.filter(a => a.Date === new Date().toISOString().split('T')[0]);
+    const presentToday = attToday.filter(a => a.Status === 'Present').length;
+    const absentToday  = attToday.filter(a => a.Status === 'Absent').length;
+
+    const kpis = [
+        { label:_t('Total Students','إجمالي الطلاب'),      value: students.length,              icon:'users',           color },
+        { label:_t('Teachers','المعلمون'),                  value: teachers.length,              icon:'user-cog',        color:'#34d399' },
+        { label:_t('Total Income','إجمالي الإيرادات'),     value: totalIncome.toLocaleString() + ' EGP', icon:'trending-up', color:'#38bdf8' },
+        { label:_t('Net Cash','صافي الربح'),               value: netCash.toLocaleString() + (netCash>=0?' EGP':' EGP'), icon:'wallet', color: netCash>=0?'#34d399':'#f87171' }
+    ];
+
+    const kpiCards = kpis.map(k=>`
+        <div class="stat-card bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 rounded-2xl" style="background:${k.color}22; color:${k.color}"><i data-lucide="${k.icon}" size="20"></i></div>
+            </div>
+            <p class="text-3xl font-black text-mantiq-navy dark:text-white mb-1">${k.value}</p>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">${k.label}</p>
+        </div>
+    `).join('');
+
+    const lectureCards = todayLectures.length
+        ? todayLectures.map(l=>`
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full" style="background:${color}22; color:${color}">${l.Grade}</span>
+                    <span class="text-[9px] font-black text-slate-400 uppercase">${l.Room}</span>
+                </div>
+                <h4 class="text-base font-black text-mantiq-navy dark:text-white mb-1">${l['Subject']||l['Subject Name']||'—'}</h4>
+                <p class="text-xs text-slate-500 mb-3">${l.Teacher}</p>
+                <div class="flex items-center gap-2 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs font-black" style="color:${color}">
+                    <i data-lucide="clock" size="13"></i>${l['Start Time']}
+                </div>
+            </div>
+        `).join('')
+        : `<div class="col-span-full py-16 text-center text-slate-300 dark:text-slate-700 font-black uppercase border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem]">${_t('No lectures scheduled for today.','لا توجد محاضرات مجدولة لليوم.')}</div>`;
+
+    const quickBtns = [
+        { id:'edu_students',   icon:'users',            label:_t('Students','الطلاب') },
+        { id:'edu_attendance', icon:'clipboard-check',  label:_t('Attendance','الحضور') },
+        { id:'edu_income',     icon:'trending-up',      label:_t('Income','الإيرادات') },
+        { id:'edu_cashflow',   icon:'arrow-left-right', label:_t('Cash Flow','التدفق المالي') }
+    ].map(b=>`
+        <button onclick="setPage('${b.id}')" class="flex items-center gap-3 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-mantiq-cyan hover:bg-sky-50 dark:hover:bg-slate-800 transition-all w-full text-${state.language==='ar'?'right':'left'}">
+            <div class="p-2 rounded-xl" style="background:${color}22; color:${color}"><i data-lucide="${b.icon}" size="16"></i></div>
+            <span class="font-black text-sm text-mantiq-navy dark:text-white">${b.label}</span>
+        </button>
+    `).join('');
+
+    return `
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">${kpiCards}</div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div class="lg:col-span-2">
+                <h3 class="font-black text-xs uppercase tracking-[0.2em] text-slate-400 mb-4 flex items-center gap-2">
+                    <i data-lucide="calendar" size="14"></i> ${_t('Today\'s Schedule','جدول اليوم')} — ${today}
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${lectureCards}</div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-xs uppercase tracking-[0.2em] text-slate-400 mb-6">${_t('Quick Access','وصول سريع')}</h3>
+                <div class="space-y-3">${quickBtns}</div>
+                <div class="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 grid grid-cols-2 gap-3">
+                    <div class="text-center p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/30">
+                        <p class="text-2xl font-black text-emerald-600">${presentToday}</p>
+                        <p class="text-[9px] font-black uppercase text-emerald-500">${_t('Present Today','حضروا اليوم')}</p>
+                    </div>
+                    <div class="text-center p-4 rounded-2xl bg-rose-50 dark:bg-rose-950/30">
+                        <p class="text-2xl font-black text-rose-500">${absentToday}</p>
+                        <p class="text-[9px] font-black uppercase text-rose-400">${_t('Absent Today','غابوا اليوم')}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderEduStudentProfile() {
+    const stuId = state.edu.viewingStudentId;
+    const students = state.data[MODULES.ACADEMY].edu_students || [];
+    const s = students.find(x => x['Stu-ID'] === stuId);
+    if (!s) return renderEduStudentsList();
+    const color = '#a78bfa';
+    const income = (state.data[MODULES.ACADEMY].edu_income || []).filter(i => i['Stu-ID'] === stuId);
+    const att    = (state.data[MODULES.ACADEMY].edu_attendance || []).filter(a => a.TargetID === stuId);
+    const present = att.filter(a => a.Status === 'Present').length;
+    const absent  = att.filter(a => a.Status === 'Absent').length;
+    const rate = att.length ? Math.round((present / att.length) * 100) : 0;
+
+    const attRows = att.slice(0,8).map(a=>`
+        <div class="flex justify-between items-center p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+            <div>
+                <p class="text-xs font-black text-mantiq-navy dark:text-white">${a.Date}</p>
+                <p class="text-[9px] text-slate-400 uppercase font-bold">${a.Lecture || 'General'}</p>
+            </div>
+            <span class="text-[9px] font-black uppercase px-3 py-1 rounded-full ${a.Status==='Present'?'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40':'bg-rose-50 text-rose-500 dark:bg-rose-950/40'}">${a.Status}</span>
+        </div>
+    `).join('') || `<p class="text-xs text-slate-400 italic">${_t('No attendance records','لا توجد سجلات حضور')}</p>`;
+
+    const incRows = income.map(i=>`
+        <div class="flex justify-between items-center p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+            <div>
+                <p class="text-xs font-black text-mantiq-navy dark:text-white">${i.Category} — ${i.Subcategory}</p>
+                <p class="text-[9px] text-slate-400">${i.Date}</p>
+            </div>
+            <span class="text-sm font-black text-emerald-600">${parseInt(i.Amount).toLocaleString()} EGP</span>
+        </div>
+    `).join('') || `<p class="text-xs text-slate-400 italic">${_t('No income entries','لا توجد إيرادات')}</p>`;
+
+    return `
+        <div class="fade-in">
+            <button onclick="state.edu.viewingStudentId=null; render();" class="text-[10px] font-black uppercase text-slate-400 hover:text-mantiq-cyan flex items-center gap-2 mb-8 transition-colors">
+                <i data-lucide="arrow-left" size="14"></i>${_t('Back to Students','العودة للطلاب')}
+            </button>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="bg-white dark:bg-slate-900 p-10 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col items-center text-center">
+                    <div class="w-24 h-24 rounded-[2rem] flex items-center justify-center font-black text-3xl text-white mb-6 shadow-xl" style="background:${color}">
+                        ${s['Student Name'].charAt(0).toUpperCase()}
+                    </div>
+                    <h2 class="text-xl font-black text-mantiq-navy dark:text-white mb-1">${s['Student Name']}</h2>
+                    <p class="text-xs text-slate-500 mb-6">${s['Stu-ID']} · ${s.Grade}</p>
+                    <div class="w-full space-y-3 pt-6 border-t border-slate-100 dark:border-slate-800 text-${state.language==='ar'?'right':'left'}">
+                        ${Object.entries(s).map(([k,v]) => `
+                            <div class="flex justify-between">
+                                <span class="text-[9px] font-black text-slate-400 uppercase">${k}</span>
+                                <span class="text-xs font-bold text-mantiq-navy dark:text-white">${v}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="w-full mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 grid grid-cols-3 gap-3">
+                        <div class="text-center"><p class="text-xl font-black text-emerald-600">${present}</p><p class="text-[8px] uppercase font-black text-slate-400">${_t('Present','حاضر')}</p></div>
+                        <div class="text-center"><p class="text-xl font-black text-rose-500">${absent}</p><p class="text-[8px] uppercase font-black text-slate-400">${_t('Absent','غائب')}</p></div>
+                        <div class="text-center"><p class="text-xl font-black" style="color:${color}">${rate}%</p><p class="text-[8px] uppercase font-black text-slate-400">${_t('Rate','النسبة')}</p></div>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="history" size="14"></i>${_t('Attendance History','سجل الحضور')}</h3>
+                    <div class="space-y-2 max-h-[500px] overflow-y-auto custom-scrollbar">${attRows}</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="receipt" size="14"></i>${_t('Payment History','سجل الدفعات')}</h3>
+                    <div class="space-y-2 max-h-[500px] overflow-y-auto custom-scrollbar">${incRows}</div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function renderEduStudentsList() {
+    const color = '#a78bfa';
+    let students = state.data[MODULES.ACADEMY].edu_students || [];
+    const query = state.edu.searchQuery.toLowerCase();
+    const gradeF = state.edu.gradeFilter;
+    if (query) students = students.filter(s => Object.values(s).some(v => String(v).toLowerCase().includes(query)));
+    if (gradeF !== 'All') students = students.filter(s => s.Grade === gradeF);
+    const grades = Object.keys(state.edu.config.gradeFees);
+
+    const rows = students.map((s,idx)=>`
+        <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800 last:border-0">
+            <td class="px-8 py-5 text-sm font-black text-mantiq-navy dark:text-white whitespace-nowrap">${s['Stu-ID']}</td>
+            <td class="px-8 py-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs text-white" style="background:${color}">${s['Student Name'].charAt(0)}</div>
+                    <span class="text-sm font-bold text-slate-700 dark:text-slate-200">${s['Student Name']}</span>
+                </div>
+            </td>
+            <td class="px-8 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${s.Age}</td>
+            <td class="px-8 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${s.Phone}</td>
+            <td class="px-8 py-5 whitespace-nowrap"><span class="px-3 py-1.5 rounded-xl text-[10px] font-black uppercase" style="background:${color}22; color:${color}">${s.Grade}</span></td>
+            <td class="px-8 py-5 whitespace-nowrap">${badgeHtml(s.Status||'Active')}</td>
+            <td class="px-8 py-5 whitespace-nowrap">
+                <div class="flex ${state.language==='en'?'justify-end':'justify-start'} gap-2">
+                    <button onclick="state.edu.viewingStudentId='${s['Stu-ID']}'; render();" class="p-2 rounded-xl hover:bg-purple-50 dark:hover:bg-slate-700 transition-colors" style="color:${color}"><i data-lucide="user" size="16"></i></button>
+                    <button onclick="handleDelete(${idx})" class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-slate-700 text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="trash-2" size="16"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    return `
+        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Students','الطلاب')}</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-1">${students.length} ${_t('Records','سجل')}</p>
+            </div>
+            <div class="flex gap-3">
+                <select onchange="state.edu.gradeFilter=this.value; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-4 py-3 rounded-2xl text-xs font-bold outline-none">
+                    <option value="All">${_t('All Grades','كل المستويات')}</option>
+                    ${grades.map(g=>`<option value="${g}" ${gradeF===g?'selected':''}>${g}</option>`).join('')}
+                </select>
+                <button onclick="state.isModalOpen=true; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-3 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2">
+                    <i data-lucide="plus" size="14"></i>${_t('Add Student','إضافة طالب')}
+                </button>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 mb-6 p-4 flex gap-3">
+            <div class="flex-1 relative">
+                <i data-lucide="search" class="absolute ${state.language==='en'?'left-4':'right-4'} top-1/2 -translate-y-1/2 text-slate-400" size="16"></i>
+                <input type="text" placeholder="${_t('Search students...','ابحث عن طالب...')}" oninput="state.edu.searchQuery=this.value; render();" value="${state.edu.searchQuery}"
+                    class="w-full bg-slate-50 dark:bg-slate-800 ${state.language==='en'?'pl-12':'pr-12'} px-4 py-3 rounded-xl text-sm outline-none" />
+            </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500">
+                    <tr>
+                        ${['Stu-ID','Student Name','Age','Phone','Grade','Status',''].map(c=>`<th class="px-8 py-5 whitespace-nowrap">${c}</th>`).join('')}
+                    </tr>
+                </thead>
+                <tbody>${rows || `<tr><td colspan="7" class="py-20 text-center text-slate-400 italic">${_t('No students found','لا توجد سجلات')}</td></tr>`}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+function renderEduTeachers() {
+    const color = '#a78bfa';
+    const teachers = state.data[MODULES.ACADEMY].edu_teachers || [];
+    const schedule = state.data[MODULES.ACADEMY].edu_schedule || [];
+    const attendance = state.data[MODULES.ACADEMY].edu_attendance || [];
+
+    if (state.edu.viewingTeacherId) {
+        const t = teachers.find(x => x['Teacher ID'] === state.edu.viewingTeacherId);
+        if (!t) { state.edu.viewingTeacherId = null; }
+        else {
+            const tSubs = schedule.filter(s => s.Teacher === t['Full Name']);
+            const tAtt  = attendance.filter(a => a.TargetID === t['Full Name'] && a.Type === 'Teachers').slice(0,10);
+            const subCards = tSubs.length ? tSubs.map(s=>`
+                <div class="p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-l-4" style="border-color:${color}">
+                    <p class="font-black text-sm text-mantiq-navy dark:text-white">${s.Subject||s['Subject Name']||'—'}</p>
+                    <p class="text-[10px] font-bold text-slate-400 mt-1">${s.Day} · ${s['Start Time']} · ${s.Room}</p>
+                    <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-full mt-2 inline-block" style="background:${color}22; color:${color}">${s.Grade}</span>
+                </div>
+            `).join('') : `<p class="text-xs text-slate-400 italic">${_t('No schedule assigned','لا يوجد جدول مُسند')}</p>`;
+            const attRows = tAtt.length ? tAtt.map(a=>`
+                <div class="flex justify-between items-center p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+                    <div><p class="text-xs font-black">${a.Date}</p><p class="text-[9px] text-slate-400">${a.Lecture||'—'}</p></div>
+                    <span class="text-[9px] font-black uppercase ${a.Status==='Present'?'text-emerald-600':'text-rose-500'}">${a.Status}</span>
+                </div>
+            `).join('') : `<p class="text-xs text-slate-400 italic">${_t('No attendance records','لا توجد سجلات')}</p>`;
+            return `
+                <div class="fade-in">
+                    <button onclick="state.edu.viewingTeacherId=null; render();" class="text-[10px] font-black uppercase text-slate-400 hover:text-mantiq-cyan flex items-center gap-2 mb-8 transition-colors">
+                        <i data-lucide="arrow-left" size="14"></i>${_t('Back to Teachers','العودة للمعلمين')}
+                    </button>
+                    <div class="flex items-center gap-6 mb-10">
+                        <div class="w-20 h-20 rounded-[1.5rem] flex items-center justify-center font-black text-3xl text-white shadow-xl" style="background:${color}">${t['Full Name'].charAt(0)}</div>
+                        <div>
+                            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white">${t['Full Name']}</h2>
+                            <p class="text-sm text-slate-500">${t['Teacher ID']} · ${t.Subject} · ${t.Grade}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="calendar" size="14"></i>${_t('Weekly Schedule','الجدول الأسبوعي')}</h3>
+                            <div class="space-y-3">${subCards}</div>
+                        </div>
+                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                            <h3 class="font-black text-xs uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="history" size="14"></i>${_t('Attendance History','سجل الحضور')}</h3>
+                            <div class="space-y-2">${attRows}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    const cards = teachers.map(t=>`
+        <button onclick="state.edu.viewingTeacherId='${t['Teacher ID']}'; render();" class="group bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all text-${state.language==='ar'?'right':'left'}">
+            <div class="flex items-center gap-5 mb-6">
+                <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl text-white group-hover:scale-110 transition-transform shadow-lg" style="background:${color}">${t['Full Name'].charAt(0)}</div>
+                <div>
+                    <h4 class="font-black text-base text-mantiq-navy dark:text-white">${t['Full Name']}</h4>
+                    <p class="text-[10px] text-slate-400 font-bold">${t['Teacher ID']}</p>
+                </div>
+            </div>
+            <div class="flex justify-between items-center text-xs pt-4 border-t border-slate-100 dark:border-slate-800">
+                <span class="font-bold text-slate-500">${t.Subject}</span>
+                <span class="font-black px-2 py-1 rounded-lg text-[9px] uppercase" style="background:${color}22; color:${color}">${t.Grade}</span>
+            </div>
+            <div class="flex items-center gap-2 mt-3 text-[9px] font-black uppercase tracking-widest" style="color:${color}">
+                ${_t('View Profile','عرض الملف')} <i data-lucide="${state.language==='ar'?'arrow-left':'arrow-right'}" size="12" class="group-hover:translate-x-1 transition-transform"></i>
+            </div>
+        </button>
+    `).join('');
+
+    return `
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Teachers','المعلمون')}</h2>
+            <button onclick="state.isModalOpen=true; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-3 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2">
+                <i data-lucide="plus" size="14"></i>${_t('Add Teacher','إضافة معلم')}
+            </button>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">${cards}</div>
+    `;
+}
+
+function renderEduAttendance() {
+    const color = '#a78bfa';
+    const attDate    = state.edu.attDate;
+    const attType    = state.edu.attType;
+    const attLecture = state.edu.attLecture;
+    const schedule   = state.data[MODULES.ACADEMY].edu_schedule || [];
+    const students   = state.data[MODULES.ACADEMY].edu_students || [];
+    const teachers   = state.data[MODULES.ACADEMY].edu_teachers || [];
+    const attendance = state.data[MODULES.ACADEMY].edu_attendance || [];
+    const config     = state.edu.config;
+
+    const dayName = new Date(attDate).toLocaleDateString('en-US', { weekday:'long' });
+    const todaySubjects = schedule.filter(s => s.Day === dayName);
+
+    let list = [];
+    if (attType === 'Students') {
+        const gradesToday = [...new Set(todaySubjects.map(s => s.Grade))];
+        list = gradesToday.length ? students.filter(s => gradesToday.includes(s.Grade)) : students;
+    } else {
+        const teachersToday = [...new Set(todaySubjects.map(s => s.Teacher))];
+        list = teachersToday.length ? teachers.filter(t => teachersToday.includes(t['Full Name'])) : teachers;
+    }
+
+    const existingRecords = attendance.filter(a => a.Date === attDate && a.Type === attType && a.Lecture === attLecture);
+
+    const rows = list.map(item => {
+        const id   = attType === 'Students' ? item['Stu-ID']    : item['Teacher ID'];
+        const name = attType === 'Students' ? item['Student Name'] : item['Full Name'];
+        const grade = attType === 'Students' ? item.Grade : item.Subject;
+        const saved   = existingRecords.find(r => r.TargetID === id);
+        const current = state.edu.tempAttendance[id];
+        const status = current?.status || saved?.Status || null;
+        const note   = current?.note   || saved?.Note   || '';
+
+        return `
+            <tr class="border-b border-slate-50 dark:border-slate-800 last:border-0">
+                <td class="px-8 py-5">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs text-white" style="background:${color}">${name.charAt(0)}</div>
+                        <div>
+                            <p class="text-sm font-black text-mantiq-navy dark:text-white">${name}</p>
+                            <p class="text-[9px] text-slate-400 font-bold">${id} · ${grade}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-8 py-5">
+                    ${status ? `<span class="px-3 py-1 rounded-full text-[9px] font-black uppercase ${status==='Present'?'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40':'bg-rose-50 text-rose-500 dark:bg-rose-950/40'}">${status}</span>` : '<span class="text-slate-300 text-xs">—</span>'}
+                </td>
+                <td class="px-8 py-5">
+                    ${status === 'Absent' ? `<input type="text" placeholder="${_t('Reason...','السبب...')}" oninput="if(!state.edu.tempAttendance['${id}'])state.edu.tempAttendance['${id}']={status:'Absent',note:''};state.edu.tempAttendance['${id}'].note=this.value;" value="${note}" class="bg-slate-50 dark:bg-slate-800 px-3 py-2 rounded-xl text-xs outline-none w-40" />` : '—'}
+                </td>
+                <td class="px-8 py-5">
+                    <div class="flex gap-2 justify-end">
+                        <button onclick="if(!state.edu.tempAttendance['${id}'])state.edu.tempAttendance['${id}']={};state.edu.tempAttendance['${id}'].status='Present';render();" class="px-4 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${status==='Present'?'bg-emerald-500 text-white':'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-emerald-100'}">
+                            ${_t('Present','حاضر')}
+                        </button>
+                        <button onclick="if(!state.edu.tempAttendance['${id}'])state.edu.tempAttendance['${id}']={};state.edu.tempAttendance['${id}'].status='Absent';render();" class="px-4 py-2 rounded-xl text-[9px] font-black uppercase transition-all ${status==='Absent'?'bg-rose-500 text-white':'bg-slate-100 dark:bg-slate-800 text-slate-500 hover:bg-rose-100'}">
+                            ${_t('Absent','غائب')}
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    const saveAtt = () => {
+        const entries = Object.entries(state.edu.tempAttendance);
+        entries.forEach(([id, data]) => {
+            if (!data.status) return;
+            const label = attType === 'Students'
+                ? (students.find(s => s['Stu-ID'] === id)||{})['Student Name']
+                : (teachers.find(t => t['Teacher ID'] === id)||{})['Full Name'];
+            state.data[MODULES.ACADEMY].edu_attendance.push({
+                Date: attDate, Type: attType, Lecture: attLecture,
+                TargetID: id, Label: label||id, Status: data.status,
+                Note: data.status==='Absent' ? data.note : '',
+                Grade: attType==='Students' ? (students.find(s=>s['Stu-ID']===id)||{}).Grade : ''
+            });
+        });
+        state.edu.tempAttendance = {};
+        pushNotify(_t('Attendance saved successfully.','تم حفظ كشف الحضور بنجاح.'));
+        render();
+    };
+    window.saveEduAttendance = saveAtt;
+
+    return `
+        <div class="fade-in space-y-6">
+            <div class="flex flex-col lg:flex-row justify-between gap-6">
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Attendance','الحضور والانصراف')}</h2>
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] p-6 flex flex-wrap gap-4 items-end shadow-sm">
+                    <div>
+                        <label class="text-[9px] font-black uppercase text-slate-400 mb-1 block">${_t('Date','التاريخ')}</label>
+                        <input type="date" value="${attDate}" onchange="state.edu.attDate=this.value; state.edu.tempAttendance={}; render();" class="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold outline-none" />
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black uppercase text-slate-400 mb-1 block">${_t('Category','الفئة')}</label>
+                        <select onchange="state.edu.attType=this.value; state.edu.tempAttendance={}; render();" class="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold outline-none">
+                            <option value="Students" ${attType==='Students'?'selected':''}>${_t('Students','الطلاب')}</option>
+                            <option value="Teachers" ${attType==='Teachers'?'selected':''}>${_t('Teachers','المعلمون')}</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-[9px] font-black uppercase text-slate-400 mb-1 block">${_t('Lecture','المحاضرة')}</label>
+                        <select onchange="state.edu.attLecture=this.value; state.edu.tempAttendance={}; render();" class="bg-slate-50 dark:bg-slate-800 px-4 py-2 rounded-xl text-xs font-bold outline-none">
+                            <option value="General" ${attLecture==='General'?'selected':''}>General</option>
+                            ${todaySubjects.map(s=>`<option value="${s.Subject||s['Subject Name']}" ${attLecture===(s.Subject||s['Subject Name'])?'selected':''}>${s.Subject||s['Subject Name']} (${s.Grade})</option>`).join('')}
+                        </select>
+                    </div>
+                    <button onclick="saveEduAttendance();" class="px-8 py-3 rounded-2xl font-black text-xs uppercase text-white shadow-xl hover:scale-105 transition-transform" style="background:#a78bfa">
+                        ${_t('Save Records','حفظ السجلات')}
+                    </button>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
+                        <tr>
+                            <th class="px-8 py-5">${_t('Name','الاسم')}</th>
+                            <th class="px-8 py-5">${_t('Status','الحالة')}</th>
+                            <th class="px-8 py-5">${_t('Note','ملاحظة')}</th>
+                            <th class="px-8 py-5 text-right">${_t('Action','الإجراء')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>${rows || `<tr><td colspan="4" class="py-16 text-center text-slate-300 font-black uppercase">${dayName}: ${_t('No lectures today','لا توجد محاضرات اليوم')}</td></tr>`}</tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function renderEduCashflow() {
+    const color = '#a78bfa';
+    const income   = state.data[MODULES.ACADEMY].edu_income   || [];
+    const expenses = state.data[MODULES.ACADEMY].edu_expenses || [];
+    const config   = state.edu.config;
+
+    let all = [
+        ...income.map(i   => ({ Type:'Inflow',  Label: i['Student Name'], Category: i.Category, Amount: parseFloat(i.Amount)||0, Date: i.Date })),
+        ...expenses.map(e => ({ Type:'Outflow', Label: e['Title'],         Category: e.Category, Amount: parseFloat(e.Amount)||0, Date: e.Date }))
+    ].sort((a,b) => new Date(b.Date) - new Date(a.Date));
+
+    const totalInflow  = income.reduce((s,i)  => s + (parseFloat(i.Amount)||0), 0);
+    const totalOutflow = expenses.reduce((s,e) => s + (parseFloat(e.Amount)||0), 0);
+    const netCash = totalInflow - totalOutflow;
+
+    const typeFilter = state.edu.cfTypeFilter;
+    const catFilter  = state.edu.cfCatFilter;
+    const query      = state.edu.searchQuery;
+
+    if (typeFilter !== 'All') all = all.filter(x => x.Type === typeFilter);
+    if (catFilter  !== 'All') all = all.filter(x => x.Category === catFilter);
+    if (query) { const q = query.toLowerCase(); all = all.filter(x => x.Label.toLowerCase().includes(q) || (x.Category||'').toLowerCase().includes(q)); }
+
+    const allCats = [...new Set([...config.incomeCategories.map(c=>c.name), ...config.expenseCategories.map(c=>c.name)])];
+
+    const rows = all.map(t=>`
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/20 transition-all border-b border-slate-50 dark:border-slate-800 last:border-0">
+            <td class="px-8 py-5"><span class="px-3 py-1.5 rounded-full text-[9px] font-black uppercase ${t.Type==='Inflow'?'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/40':'bg-rose-50 text-rose-500 dark:bg-rose-950/40'}">${t.Type==='Inflow'?_t('Inflow','وارد'):_t('Outflow','صادر')}</span></td>
+            <td class="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-200">${t.Label}</td>
+            <td class="px-8 py-5 text-xs text-slate-500">${t.Category||'—'}</td>
+            <td class="px-8 py-5 font-black text-sm ${t.Type==='Inflow'?'text-emerald-600':'text-rose-500'}">${t.Amount.toLocaleString()} EGP</td>
+            <td class="px-8 py-5 text-xs text-slate-400">${t.Date}</td>
+        </tr>
+    `).join('');
+
+    return `
+        <div class="fade-in space-y-6">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Cash Flow','التدفق المالي')}</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                    <p class="text-[10px] font-black uppercase text-emerald-500 mb-1">${_t('Total Inflow','إجمالي الوارد')}</p>
+                    <p class="text-2xl font-black text-emerald-600">${totalInflow.toLocaleString()} EGP</p>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm text-center">
+                    <p class="text-[10px] font-black uppercase text-rose-500 mb-1">${_t('Total Outflow','إجمالي الصادر')}</p>
+                    <p class="text-2xl font-black text-rose-500">${totalOutflow.toLocaleString()} EGP</p>
+                </div>
+                <div class="p-6 rounded-[2rem] text-center" style="background:${color}22">
+                    <p class="text-[10px] font-black uppercase mb-1" style="color:${color}">${_t('Net Cash','صافي الربح')}</p>
+                    <p class="text-2xl font-black ${netCash>=0?'text-emerald-600':'text-rose-500'}">${netCash.toLocaleString()} EGP</p>
+                </div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 p-4 flex flex-col sm:flex-row gap-3 items-center">
+                <div class="flex-1 relative w-full">
+                    <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size="15"></i>
+                    <input type="text" placeholder="${_t('Search...','بحث...')}" oninput="state.edu.searchQuery=this.value; render();" value="${query}"
+                        class="w-full bg-slate-50 dark:bg-slate-800 pl-12 pr-4 py-3 rounded-xl text-sm outline-none" />
+                </div>
+                <select onchange="state.edu.cfTypeFilter=this.value; render();" class="bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-xs font-bold outline-none">
+                    <option value="All" ${typeFilter==='All'?'selected':''}>${_t('All Types','كل الأنواع')}</option>
+                    <option value="Inflow"  ${typeFilter==='Inflow' ?'selected':''}>${_t('Inflow','وارد')}</option>
+                    <option value="Outflow" ${typeFilter==='Outflow'?'selected':''}>${_t('Outflow','صادر')}</option>
+                </select>
+                <select onchange="state.edu.cfCatFilter=this.value; render();" class="bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-xs font-bold outline-none">
+                    <option value="All" ${catFilter==='All'?'selected':''}>${_t('All Categories','كل الفئات')}</option>
+                    ${allCats.map(c=>`<option value="${c}" ${catFilter===c?'selected':''}>${c}</option>`).join('')}
+                </select>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse">
+                    <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-widest font-black text-slate-500">
+                        <tr>${['Type','Label','Category','Amount','Date'].map(c=>`<th class="px-8 py-5 whitespace-nowrap">${c}</th>`).join('')}</tr>
+                    </thead>
+                    <tbody>${rows || `<tr><td colspan="5" class="py-16 text-center text-slate-400 italic">${_t('No records','لا توجد سجلات')}</td></tr>`}</tbody>
+                </table>
+            </div>
+        </div>
+    `;
+}
+
+function renderEduConfig() {
+    const color  = '#a78bfa';
+    const config = state.edu.config;
+
+    const teacherList = config.teachers.map((t,i)=>`
+        <div class="flex justify-between items-center p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl flex items-center justify-center font-black text-xs text-white" style="background:${color}">${t.charAt(0)}</div>
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">${t}</span>
+            </div>
+            <button onclick="config.teachers.splice(${i},1); render();" class="p-2 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="trash-2" size="15"></i></button>
+        </div>
+    `).join('');
+
+    const gradeList = Object.entries(config.gradeFees).map(([g,f])=>`
+        <div class="flex justify-between items-center p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50">
+            <div>
+                <p class="text-sm font-black text-mantiq-navy dark:text-white">${g}</p>
+                <p class="text-[10px] font-bold mt-0.5" style="color:${color}">${parseInt(f).toLocaleString()} EGP / month</p>
+            </div>
+            <button onclick="delete config.gradeFees['${g}']; render();" class="p-2 rounded-xl hover:bg-rose-50 text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="trash-2" size="15"></i></button>
+        </div>
+    `).join('');
+
+    const catPanel = (type, list) => `
+        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+            <h3 class="font-black text-sm uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                <i data-lucide="layers" size="14"></i>${type === 'income' ? _t('Income Categories','فئات الإيرادات') : _t('Expense Categories','فئات المصاريف')}
+            </h3>
+            <div class="flex gap-2 mb-6">
+                <input id="edu-cfg-${type}-cat" placeholder="${_t('Category name...','اسم الفئة...')}" class="flex-1 bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-xs font-bold outline-none" />
+                <button onclick="const v=document.getElementById('edu-cfg-${type}-cat').value.trim(); if(v){state.edu.config.${type}Categories.push({name:v,subs:[]});document.getElementById('edu-cfg-${type}-cat').value='';render();}" class="p-3 rounded-xl text-white" style="background:${color}"><i data-lucide="plus" size="16"></i></button>
+            </div>
+            <div class="space-y-4">
+                ${list.map((cat,ci)=>`
+                    <div class="p-5 bg-slate-50 dark:bg-slate-800/30 rounded-2xl">
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="text-xs font-black uppercase text-mantiq-navy dark:text-white">${cat.name}</span>
+                            <button onclick="state.edu.config.${type}Categories.splice(${ci},1);render();" class="p-1 text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" size="14"></i></button>
+                        </div>
+                        <div class="flex flex-wrap gap-2 mb-3">
+                            ${cat.subs.map((s,si)=>`<span class="bg-white dark:bg-slate-700 px-3 py-1 rounded-lg text-[10px] font-bold flex items-center gap-2 shadow-sm">${s}<button onclick="state.edu.config.${type}Categories[${ci}].subs.splice(${si},1);render();" class="text-slate-400 hover:text-rose-500"><i data-lucide="x" size="10"></i></button></span>`).join('')}
+                        </div>
+                        <div class="flex gap-2">
+                            <input id="edu-cfg-${type}-sub-${ci}" placeholder="${_t('Sub-category...','فئة فرعية...')}" class="flex-1 bg-white dark:bg-slate-900 px-3 py-2 rounded-xl text-[10px] outline-none border border-slate-100 dark:border-slate-700 font-bold" />
+                            <button onclick="const v=document.getElementById('edu-cfg-${type}-sub-${ci}').value.trim(); if(v){state.edu.config.${type}Categories[${ci}].subs.push(v);document.getElementById('edu-cfg-${type}-sub-${ci}').value='';render();}" class="hover:scale-110 transition-transform" style="color:${color}"><i data-lucide="plus-circle" size="18"></i></button>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    return `
+        <div class="fade-in space-y-8 pb-16">
+            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Settings','الإعدادات')}</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="user-plus" size="14"></i>${_t('Teachers','المعلمون')}</h3>
+                    <div class="flex gap-2 mb-6">
+                        <input id="edu-cfg-teacher" placeholder="${_t('Teacher full name...','اسم المعلم الكامل...')}" class="flex-1 bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-xs font-bold outline-none" />
+                        <button onclick="const v=document.getElementById('edu-cfg-teacher').value.trim(); if(v){state.edu.config.teachers.push(v);document.getElementById('edu-cfg-teacher').value='';render();}" class="p-3 rounded-xl text-white" style="background:${color}"><i data-lucide="plus" size="16"></i></button>
+                    </div>
+                    <div class="space-y-2">${teacherList || `<p class="text-xs text-slate-400 italic">${_t('No teachers added','لم تُضف معلمون بعد')}</p>`}</div>
+                </div>
+                <div class="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+                    <h3 class="font-black text-sm uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2"><i data-lucide="graduation-cap" size="14"></i>${_t('Grades & Fees','المستويات والرسوم')}</h3>
+                    <div class="space-y-2 mb-6">
+                        <input id="edu-cfg-gname" placeholder="${_t('Grade name (e.g. Year 1)','اسم المستوى (مثال: المستوى الأول)')}" class="w-full bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-xs font-bold outline-none" />
+                        <div class="flex gap-2">
+                            <input id="edu-cfg-gfee" type="number" placeholder="${_t('Base monthly fee (EGP)','الرسوم الشهرية (ج.م)')}" class="flex-1 bg-slate-50 dark:bg-slate-800 px-4 py-3 rounded-xl text-xs font-bold outline-none" />
+                            <button onclick="const n=document.getElementById('edu-cfg-gname').value.trim(),f=parseFloat(document.getElementById('edu-cfg-gfee').value);if(n&&!isNaN(f)){state.edu.config.gradeFees[n]=f;document.getElementById('edu-cfg-gname').value='';document.getElementById('edu-cfg-gfee').value='';render();}" class="px-5 py-3 rounded-xl font-black text-xs uppercase text-white" style="background:${color}">${_t('Add','إضافة')}</button>
+                        </div>
+                    </div>
+                    <div class="space-y-2">${gradeList || `<p class="text-xs text-slate-400 italic">${_t('No grades defined','لم تُعرَّف مستويات بعد')}</p>`}</div>
+                </div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                ${catPanel('income', config.incomeCategories)}
+                ${catPanel('expense', config.expenseCategories)}
             </div>
         </div>
     `;
@@ -1714,6 +2562,14 @@ function renderWorkspace() {
     if (state.page === 'leads' && (state.module === MODULES.CRM || state.module === MODULES.SALES)) {
         return state.leadsView === 'table' ? renderLeadsTable() : renderLeadsPipeline();
     }
+    // Academy special pages
+    if (state.module === MODULES.ACADEMY) {
+        if (state.page === 'edu_students')   return state.edu.viewingStudentId ? renderEduStudentProfile() : renderEduStudentsList();
+        if (state.page === 'edu_teachers')   return renderEduTeachers();
+        if (state.page === 'edu_attendance') return renderEduAttendance();
+        if (state.page === 'edu_cashflow')   return renderEduCashflow();
+        if (state.page === 'edu_config')     return renderEduConfig();
+    }
     return renderTable();
 }
 
@@ -1749,6 +2605,15 @@ const TOUR_STEPS = {
         { page:'targets',       selector:'table', title:{en:'Sales Targets',ar:'أهداف المبيعات'}, body:{en:'Each rep\'s monthly target, achieved revenue, variance, and % attainment in one view. Color-coded — green is on track, red needs attention.',ar:'هدف كل مندوب الشهري والإيراد المحقق والفرق والنسبة في مكان واحد. ألوان — أخضر على المسار، أحمر يحتاج اهتمامًا.'} },
         { page:'commissions',   selector:'table', title:{en:'Commission Calculation',ar:'حساب العمولات'}, body:{en:'Commissions auto-calculated from closed revenue and rate tier. Status moves Draft → Approved → Paid each pay cycle.',ar:'العمولات تُحسب تلقائيًا من الإيراد المغلق وشريحة النسبة. الحالة تنتقل من مسودة إلى معتمد إلى مدفوع كل دورة.'} },
         { page:'analytics',     selector:null, title:{en:'Sales Analytics',ar:'تحليلات المبيعات'}, body:{en:'Revenue trend, per-rep performance bar, and product mix doughnut. Spot your top performer and best-selling category instantly.',ar:'اتجاه الإيراد وأداء كل مندوب وتوزيع المنتجات. اكتشف أفضل مندوب وأكثر منتج مبيعًا فورًا.'} }
+    ],
+    [MODULES.ACADEMY]: [
+        { page:'dashboard',       selector:null,   title:{en:'Academy Overview',ar:'نظرة عامة على المركز'}, body:{en:'Live KPIs at a glance: total students, teachers, monthly revenue, and today\'s scheduled lectures — all on one screen.',ar:'مؤشرات أداء حية: إجمالي الطلاب والمعلمين والإيرادات الشهرية ومحاضرات اليوم — كل ذلك في شاشة واحدة.'} },
+        { page:'edu_students',    selector:'table', title:{en:'Student Roster',ar:'قائمة الطلاب'}, body:{en:'Every enrolled student with their ID, grade, age, and phone number. Click the eye icon on any row to open their full profile and attendance history.',ar:'جميع الطلاب المسجلين بمعرّفاتهم ومستوياتهم وعمرهم ورقم الهاتف. انقر أيقونة العرض لفتح الملف الكامل وسجل الحضور.'} },
+        { page:'edu_teachers',    selector:null,    title:{en:'Teachers\' Hub',ar:'مركز المعلمين'}, body:{en:'Each teacher has a profile card. Click any card to see their full weekly schedule and attendance history — useful for HR and supervision.',ar:'لكل معلم بطاقة ملف. انقر أي بطاقة لعرض جدوله الأسبوعي الكامل وسجل حضوره — مفيد للموارد البشرية والإشراف.'} },
+        { page:'edu_attendance',  selector:null,    title:{en:'Attendance Tracking',ar:'تسجيل الحضور'}, body:{en:'Select a date, category (students or teachers), and lecture. Mark each person present or absent, add absence notes, and save with one click.',ar:'اختر التاريخ والفئة (طلاب أو معلمون) والمحاضرة. ضع علامة حضور أو غياب لكل شخص وأضف ملاحظة وأحفظ بنقرة واحدة.'} },
+        { page:'edu_income',      selector:'table', title:{en:'Income Entries',ar:'سجل الإيرادات'}, body:{en:'Log every payment received from students — tuition, registration, activities. Category and subcategory come from your Settings configuration.',ar:'سجّل كل مبلغ مستلم من الطلاب — رسوم وتسجيل وأنشطة. الفئة والفئة الفرعية من إعدادات النظام.'} },
+        { page:'edu_cashflow',    selector:null,    title:{en:'Cash Flow View',ar:'التدفق المالي'}, body:{en:'Combined inflow + outflow sorted by date. Filter by type or category to see exactly where money comes from and where it goes.',ar:'الوارد والصادر معًا مرتبان بالتاريخ. فلتر بالنوع أو الفئة لترى بالضبط مصادر المال وأين يذهب.'} },
+        { page:'analytics',       selector:null,    title:{en:'Academy Analytics',ar:'تحليلات المركز'}, body:{en:'Enrollment growth line, monthly revenue bar, students-per-grade breakdown, and weekly attendance rate — four charts giving you the full picture.',ar:'منحنى نمو التسجيل وإيرادات شهرية وتوزيع الطلاب بالمستوى ونسبة الحضور الأسبوعي — أربعة رسوم بيانية تعطيك الصورة كاملة.'} }
     ]
 };
 
