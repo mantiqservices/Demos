@@ -6,590 +6,1907 @@
     <title>MANTIQ | Business Services Demos</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@300;400;500;600;700;800&display=swap');
-        
-        :root {
-            --mantiq-cyan: #38bdf8;
-            --mantiq-navy: #001e3c;
-        }
 
-        body {
-            font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif;
-            transition: background-color 0.3s ease;
-        }
+        :root { --mantiq-cyan: #38bdf8; --mantiq-navy: #001e3c; }
 
-        [dir="rtl"] {
-            font-family: 'Noto Sans Arabic', 'Plus Jakarta Sans', sans-serif;
-        }
+        body { font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; transition: background-color 0.3s ease; }
+        [dir="rtl"] { font-family: 'Noto Sans Arabic', 'Plus Jakarta Sans', sans-serif; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
 
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow { animation: spin-slow 15s linear infinite; }
-
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+        .locked-ui { user-select:none; -webkit-user-select:none; }
+        .card-glow:hover { box-shadow: 0 0 30px rgba(56,189,248,0.15); }
+        .modal-overlay { background-color: rgba(0,30,60,0.7); backdrop-filter: blur(8px); }
+
+        .stat-card { transition: all 0.3s ease; }
+        .stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(56,189,248,0.12); }
+
+        .chart-container { position: relative; }
+        canvas { max-height: 280px; }
+
+        .kpi-bar { height: 6px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+        .kpi-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #38bdf8, #0284c7); transition: width 1s ease; }
+
+        .dark .kpi-bar { background: #1e293b; }
+
+        @keyframes countUp { from { opacity:0; } to { opacity:1; } }
+        .count-up { animation: countUp 0.6s ease forwards; }
+
+        .badge { display:inline-flex; align-items:center; padding: 2px 10px; border-radius:999px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; }
+        .badge-green { background:#dcfce7; color:#166534; }
+        .badge-blue { background:#dbeafe; color:#1d4ed8; }
+        .badge-amber { background:#fef3c7; color:#92400e; }
+        .badge-red { background:#fee2e2; color:#991b1b; }
+        .dark .badge-green { background:#14532d; color:#86efac; }
+        .dark .badge-blue { background:#1e3a5f; color:#93c5fd; }
+        .dark .badge-amber { background:#451a03; color:#fcd34d; }
+        .dark .badge-red { background:#450a0a; color:#fca5a5; }
+
+        .tab-btn { padding: 8px 20px; border-radius: 999px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; cursor:pointer; transition:all 0.2s; border: 2px solid transparent; }
+        .tab-btn.active { background:#001e3c; color:#fff; }
+        .dark .tab-btn.active { background:#38bdf8; color:#001e3c; }
+        .tab-btn:not(.active) { color:#64748b; }
+        .tab-btn:not(.active):hover { background:#f1f5f9; }
+        .dark .tab-btn:not(.active):hover { background:#1e293b; }
+
+        /* ── Lead Pipeline / Kanban ── */
+        .pipeline-board { display:flex; gap:16px; overflow-x:auto; padding-bottom:16px; }
+        .pipeline-board::-webkit-scrollbar { height:5px; }
+        .pipeline-board::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:10px; }
+        .dark .pipeline-board::-webkit-scrollbar-thumb { background:#334155; }
+
+        .pipeline-col { min-width:260px; flex:0 0 260px; display:flex; flex-direction:column; gap:10px; }
+        .pipeline-col-header { padding:12px 16px; border-radius:16px; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.12em; display:flex; align-items:center; justify-content:space-between; }
+        .pipeline-card { background:#fff; border:1.5px solid #e2e8f0; border-radius:18px; padding:14px 16px; cursor:pointer; transition:all 0.22s; }
+        .dark .pipeline-card { background:#0f172a; border-color:#1e293b; }
+        .pipeline-card:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(56,189,248,0.13); border-color:#38bdf8; }
+
+        .transfer-btn { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:10px; font-weight:800; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border:none; }
+        .transfer-btn:hover { filter:brightness(0.92); transform:scale(1.04); }
+
+        .stage-filter-btn { padding:7px 18px; border-radius:999px; font-size:11px; font-weight:800; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border:1.5px solid transparent; }
+        .stage-filter-btn.active { border-color:currentColor; }
+
+        @keyframes slideIn { from { opacity:0; transform:scale(0.94) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
+        .pipeline-card { animation: slideIn 0.25s ease forwards; }
+
+        /* ── Notifications ── */
+        .toast-note {
+            transition: opacity 0.5s ease, transform 0.5s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .toast-note.hiding {
+            opacity: 0 !important;
+            transform: translateY(10px) !important;
         }
 
-        .locked-ui {
-            user-select: none;
-            -webkit-user-select: none;
+        /* ── Lead Detail Drawer ── */
+        .lead-drawer-overlay {
+            position: fixed; inset: 0; z-index: 200;
+            background: rgba(0,30,60,0.5);
+            backdrop-filter: blur(6px);
+            animation: fadeIn 0.25s ease;
         }
-
-        .card-glow:hover {
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.15);
+        .lead-drawer {
+            position: fixed; top: 0; right: 0; height: 100vh;
+            width: min(520px, 95vw);
+            background: #fff;
+            z-index: 201;
+            overflow-y: auto;
+            animation: drawerSlideIn 0.3s cubic-bezier(0.22,1,0.36,1);
+            box-shadow: -20px 0 60px rgba(0,0,0,0.15);
         }
+        .dark .lead-drawer { background: #0f172a; }
+        [dir="rtl"] .lead-drawer { right: auto; left: 0; animation: drawerSlideInRtl 0.3s cubic-bezier(0.22,1,0.36,1); }
+        @keyframes drawerSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+        @keyframes drawerSlideInRtl { from { transform: translateX(-100%); } to { transform: translateX(0); } }
 
-        .modal-overlay {
-            background-color: rgba(0, 30, 60, 0.7);
-            backdrop-filter: blur(8px);
+        .timeline-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+        .timeline-line { width:2px; background:#e2e8f0; flex: 1; min-height:20px; margin: 4px auto; }
+        .dark .timeline-line { background:#1e293b; }
+
+        /* ── Tour Overlay ── */
+        .tour-overlay {
+            position: fixed; inset: 0; z-index: 300;
+            background: rgba(0,0,0,0.0);
+            pointer-events: none;
         }
+        .tour-spotlight {
+            position: fixed; z-index: 301;
+            border-radius: 20px;
+            box-shadow: 0 0 0 9999px rgba(0,20,45,0.72);
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.22,1,0.36,1);
+        }
+        .tour-bubble {
+            position: fixed; z-index: 302;
+            background: #fff;
+            border-radius: 24px;
+            padding: 24px 28px;
+            max-width: 340px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+            animation: tourPop 0.3s cubic-bezier(0.22,1,0.36,1);
+        }
+        .dark .tour-bubble { background: #0f172a; border: 1px solid #1e293b; }
+        @keyframes tourPop { from { opacity:0; transform:scale(0.88) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
 
-        .mobile-sidebar-active { transform: translateX(0) !important; }
+        /* ── Tour Invite Modal ── */
+        .tour-invite {
+            position: fixed; inset: 0; z-index: 310;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,20,45,0.75);
+            backdrop-filter: blur(10px);
+            animation: fadeIn 0.3s ease;
+        }
     </style>
     <script>
         tailwind.config = {
             darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        mantiq: {
-                            cyan: '#38bdf8',
-                            navy: '#001e3c',
-                            navyLight: '#002b55'
-                        }
-                    }
-                }
-            }
+            theme: { extend: { colors: { mantiq: { cyan: '#38bdf8', navy: '#001e3c', navyLight: '#002b55' } } } }
         }
     </script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen locked-ui overflow-x-hidden" dir="ltr">
 
-    <div id="app" class="min-h-screen">
-        <!-- Content injected by JavaScript -->
-    </div>
+<div id="app" class="min-h-screen"></div>
+<div id="notification-container" class="fixed bottom-10 right-10 z-[110] space-y-3"></div>
 
-    <div id="notification-container" class="fixed bottom-10 right-10 z-[110] space-y-3"></div>
+<script>
+// ─── CONSTANTS ────────────────────────────────────────────────────────────────
+const MODULES = { LANDING:'landing', CRM:'crm', SALES:'sales', HR:'hr', FINANCE:'finance' };
 
-    <script>
-        // --- 1. Constants ---
-        const MODULES = {
-            LANDING: 'landing',
-            CRM: 'crm',
-            SALES: 'sales',
-            HR: 'hr',
-            FINANCE: 'finance'
-        };
+const UI = {
+    en: {
+        subtitle:"For Business Services Demos",
+        description:"All Systems can be customized based on your Budget, Needs, Operation of your Department, Users and your data size.",
+        launch:"Demo",dashboard:"Dashboard",controlCenter:"Control Center",
+        active:"Active",growth:"Growth",volume:"Volume",assets:"Assets",status:"Status",
+        verified:"Verified",demoEnv:"Demo Environment",search:"Global search...",
+        export:"Export",addRecord:"Add Record",cancel:"Cancel",confirm:"Confirm",
+        syncing:"Syncing",returnHome:"Return Home",restricted:"Security: Restricted action.",
+        blocked:"Security Protocol: Developer Access Blocked.",role:"Super Admin",
+        action:"Action",submit:"Submit Data",analytics:"Analytics",overview:"Overview",trends:"Trends"
+    },
+    ar: {
+        subtitle:"لخدمات الأعمال",
+        description:"انظمة لادارة اقسام شركتك بدقة وكفاءة عالية.",
+        launch:"لرؤية عينة",dashboard:"لوحة القيادة",controlCenter:"مركز التحكم",
+        active:"نشط",growth:"النمو",volume:"الحجم",assets:"الأصول",status:"الحالة",
+        verified:"تم التحقق",demoEnv:"بيئة العرض",search:"بحث شامل...",
+        export:"سحب البيانات",addRecord:"إضافة سجل",cancel:"إلغاء",confirm:"تأكيد",
+        syncing:"جاري المزامنة",returnHome:"العودة للرئيسية",restricted:"أمن: إجراء مقيد.",
+        blocked:"بروتوكول أمن: تم حظر وصول المطورين.",role:"مدير نظام",
+        action:"الإجراء",submit:"إرسال البيانات",analytics:"التحليلات",overview:"نظرة عامة",trends:"الاتجاهات"
+    }
+};
 
-        const UI = {
-            en: {
-                subtitle: "For Business Services Demos",
-                description: "All Systems Can be customized based on your Budget , Needs , Operation of your Deptartment , Users and your data size.",
-                launch: "Demo",
-                dashboard: "Dashboard",
-                controlCenter: "Control Center",
-                active: "Active",
-                growth: "Growth",
-                volume: "Volume",
-                assets: "Assets",
-                status: "Status",
-                verified: "Verified",
-                demoEnv: "Demo Environment",
-                search: "Global search...",
-                export: "Export",
-                addRecord: "Add Record",
-                cancel: "Cancel",
-                confirm: "Confirm",
-                syncing: "Syncing",
-                returnHome: "Return Home",
-                restricted: "Security: Restricted action.",
-                blocked: "Security Protocol: Developer Access Blocked.",
-                role: "Super Admin",
-                action: "Action",
-                submit: "Submit Data"
-            },
-            ar: {
-                subtitle: "لخدمات الأعمال",
-                description: "انظمة لادارة اقسام شركتك بدقة وكفاءة عالية.",
-                launch: "لروئية عينة ",
-                dashboard: "لوحة القيادة",
-                controlCenter: "مركز التحكم",
-                active: "نشط",
-                growth: "النمو",
-                volume: "الحجم",
-                assets: "الأصول",
-                status: "الحالة",
-                verified: "تم التحقق",
-                demoEnv: "بيئة العرض",
-                search: "بحث شامل...",
-                export: "سحب البيانات",
-                addRecord: "إضافة سجل",
-                cancel: "إلغاء",
-                confirm: "تأكيد",
-                syncing: "جاري المزامنة",
-                returnHome: "العودة للرئيسية",
-                restricted: "أمن: إجراء مقيد.",
-                blocked: "بروتوكول أمن: تم حظر وصول المطورين.",
-                role: "مدير نظام",
-                action: "الإجراء",
-                submit: "إرسال البيانات"
-            }
-        };
+// ─── SYSTEM MAP ───────────────────────────────────────────────────────────────
+const SYSTEM_MAP = {
+    [MODULES.CRM]: {
+        title:{ en:"CRM Tracker", ar:"متتبع العملاء" },
+        description:{ en:"Optimize customer relationships, track leads from prospect to deal, and visualize your sales pipeline with precision.", ar:"حسّن علاقات العملاء، وتتبع العملاء المحتملين من البداية حتى إغلاق الصفقة." },
+        icon: 'users',
+        color: '#38bdf8',
+        kpis: {
+            en: [
+                { label:'Total Leads', value:'1,240', delta:'+12%', icon:'user-plus', color:'blue' },
+                { label:'Active Deals', value:'84', delta:'+5%', icon:'briefcase', color:'green' },
+                { label:'Win Rate', value:'62%', delta:'+3%', icon:'trophy', color:'amber' },
+                { label:'Pipeline Value', value:'4.2M EGP', delta:'+18%', icon:'trending-up', color:'green' }
+            ],
+            ar: [
+                { label:'إجمالي العملاء المحتملين', value:'1,240', delta:'+12%', icon:'user-plus', color:'blue' },
+                { label:'الصفقات النشطة', value:'84', delta:'+5%', icon:'briefcase', color:'green' },
+                { label:'معدل الفوز', value:'62%', delta:'+3%', icon:'trophy', color:'amber' },
+                { label:'قيمة المسار', value:'4.2M ج.م', delta:'+18%', icon:'trending-up', color:'green' }
+            ]
+        },
+        charts: {
+            pipeline: { labels:['Discovery','Proposal','Negotiation','Closed Won','Closed Lost'], data:[28,19,14,18,5] },
+            monthly: { labels:['Oct','Nov','Dec','Jan','Feb','Mar'], data:[320,410,390,480,520,610] },
+            sources: { labels:['Website','Referral','Cold Call','Social','Event'], data:[35,25,15,18,7] }
+        },
+        nav:[
+            { id:'dashboard', label:{en:'Dashboard',ar:'لوحة القيادة'}, icon:'layout-dashboard' },
+            { id:'analytics', label:{en:'Analytics',ar:'التحليلات'}, icon:'bar-chart-3', isAnalytics:true },
+            { id:'leads', label:{en:'Leads',ar:'العملاء المحتملون'}, icon:'user-plus',
+              tour:{en:'Track every lead from first contact to closed deal. Use the Kanban board to drag leads across stages.',ar:'تتبع كل عميل من أول تواصل حتى إغلاق الصفقة. استخدم لوحة كانبان للتنقل بين المراحل.'},
+              tableCols:{ en:['Lead ID','Name','Company','Phone','Source','Stage','Score','Status'], ar:['المعرف','الاسم','الشركة','الهاتف','المصدر','المرحلة','النقاط','الحالة'] } },
+            { id:'customers', label:{en:'Customers',ar:'العملاء'}, icon:'users',
+              tour:{en:'Your converted accounts. View lifetime value, segment, and relationship history per customer.',ar:'عملاؤك المحوّلون. اعرض القيمة العمرية والشريحة وتاريخ العلاقة لكل عميل.'},
+              tableCols:{ en:['Customer ID','Company','Industry','Email','Segment','LTV','Status'], ar:['المعرف','الشركة','الصناعة','البريد','الشريحة','القيمة','الحالة'] } },
+            { id:'contacts', label:{en:'Contacts',ar:'جهات الاتصال'}, icon:'phone',
+              tour:{en:'All people linked to your accounts. Call, email or schedule meetings directly from here.',ar:'جميع الأشخاص المرتبطين بحساباتك. اتصل أو أرسل بريدًا أو جدول اجتماعات مباشرة.'},
+              tableCols:{ en:['Contact ID','Name','Job Title','Company','Mobile','Last Contact'], ar:['المعرف','الاسم','المنصب','الشركة','الهاتف','آخر تواصل'] } },
+            { id:'deals', label:{en:'Deals',ar:'الصفقات'}, icon:'briefcase',
+              tour:{en:'Monitor open deals, their value, probability, and expected close dates. Update stage as negotiations progress.',ar:'راقب الصفقات المفتوحة وقيمتها واحتمالية الإغلاق. حدّث المرحلة مع تقدم المفاوضات.'},
+              tableCols:{ en:['Deal ID','Deal Name','Account','Value','Stage','Probability','Close Date'], ar:['المعرف','العنوان','الحساب','القيمة','المرحلة','الاحتمالية','الإغلاق'] } },
+            { id:'activities', label:{en:'Activities',ar:'الأنشطة'}, icon:'clipboard-list',
+              tour:{en:'Log every call, meeting, email and task. Set priorities and due dates so nothing slips through.',ar:'سجّل كل مكالمة واجتماع وبريد ومهمة. حدد الأولويات والمواعيد حتى لا يفوتك شيء.'},
+              tableCols:{ en:['Activity ID','Type','Subject','Assigned To','Due Date','Priority','Status'], ar:['المعرف','النوع','الموضوع','المسؤول','الموعد','الأولوية','الحالة'] } },
+            { id:'communication', label:{en:'Communication Log',ar:'سجل التواصل'}, icon:'mail',
+              tour:{en:'Full email and call history per account. Use filters to find any interaction instantly.',ar:'سجل كامل للبريد والمكالمات لكل حساب. استخدم الفلاتر للعثور على أي تفاعل فورًا.'},
+              tableCols:{ en:['Log ID','Type','From/To','Subject','Duration','Date'], ar:['المعرف','النوع','من/إلى','الموضوع','المدة','التاريخ'] } },
+            { id:'reports', label:{en:'Reports',ar:'التقارير'}, icon:'file-text',
+              tour:{en:'Generate win/loss, pipeline, and activity reports. Export to PDF or Excel for management reviews.',ar:'أنشئ تقارير الفوز والخسارة والمسار والأنشطة. صدّرها PDF أو Excel للاستعراضات الإدارية.'},
+              tableCols:{ en:['Report Type','Period','Value','Growth %','Generated By'], ar:['نوع التقرير','الفترة','القيمة','النمو','المنشئ'] } },
+            { id:'settings', label:{en:'User Roles',ar:'أدوار المستخدمين'}, icon:'settings',
+              tour:{en:'Define who can see and edit what. Assign roles from Admin to Read-Only per module.',ar:'حدد من يمكنه رؤية وتعديل ماذا. عيّن أدوارًا من المدير إلى القراءة فقط لكل وحدة.'},
+              tableCols:{ en:['User Name','Email','Role','Module Access','Status'], ar:['الاسم','البريد','الدور','صلاحية الوحدات','الحالة'] } }
+        ]
+    },
 
-        const SYSTEM_MAP = {
-            [MODULES.CRM]: {
-                title: { en: "CRM Tracker", ar: "متتبع العملاء" },
-                description: { 
-                    en: "Optimize customer relationships, track leads from prospect to deal, and visualize your sales pipeline with precision.",
-                    ar: "حسّن علاقات العملاء، وتتبع العملاء المحتملين من البداية حتى إغلاق الصفقة، وراقب المسار البيعي بدقة."
-                },
-                nav: [
-                    { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة القيادة' }, icon: 'layout-dashboard' },
-                    { id: 'leads', label: { en: 'Leads', ar: 'العملاء المحتملون' }, icon: 'user-plus', tableCols: { en: ['Lead ID', 'Name', 'Company', 'Phone', 'Source', 'Status'], ar: ['المعرف', 'الاسم', 'الشركة', 'الهاتف', 'المصدر', 'الحالة'] } },
-                    { id: 'customers', label: { en: 'Customers', ar: 'العملاء' }, icon: 'users', tableCols: { en: ['Customer ID', 'Company', 'Industry', 'Email', 'Type', 'Revenue'], ar: ['المعرف', 'الشركة', 'الصناعة', 'الايميل', 'النوع', 'الإيراد'] } },
-                    { id: 'contacts', label: { en: 'Contacts', ar: 'جهات الاتصال' }, icon: 'phone', tableCols: { en: ['Contact ID', 'Name', 'Job Title', 'Company', 'Mobile'], ar: ['المعرف', 'الاسم', 'المنصب', 'الشركة', 'الهاتف'] } },
-                    { id: 'deals', label: { en: 'Deals', ar: 'الصفقات' }, icon: 'briefcase', tableCols: { en: ['Deal ID', 'Deal Name', 'Account', 'Value', 'Stage', 'Probability'], ar: ['المعرف', 'العنوان', 'الحساب', 'القيمة', 'المرحلة', 'الاحتمالية'] } },
-                    { id: 'pipeline', label: { en: 'Sales Pipeline', ar: 'المسار البيعي' }, icon: 'kanban', tableCols: { en: ['Stage Name', 'Order', 'Deals Count', 'Total Value'], ar: ['المرحلة', 'الترتيب', 'عدد الصفقات', 'القيمة'] } },
-                    { id: 'activities', label: { en: 'Activities', ar: 'الأنشطة' }, icon: 'clipboard-list', tableCols: { en: ['Activity ID', 'Type', 'Subject', 'Due Date', 'Status'], ar: ['المعرف', 'النوع', 'الموضوع', 'الموعد', 'الحالة'] } },
-                    { id: 'reminders', label: { en: 'Reminders', ar: 'التذكيرات' }, icon: 'bell', tableCols: { en: ['Reminder ID', 'Record', 'Date', 'Time', 'Status'], ar: ['المعرف', 'السجل', 'التاريخ', 'الوقت', 'الحالة'] } },
-                    { id: 'notes', label: { en: 'Notes', ar: 'الملاحظات' }, icon: 'sticky-note', tableCols: { en: ['Note ID', 'Linked To', 'Created By', 'Date'], ar: ['المعرف', 'الارتباط', 'الكاتب', 'التاريخ'] } },
-                    { id: 'communication', label: { en: 'Communication', ar: 'التواصل' }, icon: 'mail', tableCols: { en: ['Email/Call ID', 'Type', 'From/To', 'Subject', 'Date'], ar: ['المعرف', 'النوع', 'من/إلى', 'الموضوع', 'التاريخ'] } },
-                    { id: 'reports', label: { en: 'Reports', ar: 'التقارير' }, icon: 'bar-chart-3', tableCols: { en: ['Report Type', 'Value', 'Growth %', 'Date Range'], ar: ['نوع التقرير', 'القيمة', 'النمو', 'الفترة'] } },
-                    { id: 'settings', label: { en: 'User Roles', ar: 'أدوار المستخدمين' }, icon: 'settings', tableCols: { en: ['User Name', 'Email', 'Role', 'Status'], ar: ['الاسم', 'الايميل', 'الدور', 'الحالة'] } }
-                ]
-            },
-            [MODULES.HR]: {
-                title: { en: "HR System", ar: "نظام الموارد البشرية" },
-                description: {
-                    en: "A complete human resources solution for employee management, automated payroll, attendance tracking, and performance reviews.",
-                    ar: "حل شامل للموارد البشرية لإدارة الموظفين، وأتمتة الرواتب، وتتبع الحضور، وتقييم الأداء."
-                },
-                nav: [
-                    { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة القيادة' }, icon: 'layout-dashboard' },
-                    { id: 'directory', label: { en: 'Employees', ar: 'دليل الموظفين' }, icon: 'users', tableCols: { en: ['E-ID', 'Full Name', 'Job Title', 'Dept', 'Status'], ar: ['المعرف', 'الاسم', 'المنصب', 'القسم', 'الحالة'] } },
-                    { id: 'profile', label: { en: 'Profile View', ar: 'عرض الملف' }, icon: 'user', tableCols: { en: ['Category', 'Field Name', 'Information'], ar: ['الفئة', 'الحقل', 'المعلومات'] } },
-                    { id: 'attendance', label: { en: 'Attendance', ar: 'الحضور والانصراف' }, icon: 'clock', tableCols: { en: ['Date', 'Employee', 'In', 'Out', 'Hours', 'Status'], ar: ['التاريخ', 'الموظف', 'دخول', 'خروج', 'ساعات', 'الحالة'] } },
-                    { id: 'leaves', label: { en: 'Leaves', ar: 'الإجازات' }, icon: 'calendar', tableCols: { en: ['Leave ID', 'Employee', 'Type', 'Start', 'End', 'Status'], ar: ['المعرف', 'الموظف', 'النوع', 'البداية', 'النهاية', 'الحالة'] } },
-                    { id: 'payroll', label: { en: 'Payroll', ar: 'الرواتب' }, icon: 'wallet', tableCols: { en: ['Month', 'Employee', 'Salary', 'Deductions', 'Net', 'Status'], ar: ['الشهر', 'الموظف', 'الراتب', 'الخصومات', 'الصافي', 'الحالة'] } },
-                    { id: 'contracts', label: { en: 'Contracts', ar: 'العقود' }, icon: 'file-text', tableCols: { en: ['Contract ID', 'Employee', 'Type', 'End Date', 'Status'], ar: ['المعرف', 'الموظف', 'النوع', 'النهاية', 'الحالة'] } },
-                    { id: 'recruitment', label: { en: 'Recruitment', ar: 'التوظيف' }, icon: 'user-plus', tableCols: { en: ['Job Title', 'Department', 'Applicants', 'Stage', 'Status'], ar: ['المنصب', 'القسم', 'المتقدمين', 'المرحلة', 'الحالة'] } },
-                    { id: 'performance', label: { en: 'Performance', ar: 'الأداء' }, icon: 'trending-up', tableCols: { en: ['Employee', 'Reviewer', 'Score (1-5)', 'Period'], ar: ['الموظف', 'المقيم', 'التقييم', 'الفترة'] } },
-                    { id: 'training', label: { en: 'Training', ar: 'التدريب' }, icon: 'graduation-cap', tableCols: { en: ['Training Name', 'Provider', 'Enrollees', 'Progress'], ar: ['الدورة', 'المزود', 'المسجلين', 'التقدم'] } },
-                    { id: 'warnings', label: { en: 'Warnings', ar: 'الجزاءات' }, icon: 'alert-triangle', tableCols: { en: ['Record ID', 'Employee', 'Type', 'Reason', 'Date'], ar: ['المعرف', 'الموظف', 'النوع', 'السبب', 'التاريخ'] } },
-                    { id: 'resignation', label: { en: 'Termination', ar: 'إنهاء الخدمة' }, icon: 'log-out', tableCols: { en: ['Employee', 'Exit Date', 'Reason', 'Clearance'], ar: ['الموظف', 'التاريخ', 'السبب', 'المخالصة'] } },
-                    { id: 'reports', label: { en: 'HR Reports', ar: 'تقارير الموارد' }, icon: 'bar-chart-3', tableCols: { en: ['Metric', 'Current Value', 'Target', 'Status'], ar: ['المؤشر', 'القيمة', 'المستهدف', 'الحالة'] } },
-                    { id: 'settings', label: { en: 'HR Settings', ar: 'إعدادات الموارد' }, icon: 'settings', tableCols: { en: ['Rule Name', 'Value', 'Applies To'], ar: ['القاعدة', 'القيمة', 'تطبق على'] } }
-                ]
-            },
-            [MODULES.FINANCE]: {
-                title: { en: "Finance Tracker", ar: " المالية" },
-                description: {
-                    en: "Advanced financial management for tracking income, expenses, invoices, and cash flow with full tax compliance in EGP.",
-                    ar: "إدارة مالية متقدمة لتتبع الإيرادات والمصاريف والفواتير والتدفقات النقدية مع الامتثال الضريبي الكامل."
-                },
-                nav: [
-                    { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة القيادة' }, icon: 'layout-dashboard' },
-                    { id: 'income', label: { en: 'Income', ar: 'الإيرادات' }, icon: 'arrow-up-right', tableCols: { en: ['Income ID', 'Category', 'Source', 'Amount', 'Date', 'Status'], ar: ['المعرف', 'الفئة', 'المصدر', 'المبلغ', 'التاريخ', 'الحالة'] } },
-                    { id: 'expenses', label: { en: 'Expenses', ar: 'المصاريف' }, icon: 'arrow-down-right', tableCols: { en: ['Expense ID', 'Vendor', 'Category', 'Amount', 'Method', 'Status'], ar: ['المعرف', 'المورد', 'الفئة', 'المبلغ', 'الطريقة', 'الحالة'] } },
-                    { id: 'invoices', label: { en: 'Invoices', ar: 'الفواتير' }, icon: 'file-signature', tableCols: { en: ['Inv #', 'Client', 'Due Date', 'Total', 'Amount Paid', 'Status'], ar: ['رقم الفاتورة', 'العميل', 'الموعد', 'الإجمالي', 'المدفوع', 'الحالة'] } },
-                    { id: 'bills', label: { en: 'Bills', ar: 'الفواتير المستحقة' }, icon: 'receipt', tableCols: { en: ['Bill #', 'Vendor', 'Due Date', 'Total', 'Status'], ar: ['رقم الفاتورة', 'المورد', 'الموعد', 'الإجمالي', 'الحالة'] } },
-                    { id: 'payments', label: { en: 'Payments', ar: 'المدفوعات' }, icon: 'credit-card', tableCols: { en: ['Payment ID', 'Payer/Payee', 'Amount', 'Method', 'Date'], ar: ['المعرف', 'المرسل/المستلم', 'المبلغ', 'الطريقة', 'التاريخ'] } },
-                    { id: 'wallets', label: { en: 'Wallets', ar: 'المحافظ' }, icon: 'wallet', tableCols: { en: ['Account Name', 'Type', 'Currency', 'Balance'], ar: ['اسم الحساب', 'النوع', 'العملة', 'الرصيد'] } },
-                    { id: 'cashflow', label: { en: 'Cash Flow', ar: 'التدفق المالي' }, icon: 'trending-up', tableCols: { en: ['Month', 'Inflow', 'Outflow', 'Net Flow'], ar: ['الشهر', 'الوارد', 'الصادر', 'الصافي'] } },
-                    { id: 'budgeting', label: { en: 'Budgeting', ar: 'الميزانية' }, icon: 'pie-chart', tableCols: { en: ['Category', 'Budget', 'Actual Spent', 'Usage %'], ar: ['الفئة', 'الميزانية', 'المنفق', 'الاستخدام'] } },
-                    { id: 'taxes', label: { en: 'Taxes', ar: 'الضرائب' }, icon: 'shield-check', tableCols: { en: ['Period', 'Tax Type', 'Base Amount', 'VAT', 'Status'], ar: ['الفترة', 'النوع', 'الأساس', 'القيمة المضافة', 'الحالة'] } },
-                    { id: 'profitloss', label: { en: 'P&L', ar: 'الأرباح والخسائر' }, icon: 'bar-chart-2', tableCols: { en: ['Label', 'This Period', 'Last Period'], ar: ['البند', 'الفترة الحالية', 'الفترة الماضية'] } },
-                    { id: 'financial_reports', label: { en: 'Reports', ar: 'التقارير المالية' }, icon: 'file-text', tableCols: { en: ['Title', 'Format', 'Generated Date'], ar: ['العنوان', 'التنسيق', 'تاريخ الإنشاء'] } },
-                    { id: 'export', label: { en: 'Export', ar: 'تصدير' }, icon: 'download', tableCols: { en: ['File Name', 'Module', 'Size', 'Date'], ar: ['اسم الملف', 'الوحدة', 'الحجم', 'التاريخ'] } },
-                    { id: 'settings', label: { en: 'Settings', ar: 'الإعدادات' }, icon: 'settings', tableCols: { en: ['Option', 'Configuration', 'Status'], ar: ['الخيار', 'الإعداد', 'الحالة'] } }
-                ]
-            },
-            [MODULES.SALES]: {
-                title: { en: "Sales Tracker", ar: " المبيعات" },
-                description: {
-                    en: "Boost your sales performance with powerful tools for opportunity management, quotations, orders, and sales targets.",
-                    ar: "عزز أداء مبيعاتك باستخدام أدوات قوية لإدارة الفرص وعروض الأسعار والطلبات وأهداف المبيعات."
-                },
-                nav: [
-                    { id: 'dashboard', label: { en: 'Dashboard', ar: 'لوحة القيادة' }, icon: 'layout-dashboard' },
-                    { id: 'leads', label: { en: 'Leads', ar: 'العملاء المهتمون' }, icon: 'user-plus', tableCols: { en: ['Name', 'Source', 'Status', 'Rep'], ar: ['الاسم', 'المصدر', 'الحالة', 'المندوب'] } },
-                    { id: 'opportunities', label: { en: 'Opportunities', ar: 'الفرص' }, icon: 'briefcase', tableCols: { en: ['Project', 'Value', 'Prob %', 'Close Date'], ar: ['المشروع', 'القيمة', 'الاحتمالية', 'تاريخ الإغلاق'] } },
-                    { id: 'quotations', label: { en: 'Quotations', ar: 'عروض الأسعار' }, icon: 'file-text', tableCols: { en: ['Quote ID', 'Client', 'Grand Total', 'Status'], ar: ['المعرف', 'العميل', 'الإجمالي', 'الحالة'] } },
-                    { id: 'orders', label: { en: 'Orders', ar: 'الطلبات' }, icon: 'package', tableCols: { en: ['Order ID', 'Customer', 'Delivery', 'Status'], ar: ['المعرف', 'العميل', 'التوصيل', 'الحالة'] } },
-                    { id: 'invoices', label: { en: 'Invoices', ar: 'الفواتير' }, icon: 'file-signature', tableCols: { en: ['Invoice ID', 'Customer', 'Total', 'Due'], ar: ['المعرف', 'العميل', 'الإجمالي', 'الاستحقاق'] } },
-                    { id: 'products', label: { en: 'Products', ar: 'المنتجات' }, icon: 'layers', tableCols: { en: ['Name', 'SKU', 'Category', 'Stock', 'Price'], ar: ['الاسم', 'SKU', 'الفئة', 'المخزون', 'السعر'] } },
-                    { id: 'pricing', label: { en: 'Pricing Rules', ar: 'قواعد التسعير' }, icon: 'tag', tableCols: { en: ['Plan Name', 'Segment', 'Rate', 'Valid To'], ar: ['الخطة', 'الشريحة', 'السعر', 'صالح حتى'] } },
-                    { id: 'pipeline', label: { en: 'Sales Pipeline', ar: 'المسار' }, icon: 'kanban', tableCols: { en: ['Stage', 'Order', 'Value'], ar: ['المرحلة', 'الترتيب', 'القيمة'] } },
-                    { id: 'targets', label: { en: 'Sales Targets', ar: 'الأهداف' }, icon: 'target', tableCols: { en: ['Sales Rep', 'Target Revenue', 'Achieved', '% Achieved'], ar: ['المندوب', 'المستهدف', 'المحقق', 'النسبة'] } },
-                    { id: 'commissions', label: { en: 'Commissions', ar: 'العمولات' }, icon: 'dollar-sign', tableCols: { en: ['Rep Name', 'Revenue', 'Comm Amount', 'Status'], ar: ['المندوب', 'الإيراد', 'العمولة', 'الحالة'] } },
-                    { id: 'customers', label: { en: 'Customers', ar: 'العملاء' }, icon: 'users', tableCols: { en: ['Company', 'Contact', 'Since', 'Total Revenue'], ar: ['الشركة', 'المسؤول', 'منذ', 'إجمالي المبيعات'] } },
-                    { id: 'reports', label: { en: 'Sales Reports', ar: 'تقارير المبيعات' }, icon: 'bar-chart-3', tableCols: { en: ['KPI Indicator', 'Current Value', 'Target'], ar: ['المؤشر', 'القيمة', 'المستهدف'] } },
-                    { id: 'settings', label: { en: 'Settings', ar: 'الإعدادات' }, icon: 'settings', tableCols: { en: ['Configuration Key', 'Value', 'Last Sync'], ar: ['مفتاح الإعداد', 'القيمة', 'آخر مزامنة'] } }
-                ]
-            }
-        };
+    [MODULES.HR]: {
+        title:{ en:"HR System", ar:"نظام الموارد البشرية" },
+        description:{ en:"Complete HR solution for employee management, payroll, attendance, and performance reviews.", ar:"حل شامل للموارد البشرية لإدارة الموظفين والرواتب والحضور." },
+        icon: 'users-round',
+        color: '#a78bfa',
+        kpis: {
+            en: [
+                { label:'Total Employees', value:'248', delta:'+4', icon:'users', color:'blue' },
+                { label:'On Leave Today', value:'12', delta:'-2', icon:'calendar', color:'amber' },
+                { label:'Payroll (Month)', value:'1.8M EGP', delta:'+2%', icon:'wallet', color:'green' },
+                { label:'Avg Performance', value:'4.1/5', delta:'+0.2', icon:'trending-up', color:'green' }
+            ],
+            ar: [
+                { label:'إجمالي الموظفين', value:'248', delta:'+4', icon:'users', color:'blue' },
+                { label:'في إجازة اليوم', value:'12', delta:'-2', icon:'calendar', color:'amber' },
+                { label:'الرواتب (شهري)', value:'1.8M ج.م', delta:'+2%', icon:'wallet', color:'green' },
+                { label:'متوسط الأداء', value:'4.1/5', delta:'+0.2', icon:'trending-up', color:'green' }
+            ]
+        },
+        charts: {
+            headcount: { labels:['Oct','Nov','Dec','Jan','Feb','Mar'], data:[230,235,238,242,245,248] },
+            departments: { labels:['Engineering','Sales','Finance','HR','Operations','Marketing'], data:[42,55,28,18,65,40] },
+            attendance: { labels:['Mon','Tue','Wed','Thu','Sun'], data:[96,94,97,91,89] }
+        },
+        nav:[
+            { id:'dashboard', label:{en:'Dashboard',ar:'لوحة القيادة'}, icon:'layout-dashboard' },
+            { id:'analytics', label:{en:'Analytics',ar:'التحليلات'}, icon:'bar-chart-3', isAnalytics:true },
+            { id:'directory', label:{en:'Employees',ar:'دليل الموظفين'}, icon:'users',
+              tour:{en:'Your full employee directory. Click any row to view complete profile, documents and history.',ar:'دليل موظفيك الكامل. انقر على أي صف لعرض الملف الشخصي الكامل والمستندات والتاريخ.'},
+              tableCols:{ en:['E-ID','Full Name','Job Title','Dept','Hire Date','Contract','Status'], ar:['المعرف','الاسم','المنصب','القسم','تاريخ التعيين','العقد','الحالة'] } },
+            { id:'attendance', label:{en:'Attendance',ar:'الحضور والانصراف'}, icon:'clock',
+              tour:{en:'Daily punch-in/out records. Late arrivals and overtime are auto-flagged. Filter by department or date range.',ar:'سجلات الحضور والانصراف اليومية. يتم تمييز التأخر والعمل الإضافي تلقائيًا.'},
+              tableCols:{ en:['Date','Employee','Dept','In','Out','Hours','Overtime','Status'], ar:['التاريخ','الموظف','القسم','دخول','خروج','ساعات','إضافي','الحالة'] } },
+            { id:'leaves', label:{en:'Leaves',ar:'الإجازات'}, icon:'calendar',
+              tour:{en:'Submit and approve leave requests. Balance is auto-deducted. Annual, sick, and emergency types supported.',ar:'تقديم واعتماد طلبات الإجازة. يتم خصم الرصيد تلقائيًا. يدعم الإجازات السنوية والمرضية والطارئة.'},
+              tableCols:{ en:['Leave ID','Employee','Type','Balance','Start','End','Days','Status'], ar:['المعرف','الموظف','النوع','الرصيد','البداية','النهاية','الأيام','الحالة'] } },
+            { id:'payroll', label:{en:'Payroll',ar:'الرواتب'}, icon:'wallet',
+              tour:{en:'Monthly payroll with auto-calculated allowances, deductions, and income tax. One-click payslip generation.',ar:'الرواتب الشهرية مع حساب تلقائي للبدلات والخصومات وضريبة الدخل. إنشاء قسيمة راتب بنقرة واحدة.'},
+              tableCols:{ en:['Month','Employee','Base Salary','Allowances','Deductions','Tax','Net','Status'], ar:['الشهر','الموظف','الأساسي','البدلات','الخصومات','الضريبة','الصافي','الحالة'] } },
+            { id:'contracts', label:{en:'Contracts',ar:'العقود'}, icon:'file-text',
+              tour:{en:'Track contract types and expiry dates. Get alerts 30 days before renewal is due.',ar:'تتبع أنواع العقود وتواريخ انتهائها. تلقّ تنبيهات قبل 30 يومًا من موعد التجديد.'},
+              tableCols:{ en:['Contract ID','Employee','Type','Start','End','Notice Period','Status'], ar:['المعرف','الموظف','النوع','البداية','النهاية','فترة الإشعار','الحالة'] } },
+            { id:'recruitment', label:{en:'Recruitment',ar:'التوظيف'}, icon:'user-plus',
+              tour:{en:'Post jobs, track applicants through interview stages, and convert directly to employee records on hire.',ar:'انشر وظائف وتتبع المتقدمين عبر مراحل المقابلات وحوّلهم مباشرة إلى سجلات موظفين عند التعيين.'},
+              tableCols:{ en:['Job Title','Department','Applicants','Shortlisted','Interviews','Stage','Status'], ar:['المنصب','القسم','المتقدمين','المختارين','المقابلات','المرحلة','الحالة'] } },
+            { id:'performance', label:{en:'Performance',ar:'تقييم الأداء'}, icon:'trending-up',
+              tour:{en:'Quarterly and annual KPI reviews. Scores feed directly into promotion and salary adjustment workflows.',ar:'مراجعات مؤشرات الأداء الفصلية والسنوية. تُغذّي النتائج سير عمل الترقية وتعديل الراتب مباشرة.'},
+              tableCols:{ en:['Employee','Dept','Reviewer','KPI Score','Behaviour','Overall (1-5)','Period'], ar:['الموظف','القسم','المقيم','مؤشرات الأداء','السلوك','الإجمالي','الفترة'] } },
+            { id:'training', label:{en:'Training',ar:'التدريب'}, icon:'graduation-cap',
+              tour:{en:'Assign courses, track completion rates, and log certifications. Link training to performance gaps.',ar:'عيّن دورات وتتبع معدلات الإتمام وسجّل الشهادات. اربط التدريب بفجوات الأداء.'},
+              tableCols:{ en:['Training Name','Provider','Type','Enrollees','Duration','Completion %','Cost'], ar:['الدورة','المزود','النوع','المسجلين','المدة','الإتمام','التكلفة'] } },
+            { id:'reports', label:{en:'HR Reports',ar:'تقارير الموارد'}, icon:'bar-chart-3',
+              tour:{en:'Turnover, headcount, payroll cost, and attendance summary reports. Export for board presentations.',ar:'تقارير معدل الدوران والقوى العاملة وتكلفة الرواتب والحضور. صدّرها لعروض مجلس الإدارة.'},
+              tableCols:{ en:['Metric','Current Value','Target','Variance','Status'], ar:['المؤشر','القيمة','المستهدف','الفرق','الحالة'] } },
+            { id:'settings', label:{en:'HR Settings',ar:'إعدادات الموارد'}, icon:'settings',
+              tour:{en:'Configure leave policies, working hours, overtime rules, and approval hierarchies for your organization.',ar:'اضبط سياسات الإجازات وساعات العمل وقواعد العمل الإضافي وتسلسل الموافقات لمؤسستك.'},
+              tableCols:{ en:['Rule Name','Category','Value','Applies To','Last Updated'], ar:['القاعدة','الفئة','القيمة','تطبق على','آخر تحديث'] } }
+        ]
+    },
 
-        // --- 3. System State ---
-        let state = {
-            module: MODULES.LANDING,
-            page: 'dashboard',
-            darkMode: false,
-            language: 'en',
-            isModalOpen: false,
-            isMobileMenuOpen: false,
-            user: { initials: 'KA' },
-            data: {}
-        };
+    [MODULES.FINANCE]: {
+        title:{ en:"Finance Tracker", ar:"المالية" },
+        description:{ en:"Advanced financial management for income, expenses, invoices, and cash flow with full EGP tax compliance.", ar:"إدارة مالية متقدمة لتتبع الإيرادات والمصاريف والفواتير مع الامتثال الضريبي الكامل." },
+        icon: 'trending-up',
+        color: '#34d399',
+        kpis: {
+            en: [
+                { label:'Total Revenue (MTD)', value:'3.6M EGP', delta:'+22%', icon:'arrow-up-right', color:'green' },
+                { label:'Total Expenses (MTD)', value:'1.9M EGP', delta:'+8%', icon:'arrow-down-right', color:'red' },
+                { label:'Net Profit', value:'1.7M EGP', delta:'+38%', icon:'bar-chart-2', color:'green' },
+                { label:'Outstanding Invoices', value:'420K EGP', delta:'-5%', icon:'file-signature', color:'amber' }
+            ],
+            ar: [
+                { label:'الإيرادات (الشهر)', value:'3.6M ج.م', delta:'+22%', icon:'arrow-up-right', color:'green' },
+                { label:'المصاريف (الشهر)', value:'1.9M ج.م', delta:'+8%', icon:'arrow-down-right', color:'red' },
+                { label:'صافي الربح', value:'1.7M ج.م', delta:'+38%', icon:'bar-chart-2', color:'green' },
+                { label:'فواتير معلقة', value:'420K ج.م', delta:'-5%', icon:'file-signature', color:'amber' }
+            ]
+        },
+        charts: {
+            cashflow: { labels:['Oct','Nov','Dec','Jan','Feb','Mar'], inflow:[2800,3100,2950,3400,3600,3800], outflow:[1700,1850,1780,1900,1850,1950] },
+            expenses: { labels:['Salaries','Rent','Marketing','Utilities','Logistics','Other'], data:[45,15,12,8,10,10] },
+            revenue: { labels:['Oct','Nov','Dec','Jan','Feb','Mar'], data:[2800,3100,2950,3400,3600,3800] }
+        },
+        nav:[
+            { id:'dashboard', label:{en:'Dashboard',ar:'لوحة القيادة'}, icon:'layout-dashboard' },
+            { id:'analytics', label:{en:'Analytics',ar:'التحليلات'}, icon:'bar-chart-3', isAnalytics:true },
+            { id:'income', label:{en:'Income',ar:'الإيرادات'}, icon:'arrow-up-right',
+              tour:{en:'Record every revenue entry with category, client, VAT, and net amount. Linked to invoices automatically.',ar:'سجّل كل إيراد بالفئة والعميل وضريبة القيمة المضافة والصافي. مرتبط بالفواتير تلقائيًا.'},
+              tableCols:{ en:['Income ID','Category','Source','Client','Amount','Tax','Net','Date','Status'], ar:['المعرف','الفئة','المصدر','العميل','المبلغ','الضريبة','الصافي','التاريخ','الحالة'] } },
+            { id:'expenses', label:{en:'Expenses',ar:'المصاريف'}, icon:'arrow-down-right',
+              tour:{en:'Log and approve all outgoing payments. Attach receipts, categorize by cost center, and track VAT.',ar:'سجّل واعتمد جميع المدفوعات الصادرة. أرفق الإيصالات وصنّف حسب مركز التكلفة وتتبع الضريبة.'},
+              tableCols:{ en:['Expense ID','Vendor','Category','Amount','VAT','Method','Approved By','Status'], ar:['المعرف','المورد','الفئة','المبلغ','ضريبة','الطريقة','المعتمد','الحالة'] } },
+            { id:'invoices', label:{en:'Invoices',ar:'الفواتير'}, icon:'file-signature',
+              tour:{en:'Create and send tax-compliant invoices. VAT 14% auto-calculated. Track paid vs outstanding per client.',ar:'أنشئ وأرسل فواتير متوافقة ضريبيًا. ضريبة 14% تُحسب تلقائيًا. تتبع المدفوع والمعلق لكل عميل.'},
+              tableCols:{ en:['Inv #','Client','Issue Date','Due Date','Subtotal','VAT 14%','Total','Paid','Status'], ar:['رقم الفاتورة','العميل','الإصدار','الموعد','الأساسي','ضريبة 14%','الإجمالي','المدفوع','الحالة'] } },
+            { id:'bills', label:{en:'Bills Payable',ar:'الفواتير المستحقة'}, icon:'receipt',
+              tour:{en:'Track what you owe vendors. Get alerts on upcoming due dates to avoid late payment penalties.',ar:'تتبع ما تدين به للموردين. تلقّ تنبيهات قبل مواعيد الاستحقاق لتجنب غرامات التأخير.'},
+              tableCols:{ en:['Bill #','Vendor','Category','Issue Date','Due Date','Amount','Status'], ar:['رقم الفاتورة','المورد','الفئة','الإصدار','الموعد','المبلغ','الحالة'] } },
+            { id:'payments', label:{en:'Payments',ar:'المدفوعات'}, icon:'credit-card',
+              tour:{en:'Full payment log — bank transfers, cash, checks and digital wallets. Auto-reconciles with invoices and bills.',ar:'سجل مدفوعات كامل — تحويلات بنكية ونقد وشيكات ومحافظ رقمية. تسوية تلقائية مع الفواتير.'},
+              tableCols:{ en:['Payment ID','Type','Payer/Payee','Amount','Method','Reference','Date'], ar:['المعرف','النوع','المرسل/المستلم','المبلغ','الطريقة','المرجع','التاريخ'] } },
+            { id:'wallets', label:{en:'Accounts & Wallets',ar:'الحسابات والمحافظ'}, icon:'wallet',
+              tour:{en:'View real-time balances across all your bank accounts and digital wallets. Supports multi-currency.',ar:'اعرض الأرصدة الفورية لجميع حساباتك البنكية ومحافظك الرقمية. يدعم العملات المتعددة.'},
+              tableCols:{ en:['Account Name','Bank','Type','Currency','Balance','Last Txn'], ar:['اسم الحساب','البنك','النوع','العملة','الرصيد','آخر معاملة'] } },
+            { id:'budgeting', label:{en:'Budgeting',ar:'الميزانية'}, icon:'pie-chart',
+              tour:{en:'Set annual budgets per category and track actual spend in real-time. Alerts fire when 80% is consumed.',ar:'ضع ميزانيات سنوية لكل فئة وتتبع الإنفاق الفعلي فورًا. تنبيهات عند استهلاك 80%.'},
+              tableCols:{ en:['Category','Annual Budget','Q1 Budget','Actual Spent','Variance','Usage %'], ar:['الفئة','الميزانية السنوية','ميزانية ر.1','المنفق','الفرق','الاستخدام'] } },
+            { id:'taxes', label:{en:'Tax Filing',ar:'الضرائب'}, icon:'shield-check',
+              tour:{en:'Track VAT, income tax, and withholding. Filing deadlines are highlighted. Export e-filing data directly.',ar:'تتبع ضريبة القيمة المضافة وضريبة الدخل والخصم عند المنبع. مواعيد التقديم مُبرزة. صدّر بيانات التقديم الإلكتروني مباشرة.'},
+              tableCols:{ en:['Period','Tax Type','Base Amount','Rate','Tax Amount','Filed Date','Status'], ar:['الفترة','النوع','الأساس','النسبة','المبلغ','تاريخ التقديم','الحالة'] } },
+            { id:'profitloss', label:{en:'P&L Statement',ar:'الأرباح والخسائر'}, icon:'bar-chart-2',
+              tour:{en:'Live profit & loss with period-over-period comparison. Drill down into any line item for transaction details.',ar:'بيان أرباح وخسائر حي مع مقارنة فترة بفترة. انقر على أي بند للتفاصيل.'},
+              tableCols:{ en:['Label','This Period','Last Period','Variance','Variance %'], ar:['البند','الفترة الحالية','الفترة الماضية','الفرق','النسبة'] } },
+            { id:'settings', label:{en:'Finance Settings',ar:'الإعدادات'}, icon:'settings',
+              tour:{en:'Set base currency, fiscal year, tax rates, payment terms, and approval thresholds for your finance team.',ar:'اضبط العملة الأساسية والسنة المالية ومعدلات الضريبة وشروط الدفع وحدود الموافقة.'},
+              tableCols:{ en:['Option','Category','Value','Currency','Last Updated'], ar:['الخيار','الفئة','القيمة','العملة','آخر تحديث'] } }
+        ]
+    },
 
-        const _t = (en, ar) => state.language === 'en' ? en : ar;
-        const ut = (key) => UI[state.language][key];
+    [MODULES.SALES]: {
+        title:{ en:"Sales Tracker", ar:"المبيعات" },
+        description:{ en:"Boost your sales performance with opportunity management, quotations, orders, and sales targets.", ar:"عزز أداء مبيعاتك باستخدام أدوات قوية لإدارة الفرص وعروض الأسعار والأهداف." },
+        icon: 'shopping-cart',
+        color: '#fb923c',
+        kpis: {
+            en: [
+                { label:'Revenue (MTD)', value:'2.1M EGP', delta:'+16%', icon:'trending-up', color:'green' },
+                { label:'Orders Closed', value:'138', delta:'+9%', icon:'package', color:'blue' },
+                { label:'Quota Attainment', value:'78%', delta:'+4%', icon:'target', color:'amber' },
+                { label:'Avg Deal Size', value:'52K EGP', delta:'+7%', icon:'dollar-sign', color:'green' }
+            ],
+            ar: [
+                { label:'الإيراد (الشهر)', value:'2.1M ج.م', delta:'+16%', icon:'trending-up', color:'green' },
+                { label:'الطلبات المغلقة', value:'138', delta:'+9%', icon:'package', color:'blue' },
+                { label:'تحقيق الحصة', value:'78%', delta:'+4%', icon:'target', color:'amber' },
+                { label:'متوسط حجم الصفقة', value:'52K ج.م', delta:'+7%', icon:'dollar-sign', color:'green' }
+            ]
+        },
+        charts: {
+            revenue: { labels:['Oct','Nov','Dec','Jan','Feb','Mar'], data:[1600,1800,1700,1950,2000,2100] },
+            reps: { labels:['Ahmed','Sara','Kareem','Mona','Omar'], data:[420,380,510,290,390] },
+            products: { labels:['Software','Hardware','Services','Consulting','Support'], data:[38,22,20,12,8] }
+        },
+        nav:[
+            { id:'dashboard', label:{en:'Dashboard',ar:'لوحة القيادة'}, icon:'layout-dashboard' },
+            { id:'analytics', label:{en:'Analytics',ar:'التحليلات'}, icon:'bar-chart-3', isAnalytics:true },
+            { id:'leads', label:{en:'Leads',ar:'العملاء المهتمون'}, icon:'user-plus',
+              tour:{en:'Incoming leads with scores and source tracking. Use the Kanban pipeline to move them toward a deal.',ar:'العملاء الواردون مع نقاط ومصادر. استخدم لوحة كانبان لتحريكهم نحو الصفقة.'},
+              tableCols:{ en:['Name','Phone','Source','Assigned To','Score','Stage','Status'], ar:['الاسم','الهاتف','المصدر','المسؤول','النقاط','المرحلة','الحالة'] } },
+            { id:'opportunities', label:{en:'Opportunities',ar:'الفرص'}, icon:'briefcase',
+              tour:{en:'High-value prospects with win probability. Weighted pipeline gives an accurate forecast of likely revenue.',ar:'عملاء محتملون بقيمة عالية مع احتمالية الفوز. المسار الموزون يعطي توقعات دقيقة للإيراد المحتمل.'},
+              tableCols:{ en:['Project','Client','Value','Prob %','Rep','Close Date','Status'], ar:['المشروع','العميل','القيمة','الاحتمالية','المندوب','تاريخ الإغلاق','الحالة'] } },
+            { id:'quotations', label:{en:'Quotations',ar:'عروض الأسعار'}, icon:'file-text',
+              tour:{en:'Build and send professional quotations with line items, discounts, and validity dates. One-click convert to order.',ar:'أنشئ وأرسل عروض أسعار احترافية بالبنود والخصومات وتواريخ الصلاحية. تحويل للطلب بنقرة واحدة.'},
+              tableCols:{ en:['Quote ID','Client','Items','Subtotal','Discount','Grand Total','Valid Until','Status'], ar:['المعرف','العميل','العناصر','الأساسي','الخصم','الإجمالي','صلاحية','الحالة'] } },
+            { id:'orders', label:{en:'Orders',ar:'الطلبات'}, icon:'package',
+              tour:{en:'Confirmed sales orders with delivery scheduling. Status auto-updates from Processing → Shipped → Delivered.',ar:'طلبات المبيعات المؤكدة مع جدولة التسليم. الحالة تتحدث تلقائيًا من معالجة إلى شحن إلى تسليم.'},
+              tableCols:{ en:['Order ID','Customer','Items','Total','Payment','Delivery Date','Status'], ar:['المعرف','العميل','العناصر','الإجمالي','الدفع','موعد التوصيل','الحالة'] } },
+            { id:'products', label:{en:'Products & Services',ar:'المنتجات والخدمات'}, icon:'layers',
+              tour:{en:'Your full catalog with live stock levels, unit cost, and margin %. Flag items as active or discontinued.',ar:'كتالوجك الكامل مع مستويات المخزون الحية وسعر التكلفة ونسبة الهامش. صنّف العناصر نشطة أو موقوفة.'},
+              tableCols:{ en:['Name','SKU','Category','Stock','Unit Price','Cost','Margin %'], ar:['الاسم','SKU','الفئة','المخزون','سعر البيع','التكلفة','الهامش'] } },
+            { id:'targets', label:{en:'Sales Targets',ar:'الأهداف'}, icon:'target',
+              tour:{en:'Set monthly and quarterly targets per rep. Achievement % updates in real-time as orders close.',ar:'حدد أهدافًا شهرية وفصلية لكل مندوب. نسبة الإنجاز تتحدث فوريًا مع إغلاق الطلبات.'},
+              tableCols:{ en:['Sales Rep','Period','Target Revenue','Achieved','Variance','% Achieved','Status'], ar:['المندوب','الفترة','المستهدف','المحقق','الفرق','النسبة','الحالة'] } },
+            { id:'commissions', label:{en:'Commissions',ar:'العمولات'}, icon:'dollar-sign',
+              tour:{en:'Auto-calculate rep commissions based on closed revenue and rate tiers. Mark as paid once processed.',ar:'احسب عمولات المندوبين تلقائيًا بناءً على الإيراد المغلق وشرائح النسب. سجّلها مدفوعة بعد المعالجة.'},
+              tableCols:{ en:['Rep Name','Month','Revenue','Rate %','Gross Comm','Adjustments','Net Comm','Status'], ar:['المندوب','الشهر','الإيراد','النسبة','الإجمالي','التعديلات','الصافي','الحالة'] } },
+            { id:'customers', label:{en:'Customers',ar:'العملاء'}, icon:'users',
+              tour:{en:'Full customer history — total orders, lifetime value, and region. Use segments to personalize outreach.',ar:'تاريخ العميل الكامل — إجمالي الطلبات والقيمة العمرية والمنطقة. استخدم الشرائح لتخصيص التواصل.'},
+              tableCols:{ en:['Company','Contact','Segment','Region','Since','Lifetime Value','Status'], ar:['الشركة','المسؤول','الشريحة','المنطقة','منذ','القيمة الإجمالية','الحالة'] } },
+            { id:'reports', label:{en:'Sales Reports',ar:'تقارير المبيعات'}, icon:'bar-chart-3',
+              tour:{en:'KPI scorecards with attainment vs target. Share with management as PDF or present live from this screen.',ar:'بطاقات أداء مع الإنجاز مقابل الهدف. شاركها مع الإدارة كـ PDF أو اعرضها مباشرة من هذه الشاشة.'},
+              tableCols:{ en:['KPI Indicator','Current Value','Target','Attainment %','Trend'], ar:['المؤشر','القيمة','المستهدف','النسبة','الاتجاه'] } },
+            { id:'settings', label:{en:'Sales Settings',ar:'الإعدادات'}, icon:'settings',
+              tour:{en:'Configure sales regions, rep territories, commission rules, and approval flows for your sales operation.',ar:'اضبط مناطق المبيعات وأقاليم المندوبين وقواعد العمولة وتدفقات الموافقة لعمليتك البيعية.'},
+              tableCols:{ en:['Configuration Key','Value','Category','Last Sync'], ar:['مفتاح الإعداد','القيمة','الفئة','آخر مزامنة'] } }
+        ]
+    }
+};
 
-        // --- 4. Logic Functions ---
+// ─── LEAD PIPELINE STAGES ─────────────────────────────────────────────────────
+const LEAD_STAGES = [
+    { id:'new',       label:{en:'New',ar:'جديد'},             color:'#38bdf8', bg:'rgba(56,189,248,0.1)',  darkBg:'rgba(56,189,248,0.08)',  icon:'inbox',       next:'contacted', prev:null },
+    { id:'contacted', label:{en:'Contacted',ar:'تم التواصل'}, color:'#818cf8', bg:'rgba(129,140,248,0.1)', darkBg:'rgba(129,140,248,0.08)', icon:'phone-call',  next:'qualified', prev:'new' },
+    { id:'qualified', label:{en:'Qualified',ar:'مؤهل'},       color:'#fb923c', bg:'rgba(251,146,60,0.1)',  darkBg:'rgba(251,146,60,0.08)',  icon:'check-circle',next:'proposal',  prev:'contacted' },
+    { id:'proposal',  label:{en:'Proposal',ar:'عرض سعر'},     color:'#f472b6', bg:'rgba(244,114,182,0.1)', darkBg:'rgba(244,114,182,0.08)', icon:'file-text',   next:'won',       prev:'qualified' },
+    { id:'won',       label:{en:'Won ✓',ar:'تم الفوز ✓'},     color:'#34d399', bg:'rgba(52,211,153,0.1)',  darkBg:'rgba(52,211,153,0.08)',  icon:'trophy',      next:null,        prev:'proposal' },
+    { id:'lost',      label:{en:'Lost',ar:'خسارة'},            color:'#f87171', bg:'rgba(248,113,113,0.1)', darkBg:'rgba(248,113,113,0.08)', icon:'x-circle',    next:null,        prev:'proposal' }
+];
 
-        function initData() {
-            const REAL_NAMES = ["Ahmed Sharaf", "Mona Zaki", "Kareem Abdelaziz", "Sara El-Gohary", "Youssef El-Shamy", "Omar Khairat", "Layla Eloui", "Tarek El-Sheikh"];
-            const REAL_COMPANIES = ["Cairo Tech Solutions", "Giza Systems", "Nile Logistics", "Delta Foods", "Alexandria Steel", "Suez Canal Energy", "Red Sea Tourism", "PetroJet"];
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let state = {
+    module: MODULES.LANDING,
+    page: 'dashboard',
+    darkMode: false,
+    language: 'en',
+    isModalOpen: false,
+    isMobileMenuOpen: false,
+    analyticsTab: 'overview',
+    leadsView: 'pipeline',
+    showTourInvite: false,
+    data: {},
+    leads: { crm: [], sales: [] }
+};
 
-            Object.keys(SYSTEM_MAP).forEach(mod => {
-                state.data[mod] = {};
-                SYSTEM_MAP[mod].nav.forEach(page => {
-                    if (page.id !== 'dashboard') {
-                        state.data[mod][page.id] = [];
-                        for(let i=0; i<3; i++) {
-                            const row = {};
-                            (page.tableCols.en).forEach(col => {
-                                let val = "";
-                                if (col.includes('ID') || col.includes('#')) val = (1024 + i).toString();
-                                else if (col.includes('Name')) val = REAL_NAMES[(i + Math.floor(Math.random() * 5)) % REAL_NAMES.length];
-                                else if (col.includes('Company') || col.includes('Client') || col.includes('Vendor')) val = REAL_COMPANIES[(i + Math.floor(Math.random() * 5)) % REAL_COMPANIES.length];
-                                else if (col.includes('Phone') || col.includes('Mobile')) val = "010" + Math.floor(10000000 + Math.random() * 90000000);
-                                else if (col.includes('Email')) val = REAL_NAMES[i % REAL_NAMES.length].toLowerCase().replace(" ", ".") + "@example.com";
-                                else if (col.includes('Value') || col.includes('Amount') || col.includes('Salary') || col.includes('Revenue')) val = (Math.floor(Math.random() * 150) + 10) + ",000 EGP";
-                                else if (col.includes('Status')) val = ["Active", "Pending", "Completed", "Paid"][i % 4];
-                                else if (col.includes('Date')) val = "2024-02-" + (10 + i);
-                                else if (col.includes('Stage')) val = ["Discovery", "Proposal", "Negotiation"][i % 3];
-                                else val = state.language === 'ar' ? "بيانات حقيقية" : "Verified Entry";
-                                row[col] = val;
-                            });
-                            state.data[mod][page.id].push(row);
-                        }
-                    }
+const _t = (en, ar) => state.language === 'en' ? en : ar;
+const ut = (key) => UI[state.language][key];
+
+// ─── DATA INIT ────────────────────────────────────────────────────────────────
+function initData() {
+    const NAMES   = ["Ahmed Sharaf","Mona Zaki","Kareem Abdelaziz","Sara El-Gohary","Youssef El-Shamy","Omar Khairat","Layla Eloui","Tarek El-Sheikh","Hana Mustafa","Ramy Saleh"];
+    const FIRSTNAMES = ["Ahmed","Mona","Kareem","Sara","Youssef","Omar","Layla","Tarek","Hana","Ramy"];
+    const COMPANIES= ["Cairo Tech Solutions","Giza Systems","Nile Logistics","Delta Foods","Alexandria Steel","Suez Canal Energy","Red Sea Tourism","PetroJet","EgyInvest","Smart Build Co."];
+    const BANKS    = ["CIB Bank","National Bank of Egypt","Banque Misr","QNB Al Ahli","HSBC Egypt","Arab African Bank","Faisal Islamic Bank","Al Baraka Egypt"];
+    const INDUSTRIES= ["Technology","Logistics","Food & Beverage","Manufacturing","Energy","Tourism","Finance","Construction","Retail","Healthcare"];
+    const SEGMENTS = ["Enterprise","SMB","Startup","Government","Non-Profit"];
+    const REGIONS  = ["Cairo","Giza","Alexandria","Suez","Mansoura","Aswan","Luxor","Port Said"];
+    const DEPTS    = ["Engineering","Sales","Finance","HR","Operations","Marketing","Legal","Customer Success"];
+    const JOBS     = ["Software Engineer","Sales Manager","Financial Analyst","HR Specialist","Operations Director","Marketing Lead","Legal Counsel","Customer Success Manager","CTO","CFO","CEO","Data Analyst"];
+    const CONTRACT_TYPES = ["Full-Time","Part-Time","Contractor","Internship"];
+    const LEAVE_TYPES    = ["Annual","Sick","Emergency","Unpaid","Maternity"];
+    const ACTIVITY_TYPES = ["Call","Email","Meeting","Demo","Follow-up","Proposal Sent"];
+    const DEAL_NAMES     = ["Digital Transformation","ERP Implementation","Cloud Migration","IT Infrastructure","Supply Chain Upgrade","CRM Rollout","Mobile App Dev","Data Analytics Platform","Security Audit","Network Overhaul"];
+    const INCOME_CATS    = ["Service Revenue","Product Sales","Consulting","License Fee","Maintenance","Support Contract"];
+    const EXPENSE_CATS   = ["Salaries","Rent","Marketing","Utilities","Travel","Software Subscriptions","Office Supplies","Legal Fees"];
+    const PAY_METHODS    = ["Bank Transfer","Cash","Credit Card","Check","Digital Wallet"];
+    const TAX_TYPES      = ["VAT 14%","Income Tax","Withholding Tax","Stamp Duty","Social Insurance"];
+    const PNL_LABELS     = ["Gross Revenue","Cost of Goods Sold","Gross Profit","Operating Expenses","EBITDA","Depreciation","Net Profit Before Tax","Income Tax","Net Profit"];
+    const METRICS        = ["Turnover Rate","Headcount","Avg Salary","Training Hours","Absenteeism Rate","Time-to-Hire","Offer Acceptance Rate","Retention Rate"];
+    const KPI_NAMES      = ["Monthly Revenue","Win Rate","Lead Conversion","Avg Deal Size","Customer Acquisition Cost","Customer Lifetime Value","Quota Attainment","Pipeline Coverage"];
+    const TRAINING_NAMES = ["Leadership Development","Excel Advanced","Project Management","ISO 9001 Awareness","Sales Excellence","Python for Data","Cybersecurity Basics","Customer Service"];
+    const PROVIDERS      = ["Coursera","LinkedIn Learning","Dale Carnegie","PwC Academy","McKinsey Academy","Internal L&D","ESLSCA","AUC Executive Ed"];
+    const REPORT_TYPES   = ["Win/Loss Analysis","Pipeline Summary","Activity Report","Revenue by Region","Customer Churn Report","Forecast Accuracy","Lead Source ROI","Deal Velocity"];
+    const SKU_PREFIXES   = ["SKU-PRD","SKU-SRV","SKU-LIC","SKU-SUP","SKU-HW"];
+    const PRODUCT_NAMES  = ["MANTIQ CRM Pro","Cloud Storage 1TB","Data Analytics Suite","Support Package Gold","Hardware Bundle","API Integration License","Training Credits","Security Module","Mobile App Access","Custom Report Builder"];
+    const SEVERITY       = ["Low","Medium","High","Critical"];
+    const CHANNELS       = ["Email","SMS","WhatsApp","In-App","Phone"];
+    const PRIORITIES     = ["Low","Medium","High","Urgent"];
+    const ROLES          = ["Super Admin","Admin","Manager","Analyst","Sales Rep","HR Officer","Finance Controller","Read Only"];
+    const RULE_NAMES     = ["Working Hours","Annual Leave Days","Overtime Rate","Probation Period","Notice Period","Social Insurance %","Income Tax Band","Max Sick Days"];
+    const RULE_CATS      = ["Attendance","Leave","Compensation","Tax","Compliance"];
+    const CONF_KEYS      = ["base_currency","fiscal_year_start","vat_rate","payment_terms_days","invoice_prefix","auto_reminder_days","approval_threshold","reporting_timezone"];
+    const CONF_VALS      = ["EGP","January","14%","30","INV-","7","50,000 EGP","Africa/Cairo"];
+    const STAGES_LIST    = ["Discovery","Proposal","Negotiation","Closed Won","Closed Lost"];
+    const STATUSES_ALL   = ["Active","Pending","Completed","Paid","Approved","In Review","Rejected","On Hold"];
+    const ACCT_TYPES     = ["Current Account","Savings Account","Petty Cash","Digital Wallet","Investment Account"];
+    const CURRENCIES     = ["EGP","USD","EUR","GBP","SAR"];
+
+    const rnd  = (arr) => arr[Math.floor(Math.random()*arr.length)];
+    const rndN = (min,max) => Math.floor(Math.random()*(max-min+1))+min;
+    const money= (min=10,max=150) => (rndN(min,max)*1000).toLocaleString() + ' EGP';
+    const pct  = (min=40,max=99) => rndN(min,max) + '%';
+    const date = (monthOffset=0) => { const d=new Date(2025,monthOffset+Math.floor(Math.random()*3),rndN(1,28)); return d.toISOString().slice(0,10); };
+    const hours= () => rndN(7,9) + ':' + String(rndN(0,3)*10||'00').padStart(2,'0') + ' AM';
+    const hout = () => rndN(4,6) + ':' + String(rndN(0,5)*10||'00').padStart(2,'0') + ' PM';
+
+    Object.keys(SYSTEM_MAP).forEach(mod => {
+        state.data[mod] = {};
+        SYSTEM_MAP[mod].nav.forEach(page => {
+            if (page.id === 'dashboard' || page.isAnalytics || !page.tableCols) return;
+            state.data[mod][page.id] = [];
+            for (let i = 0; i < 6; i++) {
+                const row = {};
+                const ni = (i*3+7) % NAMES.length;
+                const ci = (i*2+1) % COMPANIES.length;
+                (page.tableCols.en).forEach(col => {
+                    const c = col.toLowerCase();
+                    let v = '';
+                    // ── IDs ──
+                    if      (c==='e-id')                       v = 'EMP-' + (1000+i);
+                    else if (c==='paid')                       v = money(5,30);
+                    else if (c.includes('id') || c==='inv #' || c==='bill #' || c==='quote id' || c==='order id' || c==='invoice id' || c==='payment id' || c==='expense id' || c==='income id' || c==='leave id' || c==='contract id' || c==='record id' || c==='log id' || c==='activity id' || c==='reminder id' || c==='note id' || c==='customer id' || c==='contact id' || c==='lead id')
+                                                                v = '#' + (1024+i);
+                    // ── Names / People ──
+                    else if (c==='full name' || c==='employee' || c==='payer/payee' || c==='from/to' || c==='user name' || c==='assigned to' || c==='reviewer' || c==='issued by' || c==='generated by' || c==='approved by' || c==='created by')
+                                                                v = NAMES[ni];
+                    else if (c==='rep name' || c==='sales rep' || c==='rep')
+                                                                v = FIRSTNAMES[(i+2)%FIRSTNAMES.length];
+                    else if (c==='name' && !c.includes('plan') && !c.includes('training') && !c.includes('rule'))
+                                                                v = NAMES[ni];
+                    else if (c==='contact')                     v = NAMES[(ni+4)%NAMES.length];
+                    // ── Companies / Organisations ──
+                    else if (c==='company'||c==='client'||c==='vendor'||c==='account'||c==='customer'||c==='payer/payee'||c==='source'&&mod===MODULES.FINANCE)
+                                                                v = COMPANIES[ci];
+                    // ── Contact info ──
+                    else if (c==='phone'||c==='mobile')        v = '010' + rndN(10000000,99999999);
+                    else if (c==='email')                       v = NAMES[ni].toLowerCase().replace(' ','.') + '@example.com';
+                    // ── Money ──
+                    else if (['amount','salary','base salary','revenue','value','total','budget','balance','ltv','lifetime value','gross comm','net comm','cost','achieved','target revenue','variance'].includes(c))
+                                                                v = money(10,180);
+                    else if (c==='allowances')                  v = money(1,8);
+                    else if (c==='deductions')                  v = money(1,5);
+                    else if (c==='tax')                         v = money(1,4);
+                    else if (c==='net' || c==='net comm')       v = money(8,160);
+                    else if (c==='subtotal')                    v = money(20,200);
+                    else if (c==='vat'||c==='vat 14%')          v = money(1,8);
+                    else if (c==='discount')                    v = ['5%','10%','15%','0%','20%'][i%5];
+                    else if (c==='grand total' || c==='paid')   v = money(5,30);
+                    else if (c==='unit price'||c==='rate')      v = money(1,20);
+                    else if (c==='opening balance'||c==='closing balance'||c==='inflow'||c==='outflow'||c==='net flow')
+                                                                v = money(100,500);
+                    else if (c==='annual budget'||c==='q1 budget')  v = money(200,1000);
+                    else if (c==='actual spent')                v = money(100,800);
+                    else if (c==='base amount'||c==='tax amount')   v = money(50,300);
+                    else if (c==='this period'||c==='last period')  v = money(200,2000);
+                    else if (c==='adjustments')                 v = money(0,5);
+                    // ── Percentages ──
+                    else if (['prob %','probability','% achieved','attainment %','completion %','margin %','usage %','variance %','rate %','discount %'].includes(c))
+                                                                v = pct(30,95);
+                    else if (c==='overall (1-5)'||c==='kpi score') v = (rndN(30,50)/10).toFixed(1);
+                    else if (c==='behaviour')                   v = (rndN(35,50)/10).toFixed(1);
+                    else if (c==='score')                       v = rndN(55,98);
+                    else if (c==='rate')                        v = ['14%','20%','25%','10%'][i%4];
+                    else if (c==='balance')                     v = money(50,500);
+                    // ── Dates ──
+                    else if (c==='hire date'||c==='start'||c==='issue date'||c==='valid from'||c==='created at')
+                                                                v = date(0);
+                    else if (c==='end'||c==='due date'||c==='close date'||c==='valid until'||c==='valid to'||c==='expiry'||c==='filed date')
+                                                                v = date(2);
+                    else if (c==='delivery date')               v = date(1);
+                    else if (c==='date'||c==='last contact'||c==='last updated'||c==='last sync'||c==='last txn')
+                                                                v = date(0);
+                    else if (c==='month'||c==='period')         v = ['Mar 2025','Feb 2025','Jan 2025','Q1 2025','Q4 2024'][i%5];
+                    // ── Time ──
+                    else if (c==='in')                          v = hours();
+                    else if (c==='out')                         v = hout();
+                    else if (c==='time')                        v = ['09:00 AM','10:30 AM','02:00 PM','04:15 PM'][i%4];
+                    else if (c==='duration')                    v = ['15 min','30 min','1 hr','45 min','2 hr'][i%5];
+                    else if (c==='hours')                       v = rndN(7,10) + 'h';
+                    else if (c==='overtime')                    v = ['0h','1h','2h','0h','1.5h'][i%5];
+                    else if (c==='days')                        v = rndN(1,14);
+                    else if (c==='notice period')               v = ['30 days','60 days','90 days','14 days'][i%4];
+                    else if (c==='duration'&&mod===MODULES.HR) v = rndN(1,5) + ' days';
+                    // ── Enumerations ──
+                    else if (c==='status')                      v = STATUSES_ALL[i%STATUSES_ALL.length];
+                    else if (c==='stage'||c==='pipeline')       v = STAGES_LIST[i%STAGES_LIST.length];
+                    else if (c==='source')                      v = ['Website','Referral','Cold Call','Social Media','Exhibition'][i%5];
+                    else if (c==='type'&&(mod===MODULES.HR||c.includes('contract')))   v = rnd(CONTRACT_TYPES);
+                    else if (c==='type'&&mod===MODULES.FINANCE) v = ['Inbound','Outbound','Internal Transfer'][i%3];
+                    else if (c==='type')                        v = rnd(ACTIVITY_TYPES);
+                    else if (c==='leave type'||c==='type'&&page.id==='leaves') v = rnd(LEAVE_TYPES);
+                    else if (c==='tax type')                    v = TAX_TYPES[i%TAX_TYPES.length];
+                    else if (c==='method'||c==='payment')       v = PAY_METHODS[i%PAY_METHODS.length];
+                    else if (c==='channel')                     v = CHANNELS[i%CHANNELS.length];
+                    else if (c==='priority')                    v = PRIORITIES[i%PRIORITIES.length];
+                    else if (c==='severity')                    v = SEVERITY[i%SEVERITY.length];
+                    else if (c==='role')                        v = ROLES[i%ROLES.length];
+                    else if (c==='segment')                     v = SEGMENTS[i%SEGMENTS.length];
+                    else if (c==='region')                      v = REGIONS[i%REGIONS.length];
+                    else if (c==='industry')                    v = INDUSTRIES[i%INDUSTRIES.length];
+                    else if (c==='currency')                    v = CURRENCIES[i%CURRENCIES.length];
+                    else if (c==='dept'||c==='department')      v = DEPTS[i%DEPTS.length];
+                    else if (c==='job title'||c==='title')      v = JOBS[i%JOBS.length];
+                    else if (c==='contract'||c==='contract type')  v = rnd(CONTRACT_TYPES);
+                    else if (c==='bank')                        v = BANKS[i%BANKS.length];
+                    else if (c==='account name')                v = COMPANIES[ci] + ' – Main';
+                    else if (c==='acct type'||c==='type'&&page.id==='wallets') v = ACCT_TYPES[i%ACCT_TYPES.length];
+                    // ── Specific page values ──
+                    else if (c==='deal name'||c==='project')    v = DEAL_NAMES[i%DEAL_NAMES.length];
+                    else if (c==='subject')                     v = DEAL_NAMES[(i+2)%DEAL_NAMES.length];
+                    else if (c==='category'&&mod===MODULES.FINANCE&&page.id==='income')  v = INCOME_CATS[i%INCOME_CATS.length];
+                    else if (c==='category'&&mod===MODULES.FINANCE)                       v = EXPENSE_CATS[i%EXPENSE_CATS.length];
+                    else if (c==='category')                    v = ['Software','Hardware','Services','Training','Infrastructure'][i%5];
+                    else if (c==='training name'||c==='name'&&page.id==='training')      v = TRAINING_NAMES[i%TRAINING_NAMES.length];
+                    else if (c==='provider')                    v = PROVIDERS[i%PROVIDERS.length];
+                    else if (c==='enrollees'||c==='applicants'||c==='shortlisted'||c==='interviews') v = rndN(4,40);
+                    else if (c==='items')                       v = rndN(1,8) + ' items';
+                    else if (c==='sku')                         v = SKU_PREFIXES[i%SKU_PREFIXES.length] + '-' + rndN(1000,9999);
+                    else if (c==='name'&&page.id==='products')  v = PRODUCT_NAMES[i%PRODUCT_NAMES.length];
+                    else if (c==='stock')                       v = rndN(10,500) + ' units';
+                    else if (c==='balance'&&page.id==='leaves') v = rndN(5,30) + ' days';
+                    else if (c==='report type'||c==='kpi indicator'||c==='metric') v = (page.id==='reports'&&mod===MODULES.HR) ? METRICS[i%METRICS.length] : (page.id==='reports'&&mod===MODULES.SALES) ? KPI_NAMES[i%KPI_NAMES.length] : REPORT_TYPES[i%REPORT_TYPES.length];
+                    else if (c==='label')                       v = PNL_LABELS[i%PNL_LABELS.length];
+                    else if (c==='target'||c==='current value') v = money(50,300);
+                    else if (c==='trend')                       v = ['↑ Up','↑ Up','↓ Down','→ Flat','↑ Up'][i%5];
+                    else if (c==='growth %')                    v = ['+14%','+8%','-3%','+22%','+5%','+11%'][i%6];
+                    else if (c==='reason')                      v = ['Policy violation','Performance issue','Attendance','Project delay','Budget overrun'][i%5];
+                    else if (c==='clearance')                   v = ['Cleared','Pending','In Progress'][i%3];
+                    else if (c==='eosp')                        v = money(30,120);
+                    else if (c==='module access')               v = ['All Modules','CRM + Sales','HR Only','Finance Only','Read All'][i%5];
+                    else if (c==='linked to')                   v = COMPANIES[ci];
+                    else if (c==='tags')                        v = ['#hot-lead','#follow-up','#vip','#renewal','#upsell'][i%5];
+                    else if (c==='rule name')                   v = RULE_NAMES[i%RULE_NAMES.length];
+                    else if (c==='applies to'||c==='category'&&page.id==='settings'&&mod===MODULES.HR)  v = RULE_CATS[i%RULE_CATS.length];
+                    else if (c==='configuration key'||c==='option') v = CONF_KEYS[i%CONF_KEYS.length];
+                    else if (c==='value'&&(page.id==='settings'))    v = CONF_VALS[i%CONF_VALS.length];
+                    else if (c==='reference')                   v = 'REF-' + rndN(10000,99999);
+                    else if (c==='order' || c==='order ref')    v = 'ORD-' + (2000+i);
+                    else if (c==='since')                       v = date(0);
+                    else if (c==='format')                      v = ['PDF','Excel','CSV','PowerPoint'][i%4];
+                    else if (c==='size')                        v = rndN(50,4000) + ' KB';
+                    else if (c==='generated date')              v = date(0);
+                    else                                        v = '—';
+                    row[col] = v;
                 });
-            });
-        }
-
-        function pushNotify(msg) {
-            const container = document.getElementById('notification-container');
-            const toast = document.createElement('div');
-            toast.className = 'bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-5 rounded-3xl shadow-2xl flex items-center gap-4 fade-in border-l-4 border-mantiq-cyan transition-all duration-300';
-            toast.innerHTML = `<i data-lucide="shield-check" class="text-mantiq-cyan"></i><span class="text-sm font-bold">${msg}</span>`;
-            container.appendChild(toast);
-            lucide.createIcons();
-            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 500); }, 3000);
-        }
-
-        function setLanguage(l) {
-            state.language = l;
-            document.body.dir = l === 'ar' ? 'rtl' : 'ltr';
-            render();
-        }
-
-        function setModule(m) {
-            state.module = m;
-            state.page = 'dashboard';
-            state.isMobileMenuOpen = false;
-            render();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function setPage(p) {
-            state.page = p;
-            state.isMobileMenuOpen = false;
-            render();
-        }
-
-        function toggleDarkMode() {
-            state.darkMode = !state.darkMode;
-            document.documentElement.classList.toggle('dark', state.darkMode);
-            render();
-        }
-
-        function toggleMobileMenu() {
-            state.isMobileMenuOpen = !state.isMobileMenuOpen;
-            render();
-        }
-
-        function handleAddData(e) {
-            if(e) e.preventDefault();
-            const form = document.getElementById('add-record-form');
-            const formData = new FormData(form);
-            const newRecord = {};
-            formData.forEach((value, key) => { newRecord[key] = value || "-"; });
-            
-            state.data[state.module][state.page].unshift(newRecord);
-            pushNotify(state.language === 'ar' ? "تم حفظ البيانات في مانيتك بنجاح" : "Data synchronized with MANTIQ successfully.");
-            state.isModalOpen = false;
-            render();
-        }
-
-        function handleDelete(idx) {
-            state.data[state.module][state.page].splice(idx, 1);
-            pushNotify(state.language === 'ar' ? "تم حذف السجل من القاعدة" : "Record purged from database.");
-            render();
-        }
-
-        // --- 5. Rendering ---
-
-        function getLogo(sizeClass = "h-8") {
-            return `<div class="flex items-center gap-1 ${sizeClass}"><span class="text-[1.2em] font-black tracking-tight text-mantiq-navy dark:text-white uppercase">MANTIQ</span></div>`;
-        }
-
-        function renderLanding() {
-            const modulesHtml = Object.entries(SYSTEM_MAP).map(([id, cfg]) => `
-                <button onclick="setModule('${id}')" class="group bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow transition-all text-left flex flex-col hover:-translate-y-2">
-                    <div class="bg-mantiq-cyan text-white p-4 md:p-6 rounded-2xl md:rounded-[2rem] inline-block mb-6 md:mb-10 shadow-xl group-hover:scale-110 transition-transform">
-                        <i data-lucide="${cfg.nav[0].icon}" class="w-6 h-6 md:w-9 md:h-9"></i>
-                    </div>
-                    <h3 class="text-2xl md:text-3xl font-extrabold text-mantiq-navy dark:text-white mb-2 md:mb-3 uppercase tracking-tighter leading-none">${_t(cfg.title.en, cfg.title.ar)}</h3>
-                    <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mb-8 md:mb-12 flex-1 leading-relaxed">${_t(cfg.description.en, cfg.description.ar)}</p>
-                    <div class="flex items-center text-mantiq-cyan font-black text-[10px] md:text-xs uppercase tracking-widest">
-                        ${ut('launch')} <i data-lucide="arrow-right" class="mx-2 w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-3 transition-transform ${state.language === 'ar' ? 'rotate-180' : ''}"></i>
-                    </div>
-                </button>
-            `).join('');
-
-            return `
-                <div class="min-h-screen flex flex-col items-center justify-center py-20 px-6 md:p-8 fade-in bg-slate-50 dark:bg-slate-950 overflow-y-auto overflow-x-hidden">
-                    <div class="absolute top-6 right-6 md:top-10 md:right-10 flex gap-4 z-50">
-                        <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl font-black text-xs uppercase tracking-tighter text-mantiq-navy dark:text-white transition-all">
-                            ${state.language === 'en' ? 'Arabic' : 'English'}
-                        </button>
-                        <button onclick="toggleDarkMode()" class="p-3 md:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-xl hover:scale-110 transition-all">
-                            <i data-lucide="${state.darkMode ? 'sun' : 'moon'}" class="w-6 h-6 ${state.darkMode ? 'text-amber-400' : 'text-mantiq-cyan'}"></i>
-                        </button>
-                    </div>
-                    <div class="text-center mb-12 md:mb-20 max-w-4xl pt-10">
-                        <div class="flex justify-center mb-6 md:mb-10 scale-125 md:scale-150">${getLogo("h-10 md:h-16 text-2xl md:text-5xl")}</div>
-                        <h1 class="text-4xl md:text-7xl font-black text-mantiq-navy dark:text-white mb-4 md:mb-6 tracking-tight leading-none uppercase">${ut('subtitle')}</h1>
-                        <p class="text-slate-500 dark:text-slate-400 text-sm md:text-xl font-medium px-4 md:px-12 leading-relaxed max-w-2xl mx-auto">${ut('description')}</p>
-                    </div>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl relative z-10 pb-12">
-                        ${modulesHtml}
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderMobileNav() {
-            const config = SYSTEM_MAP[state.module];
-            return `
-                <div class="fixed inset-0 z-[100] lg:hidden">
-                    <div class="absolute inset-0 bg-mantiq-navy/60 backdrop-blur-sm" onclick="state.isMobileMenuOpen=false; render();"></div>
-                    <div class="absolute ${state.language === 'en' ? 'left-0' : 'right-0'} top-0 h-full w-4/5 max-w-xs bg-white dark:bg-slate-900 shadow-2xl flex flex-col fade-in mobile-sidebar-active transition-transform duration-300">
-                        <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                            ${getLogo("h-6 text-lg")}
-                            <button onclick="state.isMobileMenuOpen=false; render();" class="p-2 text-slate-400"><i data-lucide="x" size="24"></i></button>
-                        </div>
-                        <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
-                             <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${_t(config.title.en, config.title.ar)}</p>
-                            ${config.nav.map(item => `
-                                <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}">
-                                    <i data-lucide="${item.icon}" size="18"></i><span>${_t(item.label.en, item.label.ar)}</span>
-                                </button>
-                            `).join('')}
-                        </nav>
-                        <div class="p-8 border-t border-slate-100 dark:border-slate-800">
-                            <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="w-full py-4 rounded-2xl border border-slate-200 dark:border-slate-700 font-black text-xs uppercase mb-4">
-                                ${_t('Switch to Arabic', 'تغيير للإنجليزية')}
-                            </button>
-                            <button onclick="setModule(MODULES.LANDING)" class="w-full py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 font-black text-xs uppercase text-rose-500">
-                                ${_t('Exit Tracker', 'خروج من المتتبع')}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderApp() {
-            const config = SYSTEM_MAP[state.module];
-            const navHtml = config.nav.map(item => `
-                <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page === item.id ? 'bg-mantiq-cyan text-white shadow-lg shadow-sky-500/30 ' + (state.language === 'en' ? 'translate-x-1' : '-translate-x-1') : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}">
-                    <i data-lucide="${item.icon}" size="18"></i>
-                    <span class="whitespace-nowrap overflow-hidden text-ellipsis">${_t(item.label.en, item.label.ar)}</span>
-                </button>
-            `).join('');
-
-            return `
-                <div class="flex bg-slate-50 dark:bg-slate-950 transition-colors h-screen overflow-hidden">
-                    <aside class="hidden lg:flex w-80 h-screen fixed ${state.language === 'en' ? 'left-0 border-r' : 'right-0 border-l'} top-0 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 flex flex-col">
-                        <div class="p-10 border-b border-slate-200 dark:border-slate-800"><button onclick="setModule(MODULES.LANDING)">${getLogo("h-8 text-xl")}</button></div>
-                        <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
-                            <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${_t(config.title.en, config.title.ar)}</p>
-                            ${navHtml}
-                        </nav>
-                        <div class="p-8 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-                            <div class="flex items-center gap-4">
-                                <div class="w-12 h-12 rounded-2xl bg-mantiq-navy text-white flex items-center justify-center font-black shadow-lg">AS</div>
-                                <div class="flex-1 min-w-0">
-                                    <p class="text-sm font-black text-mantiq-navy dark:text-white truncate uppercase">${_t('Ahmed Sharaf', 'أحمد شرف')}</p>
-                                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">${ut('role')}</p>
-                                </div>
-                                <button onclick="toggleDarkMode()" class="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm"><i data-lucide="${state.darkMode ? 'sun' : 'moon'}" size="16"></i></button>
-                            </div>
-                        </div>
-                    </aside>
-
-                    <div class="flex-1 ${state.language === 'en' ? 'lg:pl-80' : 'lg:pr-80'} h-screen overflow-y-auto custom-scrollbar relative">
-                        <header class="h-28 bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-slate-800 items-center justify-between px-14 sticky top-0 z-20 hidden lg:flex">
-                            <div>
-                                <div class="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
-                                    <span>${ut('demoEnv')}</span><i data-lucide="chevron-right" size="12" class="${state.language === 'ar' ? 'rotate-180' : ''}"></i><span class="text-mantiq-cyan uppercase font-bold">${_t(config.title.en, config.title.ar)}</span>
-                                </div>
-                                <h1 class="text-3xl font-black text-mantiq-navy dark:text-white capitalize tracking-tighter">${_t(state.page.replace('_', ' '), config.nav.find(n=>n.id===state.page).label.ar)}</h1>
-                            </div>
-                            <div class="flex items-center gap-4">
-                                <button onclick="setLanguage('${state.language === 'en' ? 'ar' : 'en'}')" class="font-black text-xs uppercase px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 transition-colors">${state.language === 'en' ? 'Arabic' : 'English'}</button>
-                                <button class="relative p-3 text-slate-400 hover:text-mantiq-cyan"><i data-lucide="bell" size="22"></i><span class="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-950"></span></button>
-                                <button onclick="setModule(MODULES.LANDING)" class="p-3 text-slate-400 hover:text-rose-500"><i data-lucide="log-out" size="22"></i></button>
-                            </div>
-                        </header>
-
-                        <!-- Mobile Header -->
-                        <div class="lg:hidden flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-30">
-                             <button onclick="setModule(MODULES.LANDING)">${getLogo("h-6 text-lg")}</button>
-                             <div class="flex items-center gap-3">
-                                <button onclick="toggleMobileMenu()" class="p-2 bg-mantiq-cyan text-white rounded-lg shadow-lg"><i data-lucide="menu" size="18"></i></button>
-                             </div>
-                        </div>
-
-                        <main class="p-6 md:p-14 max-w-[1500px] mx-auto fade-in">
-                            ${renderWorkspace()}
-                        </main>
-                    </div>
-                </div>
-                ${state.isMobileMenuOpen ? renderMobileNav() : ''}
-                ${state.isModalOpen ? renderModal() : ''}
-            `;
-        }
-
-        function renderModal() {
-            const currentNav = SYSTEM_MAP[state.module].nav.find(n => n.id === state.page);
-            const colsEn = currentNav.tableCols.en;
-            const colsAr = currentNav.tableCols.ar;
-
-            const inputs = colsEn.map((col, idx) => `
-                <div class="flex flex-col gap-2">
-                    <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">${_t(col, colsAr[idx])}</label>
-                    <input type="text" name="${col}" placeholder="${_t('Enter ', 'أدخل ') + _t(col, colsAr[idx])}" class="bg-slate-50 dark:bg-slate-800 border-none rounded-2xl px-5 py-4 text-sm font-bold text-mantiq-navy dark:text-white outline-none focus:ring-2 focus:ring-mantiq-cyan" required />
-                </div>
-            `).join('');
-
-            return `
-                <div class="fixed inset-0 z-[101] flex items-center justify-center p-6 modal-overlay fade-in">
-                    <div class="bg-white dark:bg-slate-900 w-full max-w-xl rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
-                        <div class="flex justify-between items-start mb-8">
-                            <div>
-                                <h2 class="text-2xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${ut('addRecord')}</h2>
-                                <p class="text-slate-500 text-xs mt-1 uppercase font-bold tracking-widest">${_t(currentNav.label.en, currentNav.label.ar)}</p>
-                            </div>
-                            <button onclick="state.isModalOpen=false; render();" class="text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="x" size="24"></i></button>
-                        </div>
-                        <form id="add-record-form" onsubmit="handleAddData(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            ${inputs}
-                            <div class="md:col-span-2 flex gap-3 mt-6">
-                                <button type="button" onclick="state.isModalOpen=false; render();" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-5 rounded-2xl font-black text-sm uppercase">${ut('cancel')}</button>
-                                <button type="submit" class="flex-1 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy py-5 rounded-2xl font-black text-sm uppercase shadow-xl">${ut('submit')}</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            `;
-        }
-
-        function renderWorkspace() {
-            const currentNav = SYSTEM_MAP[state.module].nav.find(n => n.id === state.page);
-            if (state.page === 'dashboard') {
-                return `
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
-                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-1">${ut('growth')}</h3>
-                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">+14.2%</p>
-                        </div>
-                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-1">${ut('volume')}</h3>
-                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">2.41M</p>
-                        </div>
-                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-1">${ut('assets')}</h3>
-                            <p class="text-3xl font-black text-mantiq-navy dark:text-white">4,810</p>
-                        </div>
-                        <div class="bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow">
-                            <h3 class="text-slate-500 text-[10px] font-bold uppercase mb-1">${ut('status')}</h3>
-                            <p class="text-3xl font-black text-mantiq-cyan">${ut('verified')}</p>
-                        </div>
-                    </div>
-                    <div class="bg-white dark:bg-slate-900 rounded-[3.5rem] p-20 border border-slate-200 dark:border-slate-800 text-center shadow-sm">
-                        <div class="w-24 h-24 bg-sky-50 dark:bg-sky-900/30 rounded-[2rem] flex items-center justify-center mx-auto mb-10 text-mantiq-cyan animate-pulse"><i data-lucide="layout-dashboard" size="48"></i></div>
-                        <h2 class="text-4xl font-black text-mantiq-navy dark:text-white mb-6 uppercase tracking-tighter">${ut('controlCenter')}</h2>
-                        <p class="text-slate-500 dark:text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed">${_t('Operating System localized for Egyptian markets.', 'نظام تشغيل مخصص للسوق المصري.')}</p>
-                    </div>
-                `;
+                state.data[mod][page.id].push(row);
             }
+        });
+    });
 
-            const pageData = state.data[state.module][state.page] || [];
-            const cols = _t(currentNav.tableCols.en, currentNav.tableCols.ar);
-            const colsKeys = currentNav.tableCols.en;
+    // ── Seed lead pipeline data for CRM & Sales ──
+    const seedLeads = () => {
+        const LNAMES = ["Ahmed Sharaf","Mona Zaki","Kareem Abdelaziz","Sara El-Gohary","Youssef El-Shamy","Omar Khairat","Layla Eloui","Tarek El-Sheikh","Hana Mustafa","Ramy Saleh"];
+        const LCOMPANIES = ["Cairo Tech Solutions","Giza Systems","Nile Logistics","Delta Foods","Alexandria Steel","Suez Canal Energy","Red Sea Tourism","PetroJet","EgyInvest","Smart Build Co."];
+        const LSOURCES = ["Website","Referral","Cold Call","Social Media","Exhibition"];
+        const stageIds = LEAD_STAGES.map(s=>s.id);
+        const leads = [];
+        let id = 2001;
+        stageIds.forEach((stageId, si) => {
+            const count = [4, 3, 3, 2, 2, 1][si] || 2;
+            for (let i = 0; i < count; i++) {
+                const ni = (id + i) % LNAMES.length;
+                const ci = (id + i + 2) % LCOMPANIES.length;
+                leads.push({
+                    id: '#L-' + id++,
+                    name: LNAMES[ni],
+                    company: LCOMPANIES[ci],
+                    phone: '010' + Math.floor(10000000 + Math.random()*90000000),
+                    source: LSOURCES[(si+i) % LSOURCES.length],
+                    value: (Math.floor(Math.random()*90)+10) + ',000 EGP',
+                    score: Math.floor(Math.random()*40)+60,
+                    assignedTo: LNAMES[(ni+3) % LNAMES.length].split(' ')[0],
+                    stage: stageId,
+                    createdAt: '2025-0' + (Math.floor(i/3)+1) + '-' + (10+i)
+                });
+            }
+        });
+        return leads;
+    };
+    state.leads.crm = seedLeads();
+    state.leads.sales = seedLeads();
+}
 
-            const rowsHtml = pageData.map((row, idx) => `
-                <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800 last:border-0">
-                    ${colsKeys.map(k => `<td class="px-10 py-7 font-bold text-slate-700 dark:text-slate-200 text-sm whitespace-nowrap">${row[k] || '-'}</td>`).join('')}
-                    <td class="px-10 py-7 text-right whitespace-nowrap flex justify-end gap-3">
-                        <button onclick="pushNotify('View Only Mode')" class="text-mantiq-cyan"><i data-lucide="eye" size="18"></i></button>
-                        <button onclick="handleDelete(${idx})" class="text-slate-400 hover:text-rose-500"><i data-lucide="trash-2" size="18"></i></button>
-                    </td>
-                </tr>
-            `).join('');
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function pushNotify(msg) {
+    const c = document.getElementById('notification-container');
+    const t = document.createElement('div');
+    t.className = 'toast-note bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border-l-4 border-mantiq-cyan fade-in';
+    t.innerHTML = `<i data-lucide="shield-check" class="text-mantiq-cyan w-4 h-4 flex-shrink-0"></i><span class="text-sm font-bold">${msg}</span>`;
+    c.appendChild(t);
+    lucide.createIcons();
+    // After 3 seconds, add hiding class then remove
+    setTimeout(() => {
+        t.classList.add('hiding');
+        setTimeout(() => t.remove(), 520);
+    }, 3000);
+}
 
-            return `
-                <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-10">
-                    <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t(currentNav.label.en, currentNav.label.ar)}</h2>
-                    <div class="flex gap-3">
-                        <button onclick="pushNotify('${ut('export')}...')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-4 rounded-2xl font-black text-sm text-slate-600 dark:text-slate-300 shadow-sm">${ut('export')}</button>
-                        <button onclick="state.isModalOpen=true; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-4 rounded-2xl font-black text-sm shadow-xl">${ut('addRecord')}</button>
+// ─── LEAD DETAIL DRAWER ───────────────────────────────────────────────────────
+function openLeadDetail(leadId) {
+    state.openLeadId = leadId;
+    render();
+    // Don't scroll — drawer overlays
+}
+
+function closeLeadDetail() {
+    state.openLeadId = null;
+    render();
+}
+
+function renderLeadDrawer() {
+    const store = getLeadStore();
+    const lead = store.find(l => l.id === state.openLeadId);
+    if (!lead) return '';
+
+    const stage = LEAD_STAGES.find(s => s.id === lead.stage) || LEAD_STAGES[0];
+    const scoreColor = lead.score >= 80 ? '#34d399' : lead.score >= 60 ? '#fb923c' : '#f87171';
+    const nextStage = LEAD_STAGES.find(s => s.id === stage.next);
+    const prevStage = LEAD_STAGES.find(s => s.id === stage.prev);
+
+    // Fake contacts tied to the lead
+    const contacts = [
+        { name: lead.name, role: _t('Primary Contact','جهة الاتصال الرئيسية'), phone: lead.phone, email: lead.name.toLowerCase().replace(' ','.') + '@' + lead.company.toLowerCase().replace(/ /g,'') + '.com', avatar: lead.name.slice(0,2).toUpperCase() },
+        { name: lead.assignedTo, role: _t('Assigned Rep','المندوب المسؤول'), phone: '0100' + Math.floor(1000000 + (lead.score * 12345) % 9000000), email: lead.assignedTo.toLowerCase() + '@mantiq.io', avatar: lead.assignedTo.slice(0,2).toUpperCase() }
+    ];
+
+    // Activity timeline
+    const activities = [
+        { icon:'mail',        color:'#38bdf8', label:_t('Email sent','تم إرسال بريد'),           time:_t('2 days ago','منذ يومين'),   note: _t('Introduction email sent to '+lead.name, 'تم إرسال بريد تعريفي لـ '+lead.name) },
+        { icon:'phone-call',  color:'#818cf8', label:_t('Call made','مكالمة هاتفية'),             time:_t('1 day ago','منذ يوم'),      note: _t('Discussed requirements, high interest shown.','تمت المناقشة، أبدى اهتماماً كبيراً.') },
+        { icon:'file-text',   color:'#fb923c', label:_t('Note added','ملاحظة مضافة'),             time:_t('5 hrs ago','منذ 5 ساعات'), note: _t('Budget confirmed: ' + lead.value, 'الميزانية المؤكدة: ' + lead.value) },
+        { icon:'user-check',  color:'#34d399', label:_t('Stage updated','تحديث المرحلة'),         time:_t('Just now','الآن'),          note: _t('Moved to ' + stage.label.en, 'نُقل إلى ' + stage.label.ar) }
+    ];
+
+    const infoRows = [
+        { label:_t('Lead ID','المعرف'),          val: lead.id },
+        { label:_t('Company','الشركة'),           val: lead.company },
+        { label:_t('Source','المصدر'),             val: lead.source },
+        { label:_t('Deal Value','قيمة الصفقة'),   val: lead.value },
+        { label:_t('Lead Score','نقاط العميل'),   val: `<span style="color:${scoreColor};font-weight:900">${lead.score}/100</span>` },
+        { label:_t('Created','تاريخ الإنشاء'),    val: lead.createdAt },
+        { label:_t('Assigned To','المسؤول'),      val: lead.assignedTo }
+    ];
+
+    return `
+        <div class="lead-drawer-overlay" onclick="closeLeadDetail()"></div>
+        <div class="lead-drawer custom-scrollbar" onclick="event.stopPropagation()">
+            <!-- Header -->
+            <div class="sticky top-0 z-10 bg-white dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-100 dark:border-slate-800 px-8 py-6 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white text-sm font-black" style="background:${stage.color}">${lead.name.slice(0,2).toUpperCase()}</div>
+                    <div>
+                        <p class="font-black text-mantiq-navy dark:text-white text-base leading-tight">${lead.name}</p>
+                        <p class="text-xs text-slate-400 font-bold">${lead.company}</p>
                     </div>
                 </div>
-                <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
-                    <table class="w-full text-left border-collapse" dir="${state.language === 'ar' ? 'rtl' : 'ltr'}">
-                        <thead class="bg-slate-50/50 dark:bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500">
-                            <tr>
-                                ${cols.map(c => `<th class="px-10 py-7 whitespace-nowrap">${c}</th>`).join('')}
-                                <th class="px-10 py-7 ${state.language === 'en' ? 'text-right' : 'text-left'}">${ut('action')}</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-800">${rowsHtml || `<tr><td colspan="20" class="p-20 text-center italic text-slate-400">Empty View</td></tr>`}</tbody>
-                    </table>
+                <button onclick="closeLeadDetail()" class="p-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-rose-500 transition-colors">
+                    <i data-lucide="x" size="20"></i>
+                </button>
+            </div>
+
+            <div class="p-8 space-y-8">
+                <!-- Stage badge + transfer -->
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">${_t('Current Stage','المرحلة الحالية')}</p>
+                    <div class="flex flex-wrap items-center gap-2 mb-4">
+                        <span class="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-black text-white" style="background:${stage.color}">
+                            <i data-lucide="${stage.icon}" size="14"></i>${_t(stage.label.en, stage.label.ar)}
+                        </span>
+                    </div>
+                    <!-- Stage progress bar -->
+                    <div class="flex items-center gap-1 mb-4">
+                        ${LEAD_STAGES.filter(s=>!['won','lost'].includes(s.id)).map(s => {
+                            const stageIdx = LEAD_STAGES.filter(x=>!['won','lost'].includes(x.id)).findIndex(x=>x.id===s.id);
+                            const currentIdx = LEAD_STAGES.filter(x=>!['won','lost'].includes(x.id)).findIndex(x=>x.id===lead.stage);
+                            const isPast = stageIdx <= currentIdx;
+                            return `<div class="flex-1 h-2 rounded-full transition-all" style="background:${isPast ? s.color : (state.darkMode?'#1e293b':'#e2e8f0')}"></div>`;
+                        }).join('<div class="w-1"></div>')}
+                    </div>
+                    <!-- Transfer buttons -->
+                    <div class="flex flex-wrap gap-2">
+                        ${prevStage ? `<button onclick="transferLead('${lead.id}','${prevStage.id}'); state.openLeadId='${lead.id}';" class="transfer-btn text-white text-xs px-4 py-2" style="background:${prevStage.color}88">← ${_t(prevStage.label.en,prevStage.label.ar)}</button>` : ''}
+                        ${nextStage ? `<button onclick="transferLead('${lead.id}','${nextStage.id}'); state.openLeadId='${lead.id}';" class="transfer-btn text-white text-xs px-4 py-2" style="background:${nextStage.color}">${_t(nextStage.label.en,nextStage.label.ar)} →</button>` : ''}
+                        ${stage.id === 'proposal' ? `<button onclick="transferLead('${lead.id}','lost'); state.openLeadId='${lead.id}';" class="transfer-btn text-white text-xs px-4 py-2" style="background:#f87171">✕ ${_t('Mark Lost','تسجيل خسارة')}</button>` : ''}
+                    </div>
+                </div>
+
+                <!-- Lead Info -->
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">${_t('Lead Details','تفاصيل العميل')}</p>
+                    <div class="bg-slate-50 dark:bg-slate-800/50 rounded-2xl overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                        ${infoRows.map(r=>`
+                            <div class="flex justify-between items-center px-5 py-3.5">
+                                <span class="text-xs font-bold text-slate-400 uppercase tracking-wide">${r.label}</span>
+                                <span class="text-sm font-black text-mantiq-navy dark:text-white text-right">${r.val}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Contacts -->
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">${_t('Contacts','جهات الاتصال')}</p>
+                    <div class="space-y-3">
+                        ${contacts.map(c=>`
+                            <div class="flex items-center gap-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl px-5 py-4">
+                                <div class="w-10 h-10 rounded-xl bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy flex items-center justify-center font-black text-xs flex-shrink-0">${c.avatar}</div>
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-sm font-black text-mantiq-navy dark:text-white">${c.name}</p>
+                                    <p class="text-[11px] text-slate-400 font-bold">${c.role}</p>
+                                    <p class="text-[11px] text-mantiq-cyan font-bold truncate">${c.email}</p>
+                                </div>
+                                <div class="flex gap-2 flex-shrink-0">
+                                    <button onclick="pushNotify('${_t('Calling','جاري الاتصال')} ${c.phone}')" class="p-2 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-mantiq-cyan transition-colors">
+                                        <i data-lucide="phone" size="15"></i>
+                                    </button>
+                                    <button onclick="pushNotify('${_t('Opening email for','فتح بريد')} ${c.name}')" class="p-2 rounded-xl hover:bg-white dark:hover:bg-slate-700 text-slate-400 hover:text-mantiq-cyan transition-colors">
+                                        <i data-lucide="mail" size="15"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Activity Timeline -->
+                <div>
+                    <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">${_t('Activity Timeline','سجل النشاط')}</p>
+                    <div class="space-y-0">
+                        ${activities.map((a, idx) => `
+                            <div class="flex gap-4">
+                                <div class="flex flex-col items-center">
+                                    <div class="timeline-dot" style="background:${a.color}"></div>
+                                    ${idx < activities.length-1 ? '<div class="timeline-line"></div>' : ''}
+                                </div>
+                                <div class="pb-5 flex-1 min-w-0">
+                                    <div class="flex items-center justify-between mb-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <i data-lucide="${a.icon}" size="13" style="color:${a.color}"></i>
+                                            <span class="text-xs font-black text-mantiq-navy dark:text-white">${a.label}</span>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400 font-bold whitespace-nowrap">${a.time}</span>
+                                    </div>
+                                    <p class="text-[11px] text-slate-500 leading-relaxed">${a.note}</p>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex gap-3 pb-4">
+                    <button onclick="pushNotify('${_t('Opening task creator...','فتح منشئ المهام...')}')" class="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black text-xs uppercase">
+                        <i data-lucide="clipboard-list" size="14"></i>${_t('Add Task','إضافة مهمة')}
+                    </button>
+                    <button onclick="pushNotify('${_t('Opening note editor...','فتح محرر الملاحظات...')}')" class="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black text-xs uppercase">
+                        <i data-lucide="sticky-note" size="14"></i>${_t('Add Note','إضافة ملاحظة')}
+                    </button>
+                    <button onclick="deleteLeadFromPipeline('${lead.id}'); closeLeadDetail();" class="py-4 px-4 rounded-2xl bg-red-50 dark:bg-red-950/40 text-rose-500 font-black">
+                        <i data-lucide="trash-2" size="16"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+function badgeHtml(val) {
+    const v = (val || '').toLowerCase();
+    let cls = 'badge-blue';
+    if (['active','paid','approved','completed','closed won','verified'].some(s=>v.includes(s))) cls='badge-green';
+    else if (['pending','in review','proposal','discovery'].some(s=>v.includes(s))) cls='badge-amber';
+    else if (['closed lost','terminated','rejected','failed'].some(s=>v.includes(s))) cls='badge-red';
+    return `<span class="badge ${cls}">${val}</span>`;
+}
+
+function isStatusCol(col) {
+    return ['status','stage','clearance'].some(s=>col.toLowerCase().includes(s));
+}
+
+// ─── ACTIONS ──────────────────────────────────────────────────────────────────
+function setLanguage(l) { state.language=l; document.body.dir=l==='ar'?'rtl':'ltr'; render(); }
+function setModule(m) {
+    state.module=m; state.page='dashboard'; state.isMobileMenuOpen=false;
+    state.addLeadMode=false; state.openLeadId=null;
+    state.showTourInvite = (m !== MODULES.LANDING);
+    tourState = { active:false, stepIndex:0, mod:m };
+    render(); window.scrollTo({top:0,behavior:'smooth'});
+}
+function setPage(p) { state.page=p; state.isMobileMenuOpen=false; state.addLeadMode=false; state.openLeadId=null; render(); }
+function toggleDarkMode() { state.darkMode=!state.darkMode; document.documentElement.classList.toggle('dark',state.darkMode); render(); }
+function toggleMobileMenu() { state.isMobileMenuOpen=!state.isMobileMenuOpen; render(); }
+function setAnalyticsTab(t) { state.analyticsTab=t; renderCharts(); }
+
+function handleAddData(e) {
+    if(e) e.preventDefault();
+    const form = document.getElementById('add-record-form');
+    const formData = new FormData(form);
+    const newRecord = {};
+    formData.forEach((value,key)=>{ newRecord[key]=value||"-"; });
+    state.data[state.module][state.page].unshift(newRecord);
+    pushNotify(_t("Data synchronized with MANTIQ successfully.","تم حفظ البيانات في مانتيك بنجاح"));
+    state.isModalOpen=false;
+    render();
+}
+
+function handleDelete(idx) {
+    state.data[state.module][state.page].splice(idx,1);
+    pushNotify(_t("Record purged from database.","تم حذف السجل من القاعدة"));
+    render();
+}
+
+// ─── LEAD PIPELINE ACTIONS ────────────────────────────────────────────────────
+function getLeadStore() {
+    return state.module === MODULES.CRM ? state.leads.crm : state.leads.sales;
+}
+
+function transferLead(leadId, toStage) {
+    const store = getLeadStore();
+    const lead = store.find(l => l.id === leadId);
+    if (!lead) return;
+    const fromStage = LEAD_STAGES.find(s => s.id === lead.stage);
+    const toStageObj = LEAD_STAGES.find(s => s.id === toStage);
+    lead.stage = toStage;
+    const fromLabel = _t(fromStage.label.en, fromStage.label.ar);
+    const toLabel   = _t(toStageObj.label.en, toStageObj.label.ar);
+    pushNotify(`${lead.name} → ${toLabel}`);
+    render();
+}
+
+function addLeadFromModal(data) {
+    const store = getLeadStore();
+    store.unshift({
+        id: '#L-' + (3000 + store.length),
+        name: data.name || _t('New Lead','عميل جديد'),
+        company: data.company || '-',
+        phone: data.phone || '-',
+        source: data.source || 'Manual',
+        value: data.value || '0 EGP',
+        score: parseInt(data.score) || 50,
+        assignedTo: data.assignedTo || 'Unassigned',
+        stage: 'new',
+        createdAt: new Date().toISOString().slice(0,10)
+    });
+    pushNotify(_t('Lead added to pipeline ✓','تم إضافة العميل للمسار ✓'));
+    state.isModalOpen = false;
+    render();
+}
+
+function deleteLeadFromPipeline(leadId) {
+    if (state.module === MODULES.CRM) {
+        state.leads.crm = state.leads.crm.filter(l => l.id !== leadId);
+    } else {
+        state.leads.sales = state.leads.sales.filter(l => l.id !== leadId);
+    }
+    pushNotify(_t('Lead removed.','تم حذف العميل.'));
+    render();
+}
+
+// ─── LEADS PIPELINE RENDER ────────────────────────────────────────────────────
+function renderLeadsPipeline() {
+    const store = getLeadStore();
+    const isDark = state.darkMode;
+
+    // Summary counters per stage
+    const stageCounts = {};
+    LEAD_STAGES.forEach(s => { stageCounts[s.id] = store.filter(l=>l.stage===s.id).length; });
+    const totalValue = store.filter(l=>l.stage!=='lost').reduce((sum,l)=>{
+        const n = parseInt((l.value||'').replace(/[^0-9]/g,'')) || 0;
+        return sum + n;
+    }, 0);
+
+    // Top summary bar
+    const summaryHtml = `
+        <div class="flex flex-wrap gap-3 mb-8">
+            ${LEAD_STAGES.map(s=>`
+                <div class="flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-black" style="border-color:${s.color}30; background:${isDark?s.darkBg:s.bg}; color:${s.color}">
+                    <i data-lucide="${s.icon}" size="13"></i>
+                    <span>${_t(s.label.en,s.label.ar)}</span>
+                    <span class="ml-1 px-2 py-0.5 rounded-full text-white text-[10px]" style="background:${s.color}">${stageCounts[s.id]}</span>
+                </div>
+            `).join('')}
+            <div class="ml-auto flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy text-xs font-black">
+                <i data-lucide="trending-up" size="13"></i>
+                <span>${_t('Pipeline Total:','إجمالي المسار:')} ${Math.round(totalValue/1000)}K EGP</span>
+            </div>
+        </div>
+    `;
+
+    // Kanban columns
+    const columnsHtml = LEAD_STAGES.map(stage => {
+        const leads = store.filter(l => l.stage === stage.id);
+
+        const cardsHtml = leads.map(lead => {
+            const scoreColor = lead.score >= 80 ? '#34d399' : lead.score >= 60 ? '#fb923c' : '#f87171';
+            const nextStage = LEAD_STAGES.find(s=>s.id===stage.next);
+            const prevStage = LEAD_STAGES.find(s=>s.id===stage.prev);
+
+            return `
+                <div class="pipeline-card" onclick="openLeadDetail('${lead.id}')">
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <p class="font-black text-sm text-mantiq-navy dark:text-white leading-tight">${lead.name}</p>
+                            <p class="text-[11px] text-slate-500 mt-0.5">${lead.company}</p>
+                        </div>
+                        <button onclick="event.stopPropagation(); deleteLeadFromPipeline('${lead.id}')" class="text-slate-300 hover:text-rose-400 transition-colors p-1 -mt-1 -mr-1">
+                            <i data-lucide="x" size="13"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[10px] font-bold text-slate-400">${lead.source}</span>
+                        <span class="text-[10px] font-black" style="color:${scoreColor}">${_t('Score','نقاط')}: ${lead.score}</span>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-black text-mantiq-navy dark:text-white">${lead.value}</span>
+                        <span class="text-[10px] text-slate-400 font-bold">${lead.assignedTo}</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800" onclick="event.stopPropagation()">
+                        ${prevStage ? `
+                            <button onclick="transferLead('${lead.id}','${prevStage.id}')"
+                                class="transfer-btn text-white"
+                                style="background:${prevStage.color}bb; font-size:9px; padding:4px 9px;">
+                                ← ${_t(prevStage.label.en, prevStage.label.ar)}
+                            </button>
+                        ` : ''}
+                        ${nextStage ? `
+                            <button onclick="transferLead('${lead.id}','${nextStage.id}')"
+                                class="transfer-btn text-white"
+                                style="background:${nextStage.color}; font-size:9px; padding:4px 9px;">
+                                ${_t(nextStage.label.en, nextStage.label.ar)} →
+                            </button>
+                        ` : ''}
+                        ${stage.id === 'proposal' ? `
+                            <button onclick="transferLead('${lead.id}','lost')"
+                                class="transfer-btn text-white"
+                                style="background:#f87171; font-size:9px; padding:4px 9px;">
+                                ✕ ${_t('Lost','خسارة')}
+                            </button>
+                        ` : ''}
+                    </div>
                 </div>
             `;
+        }).join('') || `<div class="text-center py-8 text-slate-300 dark:text-slate-700 text-xs font-bold">${_t('No leads','لا يوجد')}</div>`;
+
+        return `
+            <div class="pipeline-col">
+                <div class="pipeline-col-header" style="background:${isDark?stage.darkBg:stage.bg}; color:${stage.color}">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="${stage.icon}" size="14"></i>
+                        <span>${_t(stage.label.en, stage.label.ar)}</span>
+                    </div>
+                    <span class="w-6 h-6 flex items-center justify-center rounded-full text-white text-[10px] font-black" style="background:${stage.color}">${leads.length}</span>
+                </div>
+                ${cardsHtml}
+            </div>
+        `;
+    }).join('');
+
+    return `
+        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+            <div>
+                <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Lead Pipeline','مسار العملاء')}</h2>
+                <p class="text-slate-400 text-xs font-bold mt-1">${_t('Transfer leads across stages by clicking the stage buttons on each card','انقل العملاء بين المراحل بالضغط على أزرار المرحلة في كل بطاقة')}</p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="state.leadsView='table'; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3.5 rounded-2xl font-black text-xs text-slate-500 flex items-center gap-2">
+                    <i data-lucide="list" size="14"></i>${_t('Table View','عرض جدول')}
+                </button>
+                <button onclick="state.isModalOpen=true; state.addLeadMode=true; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-6 py-3.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2">
+                    <i data-lucide="plus" size="14"></i>${_t('Add Lead','إضافة عميل')}
+                </button>
+            </div>
+        </div>
+        ${summaryHtml}
+        <div class="pipeline-board">${columnsHtml}</div>
+    `;
+}
+
+function renderLeadsTable() {
+    const store = getLeadStore();
+
+    const rowsHtml = store.map((lead, idx) => {
+        const stage = LEAD_STAGES.find(s=>s.id===lead.stage) || LEAD_STAGES[0];
+        const scoreColor = lead.score >= 80 ? '#34d399' : lead.score >= 60 ? '#fb923c' : '#f87171';
+        const nextStage = LEAD_STAGES.find(s=>s.id===stage.next);
+        return `
+            <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-100 dark:border-slate-800 last:border-0 cursor-pointer" onclick="openLeadDetail('${lead.id}')">
+                <td class="px-8 py-5 text-sm font-black text-slate-500 whitespace-nowrap">${lead.id}</td>
+                <td class="px-8 py-5 whitespace-nowrap">
+                    <div>
+                        <p class="text-sm font-black text-mantiq-navy dark:text-white">${lead.name}</p>
+                        <p class="text-xs text-slate-400">${lead.company}</p>
+                    </div>
+                </td>
+                <td class="px-8 py-5 text-sm font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${lead.phone}</td>
+                <td class="px-8 py-5 text-sm font-bold text-slate-600 dark:text-slate-300 whitespace-nowrap">${lead.source}</td>
+                <td class="px-8 py-5 whitespace-nowrap">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black text-white" style="background:${stage.color}">
+                        <i data-lucide="${stage.icon}" size="10"></i>${_t(stage.label.en,stage.label.ar)}
+                    </span>
+                </td>
+                <td class="px-8 py-5 text-sm font-bold whitespace-nowrap" style="color:${scoreColor}">${lead.score}</td>
+                <td class="px-8 py-5 text-sm font-black text-mantiq-navy dark:text-white whitespace-nowrap">${lead.value}</td>
+                <td class="px-8 py-5 text-sm font-bold text-slate-500 whitespace-nowrap">${lead.assignedTo}</td>
+                <td class="px-8 py-5 whitespace-nowrap" onclick="event.stopPropagation()">
+                    <div class="flex gap-2">
+                        ${nextStage ? `<button onclick="transferLead('${lead.id}','${nextStage.id}')" class="transfer-btn text-white text-[9px]" style="background:${nextStage.color}">→ ${_t(nextStage.label.en,nextStage.label.ar)}</button>` : '<span class="text-xs text-slate-300 font-bold">—</span>'}
+                        <button onclick="deleteLeadFromPipeline('${lead.id}')" class="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-slate-700 text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="trash-2" size="14"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+
+    const headers = _t(
+        ['ID','Name','Phone','Source','Stage','Score','Value','Assigned To','Actions'],
+        ['المعرف','الاسم','الهاتف','المصدر','المرحلة','النقاط','القيمة','المسؤول','إجراءات']
+    );
+
+    return `
+        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
+            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Leads — Table View','العملاء — عرض الجدول')}</h2>
+            <div class="flex gap-3">
+                <button onclick="state.leadsView='pipeline'; render();" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3.5 rounded-2xl font-black text-xs text-slate-500 flex items-center gap-2">
+                    <i data-lucide="kanban" size="14"></i>${_t('Pipeline View','عرض المسار')}
+                </button>
+                <button onclick="pushNotify('${_t('Exporting...','تصدير...')}')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-5 py-3.5 rounded-2xl font-black text-xs text-slate-500 flex items-center gap-2">
+                    <i data-lucide="download" size="14"></i>${ut('export')}
+                </button>
+                <button onclick="state.isModalOpen=true; state.addLeadMode=true; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-6 py-3.5 rounded-2xl font-black text-xs shadow-xl flex items-center gap-2">
+                    <i data-lucide="plus" size="14"></i>${_t('Add Lead','إضافة عميل')}
+                </button>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse" dir="${state.language==='ar'?'rtl':'ltr'}">
+                <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500">
+                    <tr>${headers.map(h=>`<th class="px-8 py-6 whitespace-nowrap">${h}</th>`).join('')}</tr>
+                </thead>
+                <tbody>${rowsHtml || `<tr><td colspan="9" class="p-20 text-center italic text-slate-400">${_t('No leads found','لا توجد عملاء')}</td></tr>`}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+// ─── LEAD ADD MODAL ───────────────────────────────────────────────────────────
+function renderAddLeadModal() {
+    const fields = [
+        { key:'name',       label:{en:'Full Name',ar:'الاسم الكامل'} },
+        { key:'company',    label:{en:'Company',ar:'الشركة'} },
+        { key:'phone',      label:{en:'Phone',ar:'الهاتف'} },
+        { key:'source',     label:{en:'Source',ar:'المصدر'} },
+        { key:'value',      label:{en:'Deal Value (EGP)',ar:'قيمة الصفقة'} },
+        { key:'score',      label:{en:'Lead Score (1-100)',ar:'نقاط العميل'} },
+        { key:'assignedTo', label:{en:'Assigned To',ar:'المسؤول'} }
+    ];
+    return `
+        <div class="fixed inset-0 z-[101] flex items-center justify-center p-6 modal-overlay fade-in">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-xl rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h2 class="text-2xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t('Add New Lead','إضافة عميل جديد')}</h2>
+                        <p class="text-slate-500 text-xs mt-1 font-bold">${_t('Will be placed in New stage','سيُضاف في مرحلة الجديد')}</p>
+                    </div>
+                    <button onclick="state.isModalOpen=false; state.addLeadMode=false; render();" class="text-slate-400 hover:text-rose-500 p-2"><i data-lucide="x" size="24"></i></button>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    ${fields.map(f=>`
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">${_t(f.label.en,f.label.ar)}</label>
+                            <input id="lf-${f.key}" type="text" placeholder="${_t(f.label.en,f.label.ar)}" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-sm font-bold text-mantiq-navy dark:text-white outline-none focus:ring-2 focus:ring-mantiq-cyan" />
+                        </div>
+                    `).join('')}
+                    <div class="md:col-span-2 flex gap-3 mt-4">
+                        <button onclick="state.isModalOpen=false; state.addLeadMode=false; render();" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-5 rounded-2xl font-black text-sm uppercase">${ut('cancel')}</button>
+                        <button onclick="addLeadFromModal({name:document.getElementById('lf-name').value,company:document.getElementById('lf-company').value,phone:document.getElementById('lf-phone').value,source:document.getElementById('lf-source').value,value:document.getElementById('lf-value').value,score:document.getElementById('lf-score').value,assignedTo:document.getElementById('lf-assignedTo').value})" class="flex-1 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy py-5 rounded-2xl font-black text-sm uppercase shadow-xl">${_t('Add to Pipeline','إضافة للمسار')}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ─── CHART RENDERING ─────────────────────────────────────────────────────────
+function renderCharts() {
+    const config = SYSTEM_MAP[state.module];
+    if (!config || !config.charts) return;
+    const charts = config.charts;
+    const isDark = state.darkMode;
+    const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+    const textColor = isDark ? '#94a3b8' : '#64748b';
+    const mod = state.module;
+
+    Chart.defaults.color = textColor;
+    Chart.defaults.borderColor = gridColor;
+
+    // Destroy existing charts
+    Chart.helpers && Object.values(Chart.instances || {}).forEach(c => c.destroy && c.destroy());
+    document.querySelectorAll('canvas[data-chart]').forEach(canvas => {
+        const existing = Chart.getChart(canvas);
+        if (existing) existing.destroy();
+    });
+
+    setTimeout(() => {
+        if (mod === MODULES.CRM) {
+            // Bar: Monthly Leads
+            const c1 = document.getElementById('chart-monthly');
+            if (c1) new Chart(c1, { type:'bar', data: {
+                labels: charts.monthly.labels,
+                datasets:[{ label:_t('Leads','العملاء'), data:charts.monthly.data, backgroundColor:'rgba(56,189,248,0.7)', borderRadius:8, borderSkipped:false }]
+            }, options: { responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+
+            // Doughnut: Lead Sources
+            const c2 = document.getElementById('chart-sources');
+            if (c2) new Chart(c2, { type:'doughnut', data: {
+                labels: charts.sources.labels,
+                datasets:[{ data:charts.sources.data, backgroundColor:['#38bdf8','#818cf8','#34d399','#fb923c','#f472b6'], borderWidth:0, hoverOffset:8 }]
+            }, options:{ responsive:true, cutout:'65%', plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:16}}} }});
+
+            // Bar: Pipeline Stages
+            const c3 = document.getElementById('chart-pipeline');
+            if (c3) new Chart(c3, { type:'bar', data: {
+                labels: charts.pipeline.labels,
+                datasets:[{ label:_t('Deals','صفقات'), data:charts.pipeline.data, backgroundColor:['#38bdf8','#818cf8','#fb923c','#34d399','#f87171'], borderRadius:8, borderSkipped:false }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
         }
 
-        function render() {
-            const root = document.getElementById('app');
-            root.innerHTML = (state.module === MODULES.LANDING) ? renderLanding() : renderApp();
-            lucide.createIcons();
+        if (mod === MODULES.HR) {
+            const c1 = document.getElementById('chart-headcount');
+            if (c1) new Chart(c1, { type:'line', data:{
+                labels:charts.headcount.labels,
+                datasets:[{ label:_t('Headcount','عدد الموظفين'), data:charts.headcount.data, borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,0.1)', tension:0.4, fill:true, pointRadius:5, pointBackgroundColor:'#a78bfa' }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+
+            const c2 = document.getElementById('chart-departments');
+            if (c2) new Chart(c2, { type:'bar', data:{
+                labels:charts.departments.labels,
+                datasets:[{ label:_t('Employees','موظفين'), data:charts.departments.data, backgroundColor:'rgba(167,139,250,0.7)', borderRadius:8, borderSkipped:false }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, indexAxis:'y', scales:{ x:{grid:{color:gridColor}}, y:{grid:{display:false}} } }});
+
+            const c3 = document.getElementById('chart-attendance');
+            if (c3) new Chart(c3, { type:'line', data:{
+                labels:charts.attendance.labels,
+                datasets:[{ label:_t('Attendance %','نسبة الحضور'), data:charts.attendance.data, borderColor:'#34d399', backgroundColor:'rgba(52,211,153,0.1)', tension:0.4, fill:true, pointRadius:5, pointBackgroundColor:'#34d399' }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{min:80, max:100, grid:{color:gridColor}} } }});
         }
 
-        window.addEventListener('contextmenu', e => { e.preventDefault(); pushNotify(ut('restricted')); });
-        window.onload = () => { initData(); render(); };
+        if (mod === MODULES.FINANCE) {
+            const c1 = document.getElementById('chart-cashflow');
+            if (c1) new Chart(c1, { type:'bar', data:{
+                labels:charts.cashflow.labels,
+                datasets:[
+                    { label:_t('Inflow','وارد'), data:charts.cashflow.inflow, backgroundColor:'rgba(52,211,153,0.7)', borderRadius:8, borderSkipped:false },
+                    { label:_t('Outflow','صادر'), data:charts.cashflow.outflow, backgroundColor:'rgba(251,146,60,0.7)', borderRadius:8, borderSkipped:false }
+                ]
+            }, options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:16}}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+
+            const c2 = document.getElementById('chart-expenses-breakdown');
+            if (c2) new Chart(c2, { type:'pie', data:{
+                labels:charts.expenses.labels,
+                datasets:[{ data:charts.expenses.data, backgroundColor:['#38bdf8','#818cf8','#34d399','#fb923c','#f472b6','#94a3b8'], borderWidth:0, hoverOffset:8 }]
+            }, options:{ responsive:true, plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:12}}} }});
+
+            const c3 = document.getElementById('chart-revenue');
+            if (c3) new Chart(c3, { type:'line', data:{
+                labels:charts.revenue.labels,
+                datasets:[{ label:_t('Revenue K EGP','الإيراد ألف ج.م'), data:charts.revenue.data, borderColor:'#34d399', backgroundColor:'rgba(52,211,153,0.1)', tension:0.4, fill:true, pointRadius:5, pointBackgroundColor:'#34d399' }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+        }
+
+        if (mod === MODULES.SALES) {
+            const c1 = document.getElementById('chart-revenue');
+            if (c1) new Chart(c1, { type:'line', data:{
+                labels:charts.revenue.labels,
+                datasets:[{ label:_t('Revenue K EGP','الإيراد ألف ج.م'), data:charts.revenue.data, borderColor:'#fb923c', backgroundColor:'rgba(251,146,60,0.1)', tension:0.4, fill:true, pointRadius:5, pointBackgroundColor:'#fb923c' }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+
+            const c2 = document.getElementById('chart-reps');
+            if (c2) new Chart(c2, { type:'bar', data:{
+                labels:charts.reps.labels,
+                datasets:[{ label:_t('Revenue K EGP','الإيراد'), data:charts.reps.data, backgroundColor:'rgba(251,146,60,0.7)', borderRadius:8, borderSkipped:false }]
+            }, options:{ responsive:true, plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{grid:{color:gridColor}} } }});
+
+            const c3 = document.getElementById('chart-products');
+            if (c3) new Chart(c3, { type:'doughnut', data:{
+                labels:charts.products.labels,
+                datasets:[{ data:charts.products.data, backgroundColor:['#fb923c','#38bdf8','#34d399','#818cf8','#f472b6'], borderWidth:0, hoverOffset:8 }]
+            }, options:{ responsive:true, cutout:'60%', plugins:{legend:{position:'bottom',labels:{boxWidth:10,padding:14}}} }});
+        }
+    }, 80);
+}
+
+// ─── LOGO ─────────────────────────────────────────────────────────────────────
+function getLogo(cls='h-8') {
+    return `<div class="flex items-center gap-1 ${cls}"><span class="text-[1.2em] font-black tracking-tight text-mantiq-navy dark:text-white uppercase">MANTIQ</span></div>`;
+}
+
+// ─── LANDING ──────────────────────────────────────────────────────────────────
+function renderLanding() {
+    const cards = Object.entries(SYSTEM_MAP).map(([id,cfg])=>`
+        <button onclick="setModule('${id}')" class="group bg-white dark:bg-slate-900 p-8 md:p-12 rounded-[2.5rem] md:rounded-[3.5rem] border border-slate-200 dark:border-slate-800 shadow-sm card-glow transition-all text-${state.language==='ar'?'right':'left'} flex flex-col hover:-translate-y-2">
+            <div class="p-4 md:p-6 rounded-2xl md:rounded-[2rem] inline-block mb-6 md:mb-10 shadow-xl group-hover:scale-110 transition-transform" style="background:${cfg.color}22; color:${cfg.color}">
+                <i data-lucide="${cfg.icon}" class="w-6 h-6 md:w-9 md:h-9"></i>
+            </div>
+            <h3 class="text-2xl md:text-3xl font-extrabold text-mantiq-navy dark:text-white mb-2 md:mb-3 uppercase tracking-tighter leading-none">${_t(cfg.title.en,cfg.title.ar)}</h3>
+            <p class="text-slate-500 dark:text-slate-400 text-xs md:text-sm mb-8 md:mb-12 flex-1 leading-relaxed">${_t(cfg.description.en,cfg.description.ar)}</p>
+            <div class="flex items-center font-black text-[10px] md:text-xs uppercase tracking-widest" style="color:${cfg.color}">
+                ${ut('launch')} <i data-lucide="arrow-right" class="mx-2 w-3 h-3 md:w-4 md:h-4 group-hover:translate-x-3 transition-transform ${state.language==='ar'?'rotate-180':''}"></i>
+            </div>
+        </button>
+    `).join('');
+
+    return `
+        <div class="min-h-screen flex flex-col items-center justify-center py-20 px-6 md:p-8 fade-in bg-slate-50 dark:bg-slate-950 overflow-y-auto overflow-x-hidden">
+            <div class="absolute top-6 right-6 md:top-10 md:right-10 flex gap-4 z-50">
+                <button onclick="setLanguage('${state.language==='en'?'ar':'en'}')" class="px-5 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl font-black text-xs uppercase tracking-tighter text-mantiq-navy dark:text-white">
+                    ${state.language==='en'?'Arabic':'English'}
+                </button>
+                <button onclick="toggleDarkMode()" class="p-3 md:p-4 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full shadow-xl hover:scale-110 transition-all">
+                    <i data-lucide="${state.darkMode?'sun':'moon'}" class="w-6 h-6 ${state.darkMode?'text-amber-400':'text-mantiq-cyan'}"></i>
+                </button>
+            </div>
+            <div class="text-center mb-12 md:mb-20 max-w-4xl pt-10">
+                <div class="flex justify-center mb-6 md:mb-10 scale-125 md:scale-150">${getLogo("h-10 md:h-16 text-2xl md:text-5xl")}</div>
+                <h1 class="text-4xl md:text-7xl font-black text-mantiq-navy dark:text-white mb-4 md:mb-6 tracking-tight leading-none uppercase">${ut('subtitle')}</h1>
+                <p class="text-slate-500 dark:text-slate-400 text-sm md:text-xl font-medium px-4 md:px-12 leading-relaxed max-w-2xl mx-auto">${ut('description')}</p>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 w-full max-w-7xl relative z-10 pb-12">${cards}</div>
+        </div>
+    `;
+}
+
+// ─── ANALYTICS PAGE ───────────────────────────────────────────────────────────
+function renderAnalytics() {
+    const config = SYSTEM_MAP[state.module];
+    const kpis = state.language==='ar' ? config.kpis.ar : config.kpis.en;
+    const mod = state.module;
+    const color = config.color;
+
+    const kpiCards = kpis.map(k => `
+        <div class="stat-card bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-start justify-between mb-4">
+                <div class="p-3 rounded-2xl" style="background:${color}18; color:${color}">
+                    <i data-lucide="${k.icon}" size="22"></i>
+                </div>
+                <span class="badge ${k.delta.startsWith('+')?'badge-green':'badge-red'}">${k.delta}</span>
+            </div>
+            <p class="text-3xl font-black text-mantiq-navy dark:text-white mb-1 count-up">${k.value}</p>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">${k.label}</p>
+        </div>
+    `).join('');
+
+    // Performance bars
+    const perfItems = {
+        [MODULES.CRM]: [
+            { label:_t('Lead Conversion Rate','معدل تحويل العملاء'), val:62, color:'#38bdf8' },
+            { label:_t('Pipeline Coverage','تغطية المسار'), val:78, color:'#818cf8' },
+            { label:_t('Activity Completion','إتمام الأنشطة'), val:85, color:'#34d399' },
+            { label:_t('Customer Retention','الاحتفاظ بالعملاء'), val:91, color:'#fb923c' }
+        ],
+        [MODULES.HR]: [
+            { label:_t('Attendance Rate','معدل الحضور'), val:94, color:'#a78bfa' },
+            { label:_t('Training Completion','إتمام التدريب'), val:71, color:'#34d399' },
+            { label:_t('Performance Review Coverage','تغطية تقييم الأداء'), val:88, color:'#38bdf8' },
+            { label:_t('Retention Rate','معدل الاستبقاء'), val:96, color:'#fb923c' }
+        ],
+        [MODULES.FINANCE]: [
+            { label:_t('Invoice Collection Rate','معدل تحصيل الفواتير'), val:87, color:'#34d399' },
+            { label:_t('Budget Utilization','استخدام الميزانية'), val:73, color:'#38bdf8' },
+            { label:_t('Tax Compliance','الامتثال الضريبي'), val:100, color:'#818cf8' },
+            { label:_t('Gross Margin','هامش الربح الإجمالي'), val:47, color:'#fb923c' }
+        ],
+        [MODULES.SALES]: [
+            { label:_t('Quota Attainment','تحقيق الحصة'), val:78, color:'#fb923c' },
+            { label:_t('Win Rate','معدل الفوز'), val:62, color:'#34d399' },
+            { label:_t('Lead Response Time','سرعة الاستجابة للعملاء'), val:88, color:'#38bdf8' },
+            { label:_t('Customer Satisfaction','رضا العملاء'), val:92, color:'#818cf8' }
+        ]
+    };
+
+    const perf = (perfItems[mod]||[]).map(p=>`
+        <div class="mb-5">
+            <div class="flex justify-between mb-2">
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">${p.label}</span>
+                <span class="text-sm font-black" style="color:${p.color}">${p.val}%</span>
+            </div>
+            <div class="kpi-bar"><div class="kpi-bar-fill" style="width:${p.val}%; background:linear-gradient(90deg, ${p.color}, ${p.color}aa)"></div></div>
+        </div>
+    `).join('');
+
+    // Chart layout per module
+    let chartGrid = '';
+    if (mod === MODULES.CRM) chartGrid = `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Monthly Leads','العملاء الشهريين')}</h4>
+                <div class="chart-container"><canvas id="chart-monthly" data-chart></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Lead Sources','مصادر العملاء')}</h4>
+                <div class="chart-container"><canvas id="chart-sources" data-chart></canvas></div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 mb-6">
+            <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Pipeline Stage Distribution','توزيع مراحل المسار')}</h4>
+            <div class="chart-container"><canvas id="chart-pipeline" data-chart></canvas></div>
+        </div>
+    `;
+
+    if (mod === MODULES.HR) chartGrid = `
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Headcount Growth','نمو عدد الموظفين')}</h4>
+                <div class="chart-container"><canvas id="chart-headcount" data-chart></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Weekly Attendance %','نسبة الحضور الأسبوعي')}</h4>
+                <div class="chart-container"><canvas id="chart-attendance" data-chart></canvas></div>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 mb-6">
+            <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Employees by Department','الموظفين حسب القسم')}</h4>
+            <div class="chart-container"><canvas id="chart-departments" data-chart></canvas></div>
+        </div>
+    `;
+
+    if (mod === MODULES.FINANCE) chartGrid = `
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 mb-6">
+            <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Cash Flow Analysis (K EGP)','تحليل التدفق النقدي (ألف ج.م)')}</h4>
+            <div class="chart-container"><canvas id="chart-cashflow" data-chart></canvas></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Expense Breakdown','توزيع المصاريف')}</h4>
+                <div class="chart-container"><canvas id="chart-expenses-breakdown" data-chart></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Revenue Trend (K EGP)','اتجاه الإيراد (ألف ج.م)')}</h4>
+                <div class="chart-container"><canvas id="chart-revenue" data-chart></canvas></div>
+            </div>
+        </div>
+    `;
+
+    if (mod === MODULES.SALES) chartGrid = `
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800 mb-6">
+            <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Revenue Trend (K EGP)','اتجاه الإيراد (ألف ج.م)')}</h4>
+            <div class="chart-container"><canvas id="chart-revenue" data-chart></canvas></div>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Revenue by Sales Rep (K EGP)','الإيراد حسب المندوب')}</h4>
+                <div class="chart-container"><canvas id="chart-reps" data-chart></canvas></div>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+                <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-6">${_t('Revenue by Product Mix','الإيراد حسب المنتج')}</h4>
+                <div class="chart-container"><canvas id="chart-products" data-chart></canvas></div>
+            </div>
+        </div>
+    `;
+
+    return `
+        <div class="mb-8">
+            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter mb-2">${ut('analytics')}</h2>
+            <p class="text-slate-500 text-sm font-medium">${_t('Live performance metrics & visual insights','مؤشرات الأداء الحية والرؤى البيانية')}</p>
+        </div>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">${kpiCards}</div>
+        ${chartGrid}
+        <div class="bg-white dark:bg-slate-900 rounded-[2rem] p-8 border border-slate-200 dark:border-slate-800">
+            <h4 class="font-black text-sm uppercase tracking-widest text-slate-500 mb-8">${_t('Key Performance Indicators','مؤشرات الأداء الرئيسية')}</h4>
+            ${perf}
+        </div>
+    `;
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────────────
+function renderDashboard() {
+    const config = SYSTEM_MAP[state.module];
+    const kpis = state.language==='ar' ? config.kpis.ar : config.kpis.en;
+    const color = config.color;
+
+    const kpiCards = kpis.map(k=>`
+        <div class="stat-card bg-white dark:bg-slate-900 p-8 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 rounded-2xl" style="background:${color}18; color:${color}"><i data-lucide="${k.icon}" size="20"></i></div>
+                <span class="badge ${k.delta.includes('+')?'badge-green':'badge-red'}">${k.delta}</span>
+            </div>
+            <p class="text-3xl font-black text-mantiq-navy dark:text-white mb-1">${k.value}</p>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-widest">${k.label}</p>
+        </div>
+    `).join('');
+
+    const recentNav = config.nav.filter(n=>n.id!=='dashboard' && !n.isAnalytics).slice(0,4);
+    const quickLinks = recentNav.map(n=>`
+        <button onclick="setPage('${n.id}')" class="flex items-center gap-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-mantiq-cyan hover:bg-sky-50 dark:hover:bg-slate-800 transition-all text-${state.language==='ar'?'right':'left'} w-full">
+            <div class="p-2.5 rounded-xl" style="background:${color}18; color:${color}"><i data-lucide="${n.icon}" size="18"></i></div>
+            <div>
+                <p class="font-black text-sm text-mantiq-navy dark:text-white">${_t(n.label.en,n.label.ar)}</p>
+                <p class="text-xs text-slate-400">${_t('View records →','عرض السجلات ←')}</p>
+            </div>
+        </button>
+    `).join('');
+
+    return `
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">${kpiCards}</div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-[3rem] p-10 border border-slate-200 dark:border-slate-800 text-center shadow-sm flex flex-col items-center justify-center min-h-[300px]">
+                <div class="w-20 h-20 rounded-[2rem] flex items-center justify-center mb-8 animate-pulse" style="background:${color}18; color:${color}">
+                    <i data-lucide="${config.icon}" size="40"></i>
+                </div>
+                <h2 class="text-4xl font-black text-mantiq-navy dark:text-white mb-4 uppercase tracking-tighter">${ut('controlCenter')}</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-base max-w-md leading-relaxed">${_t(config.description.en, config.description.ar)}</p>
+                <button onclick="setPage('analytics')" class="mt-8 px-8 py-4 rounded-2xl font-black text-sm text-white shadow-xl" style="background:${color}">
+                    ${_t('View Analytics →','عرض التحليلات ←')}
+                </button>
+            </div>
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-sm">
+                <h3 class="font-black text-xs uppercase tracking-[0.2em] text-slate-400 mb-6">${_t('Quick Access','وصول سريع')}</h3>
+                <div class="space-y-3">${quickLinks}</div>
+            </div>
+        </div>
+    `;
+}
+
+// ─── TABLE VIEW ───────────────────────────────────────────────────────────────
+function renderTable() {
+    const currentNav = SYSTEM_MAP[state.module].nav.find(n=>n.id===state.page);
+    const pageData = state.data[state.module][state.page] || [];
+    const cols = _t(currentNav.tableCols.en, currentNav.tableCols.ar);
+    const colsKeys = currentNav.tableCols.en;
+
+    const rowsHtml = pageData.map((row,idx)=>`
+        <tr class="group hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-all border-b border-slate-50 dark:border-slate-800 last:border-0">
+            ${colsKeys.map(k=>`
+                <td class="px-8 py-5 text-sm font-bold text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                    ${isStatusCol(k) ? badgeHtml(row[k]||'-') : (row[k]||'-')}
+                </td>
+            `).join('')}
+            <td class="px-8 py-5 whitespace-nowrap">
+                <div class="flex ${state.language==='en'?'justify-end':'justify-start'} gap-2">
+                    <button onclick="pushNotify('${_t('View Only Mode','وضع العرض فقط')}')" class="p-2 rounded-xl hover:bg-sky-50 dark:hover:bg-slate-700 text-mantiq-cyan transition-colors"><i data-lucide="eye" size="16"></i></button>
+                    <button onclick="handleDelete(${idx})" class="p-2 rounded-xl hover:bg-red-50 dark:hover:bg-slate-700 text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="trash-2" size="16"></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+
+    return `
+        <div class="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-8">
+            <h2 class="text-3xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${_t(currentNav.label.en,currentNav.label.ar)}</h2>
+            <div class="flex gap-3">
+                <button onclick="pushNotify('${ut('export')}...')" class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-6 py-4 rounded-2xl font-black text-sm text-slate-600 dark:text-slate-300 shadow-sm flex items-center gap-2">
+                    <i data-lucide="download" size="15"></i>${ut('export')}
+                </button>
+                <button onclick="state.isModalOpen=true; render();" class="bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy px-8 py-4 rounded-2xl font-black text-sm shadow-xl flex items-center gap-2">
+                    <i data-lucide="plus" size="15"></i>${ut('addRecord')}
+                </button>
+            </div>
+        </div>
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden overflow-x-auto custom-scrollbar">
+            <table class="w-full text-left border-collapse" dir="${state.language==='ar'?'rtl':'ltr'}">
+                <thead class="bg-slate-50/70 dark:bg-slate-800/50 text-[10px] uppercase tracking-[0.2em] font-black text-slate-500">
+                    <tr>
+                        ${cols.map(c=>`<th class="px-8 py-6 whitespace-nowrap">${c}</th>`).join('')}
+                        <th class="px-8 py-6 ${state.language==='en'?'text-right':'text-left'}">${ut('action')}</th>
+                    </tr>
+                </thead>
+                <tbody>${rowsHtml||`<tr><td colspan="20" class="p-20 text-center italic text-slate-400">${_t('No records found','لا توجد سجلات')}</td></tr>`}</tbody>
+            </table>
+        </div>
+    `;
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function renderModal() {
+    const currentNav = SYSTEM_MAP[state.module].nav.find(n=>n.id===state.page);
+    const colsEn = currentNav.tableCols.en;
+    const colsAr = currentNav.tableCols.ar;
+    const inputs = colsEn.map((col,idx)=>`
+        <div class="flex flex-col gap-2">
+            <label class="text-[10px] font-black uppercase tracking-widest text-slate-400">${_t(col,colsAr[idx])}</label>
+            <input type="text" name="${col}" placeholder="${_t('Enter ','أدخل ')+_t(col,colsAr[idx])}" class="bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-4 text-sm font-bold text-mantiq-navy dark:text-white outline-none focus:ring-2 focus:ring-mantiq-cyan focus:border-transparent" />
+        </div>
+    `).join('');
+    return `
+        <div class="fixed inset-0 z-[101] flex items-center justify-center p-6 modal-overlay fade-in">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-xl rounded-[2.5rem] p-10 border border-slate-200 dark:border-slate-800 shadow-2xl max-h-[85vh] overflow-y-auto custom-scrollbar">
+                <div class="flex justify-between items-start mb-8">
+                    <div>
+                        <h2 class="text-2xl font-black text-mantiq-navy dark:text-white uppercase tracking-tighter">${ut('addRecord')}</h2>
+                        <p class="text-slate-500 text-xs mt-1 uppercase font-bold tracking-widest">${_t(currentNav.label.en,currentNav.label.ar)}</p>
+                    </div>
+                    <button onclick="state.isModalOpen=false; render();" class="text-slate-400 hover:text-rose-500 transition-colors p-2"><i data-lucide="x" size="24"></i></button>
+                </div>
+                <form id="add-record-form" onsubmit="handleAddData(event)" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    ${inputs}
+                    <div class="md:col-span-2 flex gap-3 mt-4">
+                        <button type="button" onclick="state.isModalOpen=false; render();" class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-5 rounded-2xl font-black text-sm uppercase">${ut('cancel')}</button>
+                        <button type="submit" class="flex-1 bg-mantiq-navy dark:bg-white text-white dark:text-mantiq-navy py-5 rounded-2xl font-black text-sm uppercase shadow-xl">${ut('submit')}</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    `;
+}
+
+// ─── MOBILE NAV ───────────────────────────────────────────────────────────────
+function renderMobileNav() {
+    const config = SYSTEM_MAP[state.module];
+    return `
+        <div class="fixed inset-0 z-[100] lg:hidden">
+            <div class="absolute inset-0 bg-mantiq-navy/60 backdrop-blur-sm" onclick="state.isMobileMenuOpen=false; render();"></div>
+            <div class="absolute ${state.language==='en'?'left-0':'right-0'} top-0 h-full w-4/5 max-w-xs bg-white dark:bg-slate-900 shadow-2xl flex flex-col fade-in">
+                <div class="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    ${getLogo("h-6 text-lg")}
+                    <button onclick="state.isMobileMenuOpen=false; render();" class="p-2 text-slate-400"><i data-lucide="x" size="24"></i></button>
+                </div>
+                <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
+                    ${config.nav.map(item=>`
+                        <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page===item.id?'bg-mantiq-cyan text-white shadow-md':'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                            <i data-lucide="${item.icon}" size="18"></i><span>${_t(item.label.en,item.label.ar)}</span>
+                        </button>
+                    `).join('')}
+                </nav>
+                <div class="p-8 border-t border-slate-100 dark:border-slate-800">
+                    <button onclick="setModule(MODULES.LANDING)" class="w-full py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 font-black text-xs uppercase text-rose-500">
+                        ${_t('Exit System','خروج من النظام')}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+function renderApp() {
+    const config = SYSTEM_MAP[state.module];
+    const currentNavItem = config.nav.find(n=>n.id===state.page);
+    const navHtml = config.nav.map(item=>`
+        <button onclick="setPage('${item.id}')" class="w-full flex items-center gap-4 px-6 py-4 rounded-2xl text-sm font-bold transition-all ${state.page===item.id ? 'bg-mantiq-cyan text-white shadow-lg shadow-sky-500/30 '+(state.language==='en'?'translate-x-1':'-translate-x-1') : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'}">
+            <i data-lucide="${item.icon}" size="18"></i>
+            <span class="whitespace-nowrap overflow-hidden text-ellipsis">${_t(item.label.en,item.label.ar)}</span>
+            ${item.isAnalytics ? `<span class="ml-auto badge badge-blue">${_t('New','جديد')}</span>` : ''}
+        </button>
+    `).join('');
+
+    return `
+        <div class="flex bg-slate-50 dark:bg-slate-950 h-screen overflow-hidden">
+            <aside class="hidden lg:flex w-80 h-screen fixed ${state.language==='en'?'left-0 border-r':'right-0 border-l'} top-0 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 z-30 flex-col">
+                <div class="p-10 border-b border-slate-200 dark:border-slate-800">
+                    <button onclick="setModule(MODULES.LANDING)">${getLogo("h-8 text-xl")}</button>
+                </div>
+                <nav class="flex-1 p-6 space-y-1 overflow-y-auto custom-scrollbar">
+                    <p class="px-6 py-4 text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 opacity-60">${_t(config.title.en,config.title.ar)}</p>
+                    ${navHtml}
+                </nav>
+                <div class="p-8 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-mantiq-navy text-white flex items-center justify-center font-black shadow-lg text-sm">AS</div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-black text-mantiq-navy dark:text-white truncate uppercase">${_t('Ahmed Sharaf','أحمد شرف')}</p>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">${ut('role')}</p>
+                        </div>
+                        <button onclick="toggleDarkMode()" class="p-2.5 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                            <i data-lucide="${state.darkMode?'sun':'moon'}" size="16"></i>
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <div class="flex-1 ${state.language==='en'?'lg:pl-80':'lg:pr-80'} h-screen overflow-y-auto custom-scrollbar">
+                <header class="h-28 bg-white/80 dark:bg-slate-950/80 backdrop-blur-3xl border-b border-slate-200 dark:border-slate-800 items-center justify-between px-14 sticky top-0 z-20 hidden lg:flex">
+                    <div>
+                        <div class="flex items-center gap-3 text-slate-400 text-[10px] font-black uppercase tracking-widest mb-1">
+                            <span>${ut('demoEnv')}</span>
+                            <i data-lucide="chevron-right" size="12" class="${state.language==='ar'?'rotate-180':''}"></i>
+                            <span class="font-bold" style="color:${config.color}">${_t(config.title.en,config.title.ar)}</span>
+                        </div>
+                        <h1 class="text-3xl font-black text-mantiq-navy dark:text-white capitalize tracking-tighter">${_t(currentNavItem.label.en, currentNavItem.label.ar)}</h1>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button onclick="setLanguage('${state.language==='en'?'ar':'en'}')" class="font-black text-xs uppercase px-4 py-2 border border-slate-200 dark:border-slate-800 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
+                            ${state.language==='en'?'Arabic':'English'}
+                        </button>
+                        <button onclick="state.showTourInvite=true; render();" class="flex items-center gap-1.5 font-black text-xs uppercase px-4 py-2 rounded-xl transition-colors text-white" style="background:${config.color}44; color:${config.color}; border: 1.5px solid ${config.color}55;">
+                            <i data-lucide="map" size="14"></i>${_t('Tour','جولة')}
+                        </button>
+                        <button class="relative p-3 text-slate-400 hover:text-mantiq-cyan" onclick="pushNotify('${_t('No new notifications','لا توجد إشعارات جديدة')}')">
+                            <i data-lucide="bell" size="22"></i>
+                            <span class="absolute top-3 right-3 w-2.5 h-2.5 bg-rose-500 rounded-full border-2 border-white dark:border-slate-950"></span>
+                        </button>
+                        <button onclick="setModule(MODULES.LANDING)" class="p-3 text-slate-400 hover:text-rose-500 transition-colors"><i data-lucide="log-out" size="22"></i></button>
+                    </div>
+                </header>
+
+                <!-- Mobile Header -->
+                <div class="lg:hidden flex items-center justify-between p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 sticky top-0 z-30">
+                    <button onclick="setModule(MODULES.LANDING)">${getLogo("h-6 text-lg")}</button>
+                    <button onclick="toggleMobileMenu()" class="p-2 bg-mantiq-cyan text-white rounded-lg shadow-lg"><i data-lucide="menu" size="18"></i></button>
+                </div>
+
+                <main class="p-6 md:p-14 max-w-[1600px] mx-auto fade-in">
+                    ${renderWorkspace()}
+                </main>
+            </div>
+        </div>
+        ${state.isMobileMenuOpen ? renderMobileNav() : ''}
+        ${state.isModalOpen ? (state.addLeadMode ? renderAddLeadModal() : renderModal()) : ''}
+        ${state.openLeadId ? renderLeadDrawer() : ''}
+    `;
+}
+
+function renderWorkspace() {
+    if (state.page === 'dashboard') return renderDashboard();
+    if (state.page === 'analytics') return renderAnalytics();
+    // Lead pipeline for CRM and Sales
+    if (state.page === 'leads' && (state.module === MODULES.CRM || state.module === MODULES.SALES)) {
+        return state.leadsView === 'table' ? renderLeadsTable() : renderLeadsPipeline();
+    }
+    return renderTable();
+}
+
+// ─── TOUR SYSTEM ──────────────────────────────────────────────────────────────
+const TOUR_STEPS = {
+    [MODULES.CRM]: [
+        { page:'dashboard',     selector:null, title:{en:'Welcome to CRM Tracker',ar:'مرحبًا في متتبع العملاء'}, body:{en:'Your command center. See live KPIs — total leads, active deals, win rate, and pipeline value — all updating in real-time.',ar:'مركز القيادة. شاهد مؤشرات الأداء الحية — إجمالي العملاء والصفقات النشطة ومعدل الفوز وقيمة المسار — تتحدث فورًا.'} },
+        { page:'leads',         selector:'.pipeline-board', title:{en:'Lead Pipeline (Kanban)',ar:'مسار العملاء (كانبان)'}, body:{en:'Every lead lives in a stage column. Click a stage button on a card to advance or return it. Click the card itself to open full details.',ar:'كل عميل يعيش في عمود مرحلته. انقر زر المرحلة على البطاقة للتقدم أو الرجوع. انقر البطاقة لفتح التفاصيل الكاملة.'} },
+        { page:'deals',         selector:'table', title:{en:'Deals Table',ar:'جدول الصفقات'}, body:{en:'Each row is an open deal with its account, value, stage, probability, and expected close date. Click Add Record to log a new opportunity.',ar:'كل صف صفقة مفتوحة بحسابها وقيمتها ومرحلتها واحتمالية الإغلاق. انقر إضافة سجل لتسجيل فرصة جديدة.'} },
+        { page:'activities',    selector:'table', title:{en:'Activity Log',ar:'سجل الأنشطة'}, body:{en:'Log every touchpoint — calls, emails, demos, and follow-ups. Set priority and due date so the team stays on track.',ar:'سجّل كل نقطة تواصل — مكالمات وبريد وعروض ومتابعات. حدد الأولوية والموعد حتى يبقى الفريق على المسار.'} },
+        { page:'analytics',     selector:null, title:{en:'Analytics & Charts',ar:'التحليلات والرسوم البيانية'}, body:{en:'Monthly lead trends, lead source breakdown, and pipeline stage distribution — all visual. KPI progress bars show health at a glance.',ar:'اتجاهات العملاء الشهرية ومصادرهم وتوزيع مراحل المسار — كلها مرئية. أشرطة KPI تظهر الصحة بنظرة واحدة.'} }
+    ],
+    [MODULES.HR]: [
+        { page:'dashboard',     selector:null, title:{en:'Welcome to HR System',ar:'مرحبًا في نظام الموارد البشرية'}, body:{en:'Your HR dashboard shows total headcount, employees on leave today, this month\'s payroll total, and average performance score.',ar:'لوحة HR تظهر إجمالي الموظفين والغائبين اليوم وإجمالي الرواتب الشهري ومتوسط نقاط الأداء.'} },
+        { page:'directory',     selector:'table', title:{en:'Employee Directory',ar:'دليل الموظفين'}, body:{en:'Every employee with their ID, job title, department, hire date, contract type, and status. Click a row to view their full profile.',ar:'كل موظف بمعرّفه ومنصبه وقسمه وتاريخ التعيين ونوع العقد وحالته. انقر على صف لعرض ملفه الكامل.'} },
+        { page:'attendance',    selector:'table', title:{en:'Attendance Tracking',ar:'تتبع الحضور'}, body:{en:'Daily punch records with automatic overtime calculation. Late arrivals are flagged red. Filter by department or date range.',ar:'سجلات الحضور اليومية مع حساب تلقائي للعمل الإضافي. التأخر مُعلَّم باللون الأحمر. فلتر حسب القسم أو الفترة.'} },
+        { page:'payroll',       selector:'table', title:{en:'Payroll Processing',ar:'معالجة الرواتب'}, body:{en:'Each row shows base salary, allowances, deductions, income tax, and net pay. Status updates from Draft to Approved to Paid.',ar:'كل صف يظهر الراتب الأساسي والبدلات والخصومات وضريبة الدخل وصافي الراتب. الحالة تتحدث من مسودة إلى معتمد إلى مدفوع.'} },
+        { page:'performance',   selector:'table', title:{en:'Performance Reviews',ar:'تقييمات الأداء'}, body:{en:'KPI scores and behaviour ratings per employee per period. Managers submit reviews here; HR exports them for compensation decisions.',ar:'نقاط مؤشرات الأداء وتقييمات السلوك لكل موظف لكل فترة. المديرون يرسلون المراجعات هنا؛ يصدّرها HR لقرارات التعويض.'} },
+        { page:'analytics',     selector:null, title:{en:'HR Analytics',ar:'تحليلات الموارد البشرية'}, body:{en:'Headcount growth over 6 months, attendance rate by weekday, and staff distribution by department — all in one view.',ar:'نمو القوى العاملة على 6 أشهر ومعدل الحضور حسب اليوم وتوزيع الموظفين حسب القسم — كل ذلك في مكان واحد.'} }
+    ],
+    [MODULES.FINANCE]: [
+        { page:'dashboard',     selector:null, title:{en:'Welcome to Finance Tracker',ar:'مرحبًا في متتبع المالية'}, body:{en:'Live financials at a glance: MTD revenue, expenses, net profit, and outstanding invoices — with growth deltas vs last month.',ar:'المالية الحية بنظرة واحدة: الإيرادات والمصاريف والربح الصافي والفواتير المعلقة — مع نسب النمو مقارنة بالشهر الماضي.'} },
+        { page:'invoices',      selector:'table', title:{en:'Tax-Compliant Invoices',ar:'الفواتير المتوافقة ضريبيًا'}, body:{en:'VAT 14% is auto-calculated on every invoice. Track how much is paid vs outstanding per client. Export to PDF with one click.',ar:'ضريبة القيمة المضافة 14% تُحسب تلقائيًا على كل فاتورة. تتبع المدفوع والمعلق لكل عميل. صدّر PDF بنقرة واحدة.'} },
+        { page:'expenses',      selector:'table', title:{en:'Expense Management',ar:'إدارة المصاريف'}, body:{en:'Every outgoing payment is logged with vendor, category, VAT, method, and approver. Attach receipts and route for approval.',ar:'كل مدفوعات صادرة مُسجَّلة بالمورد والفئة والضريبة والطريقة والمعتمد. أرفق الإيصالات ووجّه للموافقة.'} },
+        { page:'budgeting',     selector:'table', title:{en:'Budget vs Actual',ar:'الميزانية مقابل الفعلي'}, body:{en:'Set annual and quarterly budgets per category. Usage % updates as expenses are logged. Alerts fire automatically at 80% consumption.',ar:'ضع ميزانيات سنوية وفصلية لكل فئة. نسبة الاستخدام تتحدث مع تسجيل المصاريف. تنبيهات تلقائية عند 80%.'} },
+        { page:'profitloss',    selector:'table', title:{en:'P&L Statement',ar:'بيان الأرباح والخسائر'}, body:{en:'Live P&L with current vs last period comparison. Drill into any line item — gross profit, EBITDA, net profit — for full transaction detail.',ar:'بيان الأرباح والخسائر الحي مع مقارنة الفترة الحالية بالماضية. انقر على أي بند للتفاصيل الكاملة.'} },
+        { page:'analytics',     selector:null, title:{en:'Finance Analytics',ar:'التحليلات المالية'}, body:{en:'Cash flow inflow vs outflow over 6 months, expense category breakdown pie, and revenue trend line — full picture in seconds.',ar:'التدفق النقدي الوارد والصادر على 6 أشهر وتوزيع فئات المصاريف واتجاه الإيراد — الصورة الكاملة في ثوانٍ.'} }
+    ],
+    [MODULES.SALES]: [
+        { page:'dashboard',     selector:null, title:{en:'Welcome to Sales Tracker',ar:'مرحبًا في متتبع المبيعات'}, body:{en:'MTD revenue, orders closed, quota attainment %, and average deal size — live at the top. Use quick-access links to jump to any section.',ar:'الإيراد الشهري والطلبات المغلقة ونسبة تحقيق الحصة ومتوسط الصفقة — حية في الأعلى. استخدم الوصول السريع للانتقال لأي قسم.'} },
+        { page:'leads',         selector:'.pipeline-board', title:{en:'Sales Lead Pipeline',ar:'مسار عملاء المبيعات'}, body:{en:'Move leads across New → Contacted → Qualified → Proposal → Won. Click any card to view full details and contacts.',ar:'حرّك العملاء عبر جديد → تواصل → مؤهل → عرض → فوز. انقر أي بطاقة لعرض التفاصيل الكاملة وجهات الاتصال.'} },
+        { page:'quotations',    selector:'table', title:{en:'Quotations',ar:'عروض الأسعار'}, body:{en:'Build professional quotes with line items and discount rules. Click "Convert to Order" once the client confirms.',ar:'أنشئ عروض احترافية بالبنود وقواعد الخصم. انقر "تحويل لطلب" بعد تأكيد العميل.'} },
+        { page:'targets',       selector:'table', title:{en:'Sales Targets',ar:'أهداف المبيعات'}, body:{en:'Each rep\'s monthly target, achieved revenue, variance, and % attainment in one view. Color-coded — green is on track, red needs attention.',ar:'هدف كل مندوب الشهري والإيراد المحقق والفرق والنسبة في مكان واحد. ألوان — أخضر على المسار، أحمر يحتاج اهتمامًا.'} },
+        { page:'commissions',   selector:'table', title:{en:'Commission Calculation',ar:'حساب العمولات'}, body:{en:'Commissions auto-calculated from closed revenue and rate tier. Status moves Draft → Approved → Paid each pay cycle.',ar:'العمولات تُحسب تلقائيًا من الإيراد المغلق وشريحة النسبة. الحالة تنتقل من مسودة إلى معتمد إلى مدفوع كل دورة.'} },
+        { page:'analytics',     selector:null, title:{en:'Sales Analytics',ar:'تحليلات المبيعات'}, body:{en:'Revenue trend, per-rep performance bar, and product mix doughnut. Spot your top performer and best-selling category instantly.',ar:'اتجاه الإيراد وأداء كل مندوب وتوزيع المنتجات. اكتشف أفضل مندوب وأكثر منتج مبيعًا فورًا.'} }
+    ]
+};
+
+let tourState = { active:false, stepIndex:0, mod:null };
+
+function startTour() {
+    state.showTourInvite = false;
+    tourState = { active:true, stepIndex:0, mod:state.module };
+    const firstStep = (TOUR_STEPS[tourState.mod]||[])[0];
+    if (firstStep) { state.page = firstStep.page; }
+    render();
+    setTimeout(renderTourStep, 280);
+}
+
+function skipTour() {
+    state.showTourInvite = false;
+    tourState.active = false;
+    document.getElementById('tour-bubble')?.remove();
+    document.getElementById('tour-spotlight')?.remove();
+    render();
+}
+
+function tourNext() {
+    const steps = TOUR_STEPS[tourState.mod] || [];
+    if (tourState.stepIndex < steps.length - 1) {
+        tourState.stepIndex++;
+        const step = steps[tourState.stepIndex];
+        state.page = step.page;
+        render();
+        setTimeout(renderTourStep, 320);
+    } else {
+        tourState.active = false;
+        document.getElementById('tour-bubble')?.remove();
+        document.getElementById('tour-spotlight')?.remove();
+        pushNotify(_t('Tour complete! Explore freely.','انتهت الجولة! استكشف بحرية.'));
+    }
+}
+
+function tourPrev() {
+    if (tourState.stepIndex > 0) {
+        tourState.stepIndex--;
+        const steps = TOUR_STEPS[tourState.mod] || [];
+        const step = steps[tourState.stepIndex];
+        state.page = step.page;
+        render();
+        setTimeout(renderTourStep, 320);
+    }
+}
+
+function renderTourStep() {
+    document.getElementById('tour-bubble')?.remove();
+    document.getElementById('tour-spotlight')?.remove();
+
+    const steps = TOUR_STEPS[tourState.mod] || [];
+    if (!steps.length) return;
+    const step = steps[tourState.stepIndex];
+    const isLast = tourState.stepIndex === steps.length - 1;
+    const isFirst = tourState.stepIndex === 0;
+
+    // Spotlight
+    const spotlight = document.createElement('div');
+    spotlight.id = 'tour-spotlight';
+    spotlight.className = 'tour-spotlight';
+    const targetEl = step.selector ? document.querySelector(step.selector) : null;
+    if (targetEl) {
+        const r = targetEl.getBoundingClientRect();
+        spotlight.style.top    = (r.top - 8) + 'px';
+        spotlight.style.left   = (r.left - 8) + 'px';
+        spotlight.style.width  = (r.width + 16) + 'px';
+        spotlight.style.height = (r.height + 16) + 'px';
+    } else {
+        spotlight.style.display = 'none';
+    }
+    document.body.appendChild(spotlight);
+
+    // Bubble
+    const bubble = document.createElement('div');
+    bubble.id = 'tour-bubble';
+    bubble.className = 'tour-bubble';
+    if (state.darkMode) bubble.classList.add('dark');
+    bubble.innerHTML = `
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-8 h-8 rounded-xl flex items-center justify-center text-white text-xs font-black flex-shrink-0" style="background:${SYSTEM_MAP[tourState.mod]?.color||'#38bdf8'}">${tourState.stepIndex+1}</div>
+            <h3 class="font-black text-mantiq-navy dark:text-white text-base leading-tight" style="color:${state.darkMode?'#f1f5f9':'#001e3c'}">${_t(step.title.en,step.title.ar)}</h3>
+        </div>
+        <p class="text-sm leading-relaxed mb-6" style="color:${state.darkMode?'#94a3b8':'#64748b'}">${_t(step.body.en,step.body.ar)}</p>
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex gap-1.5">
+                ${steps.map((_,idx)=>`<div class="w-2 h-2 rounded-full transition-all" style="background:${idx===tourState.stepIndex?(SYSTEM_MAP[tourState.mod]?.color||'#38bdf8'):(state.darkMode?'#334155':'#e2e8f0')}"></div>`).join('')}
+            </div>
+            <div class="flex gap-2">
+                <button onclick="skipTour()" style="padding:8px 16px; border-radius:12px; font-size:11px; font-weight:800; text-transform:uppercase; background:${state.darkMode?'#1e293b':'#f1f5f9'}; color:${state.darkMode?'#94a3b8':'#64748b'}; border:none; cursor:pointer;">${_t('Skip Tour','تخطي الجولة')}</button>
+                ${!isFirst?`<button onclick="tourPrev()" style="padding:8px 16px; border-radius:12px; font-size:11px; font-weight:800; text-transform:uppercase; background:${state.darkMode?'#1e293b':'#f1f5f9'}; color:${state.darkMode?'#94a3b8':'#64748b'}; border:none; cursor:pointer;">← ${_t('Back','رجوع')}</button>`:''}
+                <button onclick="tourNext()" style="padding:8px 20px; border-radius:12px; font-size:11px; font-weight:800; text-transform:uppercase; background:${SYSTEM_MAP[tourState.mod]?.color||'#38bdf8'}; color:#fff; border:none; cursor:pointer;">${isLast ? _t('Finish ✓','إنهاء ✓') : _t('Next →','التالي →')}</button>
+            </div>
+        </div>
+    `;
+    // Position bubble — below spotlight or bottom-left
+    if (targetEl) {
+        const r = targetEl.getBoundingClientRect();
+        const topPos = Math.min(r.bottom + 16, window.innerHeight - 220);
+        const leftPos = Math.max(16, Math.min(r.left, window.innerWidth - 360));
+        bubble.style.top  = topPos + 'px';
+        bubble.style.left = leftPos + 'px';
+    } else {
+        bubble.style.bottom = '40px';
+        bubble.style.left   = state.language==='ar' ? 'auto' : '50%';
+        bubble.style.right  = state.language==='ar' ? '50%' : 'auto';
+        bubble.style.transform = 'translateX(-50%)';
+    }
+    document.body.appendChild(bubble);
+    lucide.createIcons();
+}
+
+function renderTourInvite() {
+    const config = SYSTEM_MAP[state.module];
+    return `
+        <div class="tour-invite" id="tour-invite">
+            <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] p-10 max-w-md w-full mx-6 border border-slate-200 dark:border-slate-800 shadow-2xl text-center fade-in">
+                <div class="w-16 h-16 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 text-white" style="background:${config.color}">
+                    <i data-lucide="${config.icon}" size="32"></i>
+                </div>
+                <h2 class="text-2xl font-black text-mantiq-navy dark:text-white mb-3 uppercase tracking-tighter">${_t('Take a Quick Tour?','هل تريد جولة سريعة؟')}</h2>
+                <p class="text-slate-500 dark:text-slate-400 text-sm leading-relaxed mb-8">${_t('We\'ll walk you through the key features of the '+config.title.en+' — takes about 2 minutes.','سنأخذك عبر الميزات الرئيسية لـ '+config.title.ar+' — يستغرق حوالي دقيقتين.')}</p>
+                <div class="flex gap-3">
+                    <button onclick="skipTour()" class="flex-1 py-4 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-black text-sm uppercase">${_t('Skip','تخطي')}</button>
+                    <button onclick="startTour()" class="flex-1 py-4 rounded-2xl text-white font-black text-sm uppercase shadow-xl" style="background:${config.color}">${_t('Start Tour →','ابدأ الجولة →')}</button>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+    const root = document.getElementById('app');
+    root.innerHTML = state.module === MODULES.LANDING ? renderLanding() : renderApp();
+    lucide.createIcons();
+    if (state.page === 'analytics') renderCharts();
+
+    // Inject tour invite as DOM overlay (not inside app innerHTML, so it survives re-renders)
+    document.getElementById('tour-invite-overlay')?.remove();
+    if (state.showTourInvite && state.module !== MODULES.LANDING) {
+        const inv = document.createElement('div');
+        inv.id = 'tour-invite-overlay';
+        inv.innerHTML = renderTourInvite();
+        document.body.appendChild(inv);
+        lucide.createIcons();
+    }
+
+    // Re-attach live tour bubble if tour is mid-flow
+    if (tourState.active) {
+        setTimeout(renderTourStep, 280);
+    }
+}
+
+window.addEventListener('contextmenu', e => { e.preventDefault(); pushNotify(ut('restricted')); });
+window.onload = () => { initData(); render(); };
     </script>
 </body>
 </html>
