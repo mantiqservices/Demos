@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { --mantiq-cyan: #38bdf8; --mantiq-navy: #001e3c; }
+
+body { font-family: 'Plus Jakarta Sans', 'Noto Sans Arabic', sans-serif; transition: background-color 0.3s ease; }
+[dir="rtl"] { font-family: 'Noto Sans Arabic', 'Plus Jakarta Sans', sans-serif; }
+
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+.dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+
+.fade-in { animation: fadeIn 0.4s ease-out forwards; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+
+.locked-ui { user-select:none; -webkit-user-select:none; }
+.card-glow:hover { box-shadow: 0 0 30px rgba(56,189,248,0.15); }
+.modal-overlay { background-color: rgba(0,30,60,0.7); backdrop-filter: blur(8px); }
+
+.stat-card { transition: all 0.3s ease; }
+.stat-card:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(56,189,248,0.12); }
+
+.chart-container { position: relative; }
+canvas { max-height: 280px; }
+
+.kpi-bar { height: 6px; border-radius: 999px; background: #e2e8f0; overflow: hidden; }
+.kpi-bar-fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #38bdf8, #0284c7); transition: width 1s ease; }
+.dark .kpi-bar { background: #1e293b; }
+
+@keyframes countUp { from { opacity:0; } to { opacity:1; } }
+.count-up { animation: countUp 0.6s ease forwards; }
+
+.badge { display:inline-flex; align-items:center; padding: 2px 10px; border-radius:999px; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; }
+.badge-green { background:#dcfce7; color:#166534; }
+.badge-blue { background:#dbeafe; color:#1d4ed8; }
+.badge-amber { background:#fef3c7; color:#92400e; }
+.badge-red { background:#fee2e2; color:#991b1b; }
+.badge-purple { background:#f3e8ff; color:#7c3aed; }
+.badge-slate { background:#f1f5f9; color:#475569; }
+.dark .badge-green { background:#14532d; color:#86efac; }
+.dark .badge-blue { background:#1e3a5f; color:#93c5fd; }
+.dark .badge-amber { background:#451a03; color:#fcd34d; }
+.dark .badge-red { background:#450a0a; color:#fca5a5; }
+.dark .badge-purple { background:#3b0764; color:#d8b4fe; }
+.dark .badge-slate { background:#1e293b; color:#94a3b8; }
+
+.tab-btn { padding: 8px 20px; border-radius: 999px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; cursor:pointer; transition:all 0.2s; border: 2px solid transparent; }
+.tab-btn.active { background:#001e3c; color:#fff; }
+.dark .tab-btn.active { background:#38bdf8; color:#001e3c; }
+.tab-btn:not(.active) { color:#64748b; }
+.tab-btn:not(.active):hover { background:#f1f5f9; }
+.dark .tab-btn:not(.active):hover { background:#1e293b; }
+
+/* Lead Pipeline / Kanban */
+.pipeline-board { display:flex; gap:16px; overflow-x:auto; padding-bottom:16px; }
+.pipeline-board::-webkit-scrollbar { height:5px; }
+.pipeline-board::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:10px; }
+.dark .pipeline-board::-webkit-scrollbar-thumb { background:#334155; }
+.pipeline-col { min-width:260px; flex:0 0 260px; display:flex; flex-direction:column; gap:10px; }
+.pipeline-col-header { padding:12px 16px; border-radius:16px; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.12em; display:flex; align-items:center; justify-content:space-between; }
+.pipeline-card { background:#fff; border:1.5px solid #e2e8f0; border-radius:18px; padding:14px 16px; cursor:pointer; transition:all 0.22s; animation: slideIn 0.25s ease forwards; }
+.dark .pipeline-card { background:#0f172a; border-color:#1e293b; }
+.pipeline-card:hover { transform:translateY(-3px); box-shadow:0 12px 30px rgba(56,189,248,0.13); border-color:#38bdf8; }
+.transfer-btn { display:inline-flex; align-items:center; gap:6px; padding:5px 12px; border-radius:999px; font-size:10px; font-weight:800; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border:none; }
+.transfer-btn:hover { filter:brightness(0.92); transform:scale(1.04); }
+.stage-filter-btn { padding:7px 18px; border-radius:999px; font-size:11px; font-weight:800; text-transform:uppercase; cursor:pointer; transition:all 0.2s; border:1.5px solid transparent; }
+.stage-filter-btn.active { border-color:currentColor; }
+@keyframes slideIn { from { opacity:0; transform:scale(0.94) translateY(6px); } to { opacity:1; transform:scale(1) translateY(0); } }
+
+/* Notifications */
+.toast-note { transition: opacity 0.5s ease, transform 0.5s ease; opacity: 1; transform: translateY(0); }
+.toast-note.hiding { opacity: 0 !important; transform: translateY(10px) !important; }
+
+/* Lead Detail Drawer */
+.lead-drawer-overlay { position: fixed; inset: 0; z-index: 200; background: rgba(0,30,60,0.5); backdrop-filter: blur(6px); animation: fadeIn 0.25s ease; }
+.lead-drawer { position: fixed; top: 0; right: 0; height: 100vh; width: min(520px, 95vw); background: #fff; z-index: 201; overflow-y: auto; animation: drawerSlideIn 0.3s cubic-bezier(0.22,1,0.36,1); box-shadow: -20px 0 60px rgba(0,0,0,0.15); }
+.dark .lead-drawer { background: #0f172a; }
+[dir="rtl"] .lead-drawer { right: auto; left: 0; animation: drawerSlideInRtl 0.3s cubic-bezier(0.22,1,0.36,1); }
+@keyframes drawerSlideIn { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes drawerSlideInRtl { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+.timeline-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.timeline-line { width:2px; background:#e2e8f0; flex: 1; min-height:20px; margin: 4px auto; }
+.dark .timeline-line { background:#1e293b; }
+
+/* Tour */
+.tour-overlay { position: fixed; inset: 0; z-index: 300; background: rgba(0,0,0,0.0); pointer-events: none; }
+.tour-spotlight { position: fixed; z-index: 301; border-radius: 20px; box-shadow: 0 0 0 9999px rgba(0,20,45,0.72); pointer-events: none; transition: all 0.35s cubic-bezier(0.22,1,0.36,1); }
+.tour-bubble { position: fixed; z-index: 302; background: #fff; border-radius: 28px; padding: 32px 36px; width: min(440px, calc(100vw - 32px)); box-shadow: 0 32px 80px rgba(0,20,45,0.28), 0 0 0 1px rgba(0,0,0,0.05); animation: tourPop 0.35s cubic-bezier(0.22,1,0.36,1); }
+.dark .tour-bubble { background: #0f172a; border: 1px solid #1e293b; box-shadow: 0 32px 80px rgba(0,0,0,0.6); }
+@keyframes tourPop { from { opacity:0; transform:scale(0.9) translateY(14px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.tour-invite { position: fixed; inset: 0; z-index: 310; display: flex; align-items: center; justify-content: center; background: rgba(0,20,45,0.75); backdrop-filter: blur(10px); animation: fadeIn 0.3s ease; }
+
+/* HR System Styles */
+.hr-tab-pill { padding:8px 18px; border-radius:999px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.08em; cursor:pointer; transition:all 0.2s; border:none; }
+.hr-tab-pill.active { background:#a78bfa; color:#fff; }
+.hr-tab-pill:not(.active) { background:transparent; color:#64748b; }
+.hr-tab-pill:not(.active):hover { background:#f1f5f9; }
+.dark .hr-tab-pill:not(.active):hover { background:#1e293b; }
+.hr-kpi-bar { height:6px; border-radius:999px; background:#e2e8f0; overflow:hidden; }
+.hr-kpi-bar-fill { height:100%; border-radius:999px; background:linear-gradient(90deg,#a78bfa,#818cf8); transition:width 1.2s ease; }
+.dark .hr-kpi-bar { background:#1e293b; }
+.hr-card-hover:hover { border-color:#a78bfa!important; transform:translateY(-2px); }
+.hr-card-hover { transition:all 0.22s; }
+
+/* Kanban */
+.kanban-board { display:flex; gap:14px; overflow-x:auto; padding-bottom:12px; }
+.kanban-board::-webkit-scrollbar { height:4px; }
+.kanban-board::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:10px; }
+.kanban-col { min-width:220px; flex:0 0 220px; display:flex; flex-direction:column; gap:8px; }
+.kanban-col-header { padding:10px 14px; border-radius:14px; font-size:10px; font-weight:900; text-transform:uppercase; letter-spacing:0.1em; display:flex; align-items:center; justify-content:space-between; }
+.kanban-card { background:#fff; border:1.5px solid #e2e8f0; border-radius:16px; padding:12px 14px; cursor:default; transition:all 0.2s; }
+.dark .kanban-card { background:#0f172a; border-color:#1e293b; }
+.kanban-card:hover { border-color:#a78bfa; box-shadow:0 8px 24px rgba(167,139,250,0.12); }
+
+/* Employee Drawer */
+.emp-drawer { position:fixed; top:0; right:0; height:100vh; width:min(540px,96vw); background:#fff; z-index:201; overflow-y:auto; animation:hrDrawerIn 0.3s cubic-bezier(0.22,1,0.36,1); box-shadow:-20px 0 60px rgba(0,0,0,0.14); }
+.dark .emp-drawer { background:#0f172a; }
+[dir="rtl"] .emp-drawer { right:auto; left:0; animation:hrDrawerInRtl 0.3s cubic-bezier(0.22,1,0.36,1); }
+@keyframes hrDrawerIn { from{transform:translateX(100%)} to{transform:translateX(0)} }
+@keyframes hrDrawerInRtl { from{transform:translateX(-100%)} to{transform:translateX(0)} }
+.emp-drawer-overlay { position:fixed; inset:0; z-index:200; background:rgba(0,30,60,0.45); backdrop-filter:blur(5px); }
+.slip-row { display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f1f5f9; }
+.dark .slip-row { border-color:#1e293b; }
